@@ -23,3 +23,27 @@ def test_temperature_decreases_over_time(tiny_cfg):
     p = np.array([[4.0, 2.5, 1.5]])
     seq = [temperature(p, t, tiny_cfg)[0] for t in (0.0, 60.0, 300.0)]
     assert seq[0] > seq[1] > seq[2]   # 식어감
+
+
+from src.field_model import velocity
+
+
+def cfg_u_max(cfg):
+    return cfg.flow.u_max
+
+
+def test_velocity_zero_at_t0(tiny_cfg):
+    pts = np.array([[4.0, 2.5, 1.5], [1.0, 1.0, 0.5]])
+    U = velocity(pts, 0.0, tiny_cfg)   # 에어컨 켜지기 전 정지
+    assert U.shape == (2, 3)
+    assert np.allclose(U, 0.0, atol=1e-9)
+
+
+def test_velocity_develops_and_bounded(tiny_cfg):
+    pts = np.array([[4.0, 2.5, 1.5]])   # 에어컨 축 근처
+    U = velocity(pts, 300.0, tiny_cfg)
+    mag = np.linalg.norm(U, axis=1)[0]
+    assert mag > 0.0                       # 시간 지나면 기류 발달
+    assert mag <= cfg_u_max(tiny_cfg) * 1.5
+    # 에어컨 아래는 하강 성분(음의 z)
+    assert U[0, 2] < 0.0
