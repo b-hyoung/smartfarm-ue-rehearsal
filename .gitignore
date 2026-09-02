@@ -1,0 +1,5 @@
+data/frames/*.csv
+data/preview/*.png
+__pycache__/
+*.pyc
+.venv/
