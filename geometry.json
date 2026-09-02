@@ -1,0 +1,11 @@
+{
+  "room":  { "Lx": 8.0, "Ly": 5.7, "Lz": 2.7, "unit": "m",
+             "note": "반원 바운딩박스 800x570x270cm. 직선벽 y=0, 곡면벽 y+ 반타원 근사" },
+  "ac":    { "x": 4.0, "y": 2.5, "z": 2.7, "jet_radius": 0.8 },
+  "grid":  { "spacing": 0.10 },
+  "time":  { "frames": 15, "interval_s": 20.0 },
+  "temperature_C": { "start": 29.0, "ac": 20.0, "side": 22.0, "side_z": 1.1,
+                     "tau_near_s": 60.0, "tau_far_s": 150.0 },
+  "flow":  { "u_max": 0.8, "tau_flow_s": 40.0 },
+  "colormap_C": { "min": 20.0, "max": 29.0 }
+}
