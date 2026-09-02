@@ -77,6 +77,9 @@ source: "mock"  (진짜 오면 "simulated")
 - `source`: `"mock"`.
 - 실행: `py src/generate_frames.py` (이 머신은 `python` 깨져 `py` 사용).
 
+### 5.4 설정 주도(config-driven) — 실제 데이터 대비 열어둠 ⭐
+**모든 시나리오 값은 코드에 박지 않고 `geometry.json`(단일 출처)에 둔다** — 반원 치수, 에어컨 위치, 시작/목표 온도(29·20·22 ℃와 앵커 좌표), τ(냉각·기류), 격자 간격, 프레임 수·간격, 컬러맵 범위. 진짜 데이터나 바뀐 실제 파라미터가 오면 **값만 교체**하고 코드는 안 고친다. 생성기·검증·UE 가이드는 이 config를 읽어 동작한다. (§8 mock→real 교체와 짝.)
+
 ---
 
 ## 6. UE 반입 가이드 (`docs/ue-import-guide.md`)
