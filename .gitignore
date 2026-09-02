@@ -3,3 +3,4 @@ data/preview/*.png
 __pycache__/
 *.pyc
 .venv/
+data/frames/manifest.json
