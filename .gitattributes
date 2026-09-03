@@ -1,0 +1,5 @@
+# OpenFOAM 딕셔너리와 셸 스크립트는 리눅스에서 실행된다.
+# 윈도우에서 체크아웃해도 LF 를 유지해야 도커/WSL 에서 깨지지 않는다.
+*.sh        text eol=lf
+cfd/case/** text eol=lf
+cfd/*.py    text eol=lf

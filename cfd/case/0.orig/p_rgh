@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p_rgh;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 1e5;   // perfectGas 이므로 절대압 기준 (Boussinesq 때의 0 이 아님)
+
+boundaryField
+{
+    walls
+    {
+        type            fixedFluxPressure;
+        value           $internalField;
+    }
+
+    return
+    {
+        type            prghPressure;
+        p               $internalField;
+        value           $internalField;
+    }
+
+    inletXp
+    {
+        type            fixedFluxPressure;
+        value           $internalField;
+    }
+
+    inletXm
+    {
+        type            fixedFluxPressure;
+        value           $internalField;
+    }
+
+    inletYp
+    {
+        type            fixedFluxPressure;
+        value           $internalField;
+    }
+
+    inletYm
+    {
+        type            fixedFluxPressure;
+        value           $internalField;
+    }
+}
+
+
+// ************************************************************************* //

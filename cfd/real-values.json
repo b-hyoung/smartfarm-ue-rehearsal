@@ -1,0 +1,74 @@
+{
+  "_note": [
+    "실제 OpenFOAM 실행에서 나온 값. geometry.json 은 목데이터 생성기용이므로 건드리지 않았다.",
+    "UE 쪽 컬러맵/화살표 스케일은 목값이 아니라 이 값으로 맞춰야 한다.",
+    "조건을 바꿔 다시 돌리면 cfd/frames/<조건>/manifest.json 이 그 케이스의 값을 갖는다."
+  ],
+
+  "run": {
+    "case": "acRoom-transient",
+    "solver": "buoyantPimpleFoam",
+    "openfoam": "v2512 (opencfd/openfoam-default:2512)",
+    "end_time_s": 900,
+    "write_interval_s": 10,
+    "frames_extracted": 15,
+    "mesh_points": 89600,
+    "mesh_cells": 84024,
+    "cores": 8,
+    "wall_clock_s": 9741,
+    "wall_clock_note": "약 2시간 43분. 스윕 계획 세울 때 이 값을 기준으로 잡을 것."
+  },
+
+  "operating_point": {
+    "ac_type": "4Way ceiling cassette",
+    "n_inlets": 4,
+    "flow_CMM": 25,
+    "flow_per_inlet_m3s": 0.104167,
+    "supply_K": 289.5,
+    "supply_C": 16.35,
+    "initial_K": 302.0,
+    "initial_C": 28.85
+  },
+
+  "observed_range": {
+    "_note": "15프레임 1,344,000행 전체를 훑어 얻은 실측 범위",
+    "T_K": { "min": 290.97, "max": 302.01 },
+    "T_C": { "min": 17.82, "max": 28.86 },
+    "U_magnitude_ms": { "min": 0.0, "max": 1.846 },
+    "p_Pa": { "min": 100000.0, "max": 100030.0 }
+  },
+
+  "mock_mismatch": {
+    "_note": "geometry.json(목) 값과 실데이터가 어긋나는 지점. UE 반입 전 확인 필요.",
+    "colormap_C": {
+      "mock": { "min": 20.0, "max": 29.0 },
+      "real": { "min": 17.82, "max": 28.86 },
+      "impact": "하한이 2.2도 높아 토출구 주변 최저온 영역이 전부 같은 색으로 뭉갬"
+    },
+    "u_max_ms": {
+      "mock": 0.8,
+      "real": 1.846,
+      "impact": "실제 최대 유속이 2.3배라 화살표/리본 길이가 포화됨"
+    },
+    "frame_interval_s": {
+      "mock": 20.0,
+      "real": "약 64.3 (0~900초를 15등분 후 저장시각으로 스냅)",
+      "impact": "재생 속도 환산이 다름"
+    }
+  },
+
+  "convergence": {
+    "_note": "900초 시점에 기류는 사실상 수렴, 온도만 천천히 하강 중",
+    "frame_07_t450s": { "U_max_ms": 1.845, "T_mean_K": 297.36 },
+    "frame_14_t900s": { "U_max_ms": 1.846, "T_mean_K": 296.70 },
+    "implication": "endTime 을 3600초로 늘리면 케이스당 11시간인데 기류 그림은 거의 그대로다. 같은 시간을 조건 스윕에 쓰는 편이 정보량이 크다."
+  },
+
+  "coordinates": {
+    "cfd_x_range_m": [-4.0, 4.0],
+    "ue_x_range_m": [0.0, 8.0],
+    "x_shift_m": 4.0,
+    "room_m": { "Lx": 8.0, "Ly": 5.7, "Lz": 2.7, "shape": "D (semi-ellipse)" },
+    "ac_centre_ue_m": [4.0, 2.0, 2.7]
+  }
+}

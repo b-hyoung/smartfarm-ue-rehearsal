@@ -1,0 +1,69 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// 원본: tutorials/heatTransfer/buoyantSimpleFoam/comfortHotRoom
+// 변경: 정상상태(buoyantSimpleFoam) → 비정상(buoyantPimpleFoam)
+//   회의록 요건 — "ParaView 단면도를 플레이(타임스텝 재생)로 확인",
+//                 "팬이 돌아갔을 때 한 시간에 대해 유체 거동 확인"
+//   정상상태는 시간 변화가 없어 재생할 것이 없으므로 전환함.
+
+application     buoyantPimpleFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+// 1단계 스모크 테스트: 5초만 돌려 체인 전체가 도는지 확인.
+// 통과하면 60 -> 600(10분) 으로 올린다. 회의록의 "한 시간"은 3600.
+endTime         900;
+
+deltaT          0.002;   // 초기값. adjustTimeStep 이 곧 조정함
+
+// 쓰기 간격을 시간 기준으로 고정 → ParaView 재생 프레임이 균등해짐
+writeControl    adjustableRunTime;
+writeInterval   10;
+
+purgeWrite      0;
+
+writeFormat     binary;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+// 비정상이므로 Courant 수 기준 자동 시간간격
+adjustTimeStep  yes;
+
+maxCo           1.0;
+
+functions
+{
+    #include "FOage"        // 공기 연령(air age) — 환기 사각지대 파악
+    #include "FOcomfort"    // PMV / PPD / DR — 재실 쾌적도
+    #include "FOprobes"     // 실측 대조점 A~D (온도계 좌표와 동일)
+    #include "FOaverage"    // 시간평균 — 3분 평균 실측과 비교용
+}
+
+
+// ************************************************************************* //

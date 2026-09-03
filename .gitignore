@@ -4,3 +4,8 @@ __pycache__/
 *.pyc
 .venv/
 data/frames/manifest.json
+
+# --- cfd (진짜 OpenFOAM 파이프라인) ---
+cfd/runs/
+cfd/frames/
+*.foam

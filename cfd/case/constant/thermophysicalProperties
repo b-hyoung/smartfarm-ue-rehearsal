@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      thermophysicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+thermoType
+{
+    type            heRhoThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    // buoyantPimpleFoam(비정상) 은 Boussinesq 를 지원하지 않는다.
+    // 원본 comfortHotRoom 은 buoyantSimpleFoam(정상) + Boussinesq 조합이었고,
+    // 솔버만 비정상으로 바꾸면 에너지식이 첫 스텝에 발산한다. (2026-08-31 실측)
+    // -> buoyantPimpleFoam 튜토리얼과 동일하게 perfectGas 로 교체.
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+
+mixture
+{
+    specie
+    {
+        molWeight       28.9;
+    }
+    thermodynamics
+    {
+        Cp              1000;
+        Hf              0;
+    }
+    transport
+    {
+        mu              1.8e-05;
+        Pr              0.7;
+    }
+}
+
+
+// ************************************************************************* //
