@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.7",
+	"Category": "",
+	"Description": "SmartFarm CFD->UE Niagara 리허설 테스트 (Blueprint-only)",
+	"Plugins": [
+		{
+			"Name": "UnrealClaude",
+			"Enabled": true
+		},
+		{
+			"Name": "NarshaMCP",
+			"Enabled": true
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
+		},
+		{
+			"Name": "PythonScriptPlugin",
+			"Enabled": true
+		}
+	]
+}
