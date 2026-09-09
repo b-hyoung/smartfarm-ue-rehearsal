@@ -1,15 +1,11 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.7",
+	"EngineAssociation": "5.8",
 	"Category": "",
-	"Description": "SmartFarm CFD->UE Niagara 리허설 테스트 (Blueprint-only)",
+	"Description": "SmartFarm CFD->UE 시각화 (Blueprint-only). UE 5.8 — Epic 공식 MCP(ModelContextProtocol) 사용",
 	"Plugins": [
 		{
-			"Name": "UnrealClaude",
-			"Enabled": true
-		},
-		{
-			"Name": "NarshaMCP",
+			"Name": "ModelContextProtocol",
 			"Enabled": true
 		},
 		{

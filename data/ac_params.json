@@ -1,0 +1,120 @@
+{
+  "note": "UE 에서 읽은 에어컨 위치로 만든 CFD 경계조건 초안. 이 값으로 topoSetDict/0.orig/U 를 다시 만들고 OpenFOAM 을 재실행해야 새 기류 예측이 나온다.",
+  "ue_location_m": [
+    4.0,
+    2.0,
+    2.7
+  ],
+  "ue_yaw_deg": 0.0,
+  "cfd_centre_m": [
+    0.0,
+    2.0,
+    2.7
+  ],
+  "coord_note": "UE x - 4.0 = CFD x",
+  "topoSet_boxes": {
+    "inletXm": {
+      "min": [
+        -0.457,
+        1.675,
+        2.699
+      ],
+      "max": [
+        -0.397,
+        2.325,
+        2.701
+      ]
+    },
+    "inletXp": {
+      "min": [
+        0.397,
+        1.675,
+        2.699
+      ],
+      "max": [
+        0.457,
+        2.325,
+        2.701
+      ]
+    },
+    "inletYm": {
+      "min": [
+        -0.325,
+        1.543,
+        2.699
+      ],
+      "max": [
+        0.325,
+        1.603,
+        2.701
+      ]
+    },
+    "inletYp": {
+      "min": [
+        -0.325,
+        2.397,
+        2.699
+      ],
+      "max": [
+        0.325,
+        2.457,
+        2.701
+      ]
+    },
+    "return": {
+      "min": [
+        -0.285,
+        1.715,
+        2.699
+      ],
+      "max": [
+        0.285,
+        2.285,
+        2.701
+      ]
+    }
+  },
+  "supply": {
+    "total_CMM": 25,
+    "total_m3s": 0.416667,
+    "per_slot_m3s": 0.104167,
+    "temperature_K": 289.5,
+    "direction": "patch normal (수직 아래) — ⚠ 실물 베인은 바깥으로 뿜음. 베인 각도 실측 후 (cos, 0, -sin) 으로 교체 필요"
+  },
+  "power": {
+    "cooling_W": 9000,
+    "consumption_W": 2000,
+    "COP": 4.5,
+    "curve_W": {
+      "rated": 2000,
+      "mid": 1450.0,
+      "min": 700.0
+    }
+  },
+  "spec": {
+    "model_outdoor": "TUW090PA2SR",
+    "type": "4Way ceiling cassette",
+    "panel_mm": [
+      950,
+      35,
+      950
+    ],
+    "cooling_W": {
+      "rated": 9000,
+      "mid": 7350,
+      "min": 4450
+    },
+    "power_W": {
+      "rated": 2000,
+      "mid": 1450,
+      "min": 700
+    },
+    "airflow_CMM": {
+      "high": 25,
+      "mid": 23,
+      "low": 21
+    },
+    "supply_K_assumed": 289.5,
+    "slot_area_m2_assumed": 0.12
+  }
+}

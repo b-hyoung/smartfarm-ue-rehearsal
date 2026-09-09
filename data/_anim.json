@@ -1,0 +1,1 @@
+{"cam": [400, -760, 1120, -44, 90], "fov": 58, "hide": ["SF_Rack", "SF_Anim_", "SF_AC_Body"], "show": ["SF_Streamlines", "SF_Arrows", "SF_Probes", "SF_Slice", "SF_VSlice", "SF_Outline"], "w": 1600, "h": 900}

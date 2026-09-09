@@ -4,3 +4,19 @@ __pycache__/
 *.pyc
 .venv/
 data/frames/manifest.json
+
+# 파생 데이터 — src/make_*.py 가 frames 에서 재생성 (frames 는 CFD 결과, 로컬 보관)
+data/traces/
+data/ribbons/
+data/arrows/
+data/slices/
+data/fga/
+
+# 렌더 산출물 — ue/sf_bake_anim.py + src/make_video.py 로 재생성
+out/
+
+# UE 작업 폴더 — 캐시·바이너리 에셋 (에셋은 ue/*.py 스크립트로 재생성)
+ue/Saved/
+ue/Intermediate/
+ue/DerivedDataCache/
+ue/Content/
