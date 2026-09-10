@@ -52,7 +52,7 @@ cube = unreal.EditorAssetLibrary.load_asset("/Engine/BasicShapes/Cube")
 mat = unreal.EditorAssetLibrary.load_asset("/Engine/BasicShapes/BasicShapeMaterial")
 
 
-def box(label, cx, cy, cz, sx, sy, sz, color=None):
+def box(label, cx, cy, cz, sx, sy, sz, color=None, rot=None):
     a = eas.spawn_actor_from_class(
         unreal.StaticMeshActor, unreal.Vector(cx * S, cy * S, cz * S))
     a.set_actor_label(label)
@@ -61,10 +61,20 @@ def box(label, cx, cy, cz, sx, sy, sz, color=None):
     if mat:
         c.set_material(0, mat)
     a.set_actor_scale3d(unreal.Vector(sx, sy, sz))
+    if rot:
+        a.set_actor_rotation(unreal.Rotator(*rot), False)
     c.set_mobility(unreal.ComponentMobility.MOVABLE)   # 옮길 수 있어야 함
     if color:
         c.set_vector_parameter_value_on_materials("Color", color)
     return a
+
+
+# 색 — 전부 회색이면 에어컨으로 안 읽힌다 (사용자 지적)
+# ⚠ SetVectorParameterValueOnMaterials 는 LinearColor 가 아니라 Vector 를 받는다
+C_PANEL = unreal.Vector(0.92, 0.93, 0.95)   # 흰 판넬
+C_BODY = unreal.Vector(0.45, 0.47, 0.50)    # 천장 속 본체
+C_DARK = unreal.Vector(0.03, 0.03, 0.035)   # 슬롯 개구부·리턴 그릴
+C_VANE = unreal.Vector(0.80, 0.82, 0.86)    # 베인 날개
 
 
 # ── 루트: 이걸 옮기면 전체가 따라온다 ──────────────────────────
@@ -76,17 +86,33 @@ root.tags = [unreal.Name("SF_AC"), unreal.Name("TUW090PA2SR")]
 parts = []
 # 천장 속 본체
 parts.append(box("SF_AC_Body", AC_CX, AC_CY, LZ + BODY_H / 2,
-                 BODY, BODY, BODY_H))
-# 판넬 (천장면)
+                 BODY, BODY, BODY_H, color=C_BODY))
+# 판넬 (천장면) — 흰색, 실물처럼 도드라지게 천장보다 살짝 아래
 parts.append(box("SF_AC_Panel", AC_CX, AC_CY, LZ - PANEL_T / 2,
-                 PANEL, PANEL, PANEL_T))
-# 취출 슬롯 4개
+                 PANEL, PANEL, PANEL_T, color=C_PANEL))
+# 취출 슬롯 4개 — 어두운 개구부 + 25° 베인 날개
+VANE_CHORD = 0.13
 for name, cx, cy, sx, sy in SLOTS:
-    parts.append(box("SF_AC_Slot_%s" % name, cx, cy, LZ - PANEL_T - 0.02,
-                     sx, sy, 0.04))
-# 중앙 리턴
-parts.append(box("SF_AC_Return", RETURN[0], RETURN[1], LZ - PANEL_T - 0.02,
-                 RETURN[2], RETURN[3], 0.04))
+    parts.append(box("SF_AC_Slot_%s" % name, cx, cy, LZ - PANEL_T - 0.015,
+                     sx, sy, 0.03, color=C_DARK))
+    # 베인: 슬롯을 덮는 얇은 판. 바깥쪽 모서리가 25° 아래로 꺾인다
+    if name == "Xp":
+        rot, vsx, vsy = (0.0, -25.0, 0.0), VANE_CHORD, sy * 0.95
+    elif name == "Xm":
+        rot, vsx, vsy = (0.0, 25.0, 0.0), VANE_CHORD, sy * 0.95
+    elif name == "Yp":
+        rot, vsx, vsy = (25.0, 0.0, 0.0), sx * 0.95, VANE_CHORD
+    else:  # Ym
+        rot, vsx, vsy = (-25.0, 0.0, 0.0), sx * 0.95, VANE_CHORD
+    parts.append(box("SF_AC_Vane_%s" % name, cx, cy, LZ - PANEL_T - 0.045,
+                     vsx, vsy, 0.012, color=C_VANE, rot=rot))
+# 중앙 리턴 — 어두운 흡입 그릴 + 살 3개
+parts.append(box("SF_AC_Return", RETURN[0], RETURN[1], LZ - PANEL_T - 0.012,
+                 RETURN[2], RETURN[3], 0.024, color=C_DARK))
+for i in (-1, 0, 1):
+    parts.append(box("SF_AC_Grill_%d" % (i + 1),
+                     RETURN[0], RETURN[1] + i * 0.16, LZ - PANEL_T - 0.03,
+                     RETURN[2] * 0.96, 0.02, 0.012, color=C_PANEL))
 
 for p in parts:
     p.attach_to_actor(root, "", unreal.AttachmentRule.KEEP_WORLD,
