@@ -27,23 +27,42 @@ if RE_DIR not in sys.path:
 import remote_execution as remote  # noqa: E402
 
 
+PROJECT = os.environ.get("SF_UE_PROJECT", "SF_Rehearsal")
+
+
 def connect(timeout=15.0):
+    """⚠ 에디터가 두 개(예: UEFN + UE) 떠 있으면 둘 다 같은 멀티캐스트에
+    응답한다. 첫 노드를 무조건 잡으면 명령이 엉뚱한 프로젝트에 들어간다
+    (실제로 UEFN TestProject 에 에어컨이 스폰되는 사고가 났다).
+    → project_name 이 SF_UE_PROJECT(기본 SF_Rehearsal)인 노드를 고른다."""
     cfg = remote.RemoteExecutionConfig()
     cfg.multicast_bind_address = "127.0.0.1"
     cfg.multicast_group_endpoint = ("239.0.0.1", 6766)
     r = remote.RemoteExecution(cfg)
     r.start()
     deadline = time.time() + timeout
+    node = None
     while time.time() < deadline:
-        if r.remote_nodes:
+        nodes = list(r.remote_nodes)
+        for n in nodes:
+            if n.get("project_name") == PROJECT:
+                node = n
+                break
+        if node:
             break
+        # 원하는 프로젝트가 아직 안 보이면 다른 노드가 있어도 좀 더 기다린다
         time.sleep(0.3)
-    if not r.remote_nodes:
+    if node is None:
+        nodes = list(r.remote_nodes)
         r.stop()
+        if nodes:
+            names = ", ".join(str(n.get("project_name")) for n in nodes)
+            raise RuntimeError(
+                "프로젝트 '%s' 노드가 없습니다 (발견된 노드: %s). "
+                "SF_UE_PROJECT 환경변수로 대상을 바꿀 수 있습니다." % (PROJECT, names))
         raise RuntimeError(
             "UE 노드를 찾지 못했습니다. 에디터가 떠 있고 "
             "Python > Enable Remote Execution 이 켜져 있는지 확인하세요.")
-    node = r.remote_nodes[0]
     r.open_command_connection(node["node_id"])
     return r, node
 
