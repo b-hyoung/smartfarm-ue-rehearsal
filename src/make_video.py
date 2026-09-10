@@ -176,7 +176,7 @@ def draw_probe_chart(d, W, series, t_now):
     d.line([(x, Tp), (x, B)], fill=(240, 210, 90), width=2)
 
 
-def annotate(img, t_s, idx, n, series=None):
+def annotate(img, t_s, idx, n, series=None, mock=False):
     d = ImageDraw.Draw(img, "RGBA")
     W, H = img.size
     f_big, f_mid, f_sm = font(44), font(24), font(20)
@@ -186,6 +186,12 @@ def annotate(img, t_s, idx, n, series=None):
     d.text((44, 34), "t = %d초 / 900초" % round(t_s), font=f_big, fill=(255, 255, 255))
     d.text((44, 92), "냉방 시작 후 경과 · 프레임 %d/%d" % (idx + 1, n),
            font=f_sm, fill=(190, 195, 205))
+
+    # ⚠ 목데이터 표기 — 진짜 결과로 오해되면 안 된다
+    if mock:
+        d.rectangle([440, 24, 900, 66], fill=(120, 60, 0, 200))
+        d.text((454, 32), "임시 목데이터 — vane25 CFD 계산 중, 완료 시 교체",
+               font=f_sm, fill=(255, 225, 170))
 
     # 진행 막대
     x0, x1, y = 44, 414, 132
@@ -234,7 +240,8 @@ def main():
             print("없음:", src)
             continue
         img = Image.open(src).convert("RGB")
-        img = annotate(img, meta["time_s"], i, len(frames), series)
+        img = annotate(img, meta["time_s"], i, len(frames), series,
+                       mock="MOCK" in str(man.get("source", "")).upper())
         dst = os.path.join(ANIM, "lab_%02d.png" % meta["frame"])
         img.save(dst)
         outs.append(dst)
