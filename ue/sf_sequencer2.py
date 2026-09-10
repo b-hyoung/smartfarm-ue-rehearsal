@@ -62,7 +62,8 @@ def build_jets(frame):
                 verts.append(unreal.Vector(x, y, min(z, 268.0)))
                 norms.append(up)
                 uvs.append(unreal.Vector2D(st / (smax - 1.0), k / (kmax - 1.0)))
-                cols.append(G.temp_color(T, quantize=0.5))
+                # 커튼은 연속 그라디언트 — 곡면 위 0.5K 띠는 주름처럼 보인다
+                cols.append(G.temp_color(T))
         for k in range(kmax - 1):
             for st in range(smax - 1):
                 a = base + k * smax + st
@@ -108,9 +109,9 @@ def main():
             pmc.create_mesh_section_linear_color(
                 idx, verts, tris, normals, uvs, [], [], [], colors,
                 [_t] * len(verts), False)
-            # 0=커튼(더 투명) 1=온도카펫(주인공) 2=마커(불투명)
+            # 0=커튼(반투명 파도가 흐름) 1=온도카펫(주인공) 2=마커(불투명)
             if idx == 0:
-                pmc.set_material(idx, G.curtain_material())
+                pmc.set_material(idx, G.curtain_flow_material())
             elif idx == 1:
                 pmc.set_material(idx, mat_slice)
             else:

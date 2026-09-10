@@ -103,12 +103,10 @@ def integrate_sheet_grid(d, cfg, fidx):
         seeds = [(x0, y0 + (y1 - y0) * i / (K - 1), Z_SEED) for i in range(K)]
     pts = np.array(seeds)
     alive = np.ones(K, dtype=bool)
-    rows = []
+    P = np.zeros((N, K, 3))
     dt = 0.05
     for step in range(N):
-        T = tfld.sample(pts)[:, 0] - KELVIN
-        for k in range(K):
-            rows.append((d, k, step, *pts[k], T[k]))
+        P[step] = pts
         v1 = fld.sample(pts)
         v2 = fld.sample(pts + v1 * (dt / 2))
         nxt = pts + v2 * dt
@@ -120,6 +118,19 @@ def integrate_sheet_grid(d, cfg, fidx):
                     alive[k] = False
                 else:
                     pts[k] = nxt[k]
+    # 최근접 셀 샘플링의 지그재그를 진행 방향으로 이동평균(창 7, 2회) —
+    # 구겨진 비닐("부자연스럽다")이 매끈한 커튼이 된다. 시작점은 고정.
+    for _ in range(2):
+        Q = P.copy()
+        for s in range(1, N):
+            a, b = max(0, s - 3), min(N, s + 4)
+            Q[s] = P[a:b].mean(axis=0)
+        P = Q
+    rows = []
+    for step in range(N):
+        T = tfld.sample(P[step])[:, 0] - KELVIN
+        for k in range(K):
+            rows.append((d, k, step, *P[step, k], T[k]))
     return rows
 
 

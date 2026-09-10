@@ -174,6 +174,75 @@ def curtain_material(opacity=0.35):
     return mat
 
 
+def curtain_flow_material(opacity_base=0.14, opacity_amp=0.38,
+                          stripes=2.5, speed=0.45):
+    """커튼용 — 반투명 파도가 취출구→끝으로 흘러가는 Unlit 머티리얼.
+
+    "바람이 부자연스럽다"(정지 시트) 지적의 처방: 밝기 대신 **투명도**에
+    흐름 무늬를 실으면, 반투명 공기 덩어리가 밀려나가는 것처럼 보인다.
+        opacity = base + amp * frac(u*stripes - Time*speed)^2
+    UV0.u = 궤적 진행률(취출구 0 → 끝 1)이므로 무늬는 항상 바람 방향으로 간다.
+    """
+    path = "/Game/Materials/M_SF_CurtainFlow"
+    mat = unreal.EditorAssetLibrary.load_asset(path)
+    if mat is not None:
+        return mat
+    at = unreal.AssetToolsHelpers.get_asset_tools()
+    mat = at.create_asset("M_SF_CurtainFlow", "/Game/Materials",
+                          unreal.Material, unreal.MaterialFactoryNew())
+    mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)
+    mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
+    mat.set_editor_property("two_sided", True)
+    lib = unreal.MaterialEditingLibrary
+
+    def node(cls, x, y, **props):
+        e = lib.create_material_expression(mat, cls, x, y)
+        for k, v in props.items():
+            e.set_editor_property(k, v)
+        return e
+
+    def wire(a, ao, b, bi):
+        lib.connect_material_expressions(a, ao, b, bi)
+
+    vc = node(unreal.MaterialExpressionVertexColor, -350, -120)
+    lib.connect_material_property(vc, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+
+    tc = node(unreal.MaterialExpressionTextureCoordinate, -1200, 120)
+    umask = node(unreal.MaterialExpressionComponentMask, -1050, 120,
+                 r=True, g=False, b=False, a=False)
+    wire(tc, "", umask, "")
+    n_str = node(unreal.MaterialExpressionConstant, -1050, 240, r=stripes)
+    umul = node(unreal.MaterialExpressionMultiply, -900, 120)
+    wire(umask, "", umul, "A")
+    wire(n_str, "", umul, "B")
+    tnode = node(unreal.MaterialExpressionTime, -1050, 360)
+    n_spd = node(unreal.MaterialExpressionConstant, -1050, 470, r=speed)
+    tmul = node(unreal.MaterialExpressionMultiply, -900, 400)
+    wire(tnode, "", tmul, "A")
+    wire(n_spd, "", tmul, "B")
+    sub = node(unreal.MaterialExpressionSubtract, -750, 200)
+    wire(umul, "", sub, "A")
+    wire(tmul, "", sub, "B")
+    fr = node(unreal.MaterialExpressionFrac, -620, 200)
+    wire(sub, "", fr, "")
+    ex = node(unreal.MaterialExpressionConstant, -620, 320, r=2.0)
+    pw = node(unreal.MaterialExpressionPower, -480, 200)
+    wire(fr, "", pw, "Base")
+    wire(ex, "", pw, "Exp")
+    amp = node(unreal.MaterialExpressionConstant, -480, 320, r=opacity_amp)
+    amul = node(unreal.MaterialExpressionMultiply, -340, 200)
+    wire(pw, "", amul, "A")
+    wire(amp, "", amul, "B")
+    base = node(unreal.MaterialExpressionConstant, -340, 320, r=opacity_base)
+    aadd = node(unreal.MaterialExpressionAdd, -200, 200)
+    wire(amul, "", aadd, "A")
+    wire(base, "", aadd, "B")
+    lib.connect_material_property(aadd, "", unreal.MaterialProperty.MP_OPACITY)
+    lib.recompile_material(mat)
+    unreal.EditorAssetLibrary.save_asset(path)
+    return mat
+
+
 def flow_anim_material(name="M_SF_FlowAnim", stripes=6.0, speed=1.2):
     """유선 관을 따라 **무늬가 흘러가는** Unlit 머티리얼.
 
