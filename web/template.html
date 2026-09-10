@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스마트팜 온도 모니터</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page:      #f9f9f7;
+    --surface:   #fcfcfb;
+    --ink:       #0b0b0b;
+    --ink-2:     #52514e;
+    --muted:     #898781;
+    --grid:      #e1e0d9;
+    --baseline:  #c3c2b7;
+    --border:    rgba(11,11,11,0.10);
+    --series-a:  #2a78d6;
+    --series-b:  #eb6834;
+    --series-c:  #1baf7a;
+    --series-d:  #eda100;
+    /* 다이버징 램프: 파랑(25℃보다 차다) - 중립회색 - 빨강(아직 덥다) */
+    --ramp: #104281,#2a78d6,#9ec5f4,#f0efec,#f5bcb8,#d35450,#9c2826;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page:      #0d0d0d;
+    --surface:   #1a1a19;
+    --ink:       #ffffff;
+    --ink-2:     #c3c2b7;
+    --muted:     #898781;
+    --grid:      #2c2c2a;
+    --baseline:  #383835;
+    --border:    rgba(255,255,255,0.10);
+    --series-a:  #3987e5;
+    --series-b:  #d95926;
+    --series-c:  #199e70;
+    --series-d:  #c98500;
+    --ramp: #9ec5f4,#3987e5,#1c5cab,#383835,#7d2b28,#c44743,#f7b0aa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page:      #0d0d0d;
+      --surface:   #1a1a19;
+      --ink:       #ffffff;
+      --ink-2:     #c3c2b7;
+      --muted:     #898781;
+      --grid:      #2c2c2a;
+      --baseline:  #383835;
+      --border:    rgba(255,255,255,0.10);
+      --series-a:  #3987e5;
+      --series-b:  #d95926;
+      --series-c:  #199e70;
+      --series-d:  #c98500;
+      /* 다크: 중립이 표면 쪽으로 물러나고 양 극이 밝아진다 */
+      --ramp: #9ec5f4,#3987e5,#1c5cab,#383835,#7d2b28,#c44743,#f7b0aa;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--page);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 24px 28px 48px;
+  }
+  .wrap { max-width: 1160px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 650; letter-spacing: -0.01em; }
+  .sub { color: var(--ink-2); font-size: 13px; margin-top: 4px; line-height: 1.5; }
+
+  .controls {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin: 18px 0 14px;
+  }
+  button.play {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--ink); font-size: 16px; cursor: pointer; flex: none;
+  }
+  button.play:hover { border-color: var(--baseline); }
+  input[type=range] { flex: 1 1 260px; accent-color: var(--series-a); height: 28px; cursor: pointer; }
+  .tlabel { font-size: 14px; color: var(--ink-2); min-width: 150px;
+            font-variant-numeric: tabular-nums; }
+  .tlabel b { color: var(--ink); font-size: 17px; font-weight: 650; }
+  label.toggle { display: inline-flex; align-items: center; gap: 7px;
+                 font-size: 13px; color: var(--ink-2); cursor: pointer; user-select: none; }
+  label.toggle input { accent-color: var(--series-a); width: 15px; height: 15px; }
+
+  .tiles { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .tile {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+  }
+  .tile .k { font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .tile .v { font-size: 26px; font-weight: 650; margin-top: 3px; letter-spacing: -0.01em; }
+  .tile.hero .v { font-size: 34px; }
+  .tile .d { font-size: 11.5px; color: var(--ink-2); margin-top: 2px; }
+  .chip { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+
+  .grid2 { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 12px; }
+  @media (max-width: 900px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .tiles { grid-template-columns: repeat(2, 1fr); }
+    .tile.hero { grid-column: 1 / -1; }
+  }
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px 12px; min-width: 0;
+  }
+  .panel h2 { font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 2px; }
+  .panel .note { font-size: 11.5px; color: var(--muted); margin-bottom: 8px; }
+  canvas { display: block; width: 100%; }
+  .legend { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .legend canvas { width: 100%; max-width: 340px; height: 30px; }
+  .legend span { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+
+  svg text { font-family: inherit; }
+  .tooltip {
+    position: fixed; pointer-events: none; z-index: 10; display: none;
+    background: var(--surface); color: var(--ink); border: 1px solid var(--border);
+    border-radius: 7px; padding: 6px 9px; font-size: 12px; line-height: 1.45;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18); font-variant-numeric: tabular-nums;
+  }
+  .tooltip .tt-sub { color: var(--muted); font-size: 11px; }
+
+  details.tableview { margin-top: 14px; }
+  details.tableview summary { font-size: 13px; color: var(--ink-2); cursor: pointer; }
+  table { border-collapse: collapse; margin-top: 10px; font-size: 12.5px;
+          font-variant-numeric: tabular-nums; }
+  th, td { padding: 5px 12px; text-align: right; border-bottom: 1px solid var(--grid); }
+  th { color: var(--muted); font-weight: 550; }
+  td:first-child, th:first-child { text-align: left; }
+
+  .caveat { margin-top: 18px; font-size: 12px; color: var(--muted); line-height: 1.65; }
+  .caveat b { color: var(--ink-2); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>스마트팜 냉방 15분 — 방안 온도</h1>
+  <div class="sub">
+    OpenFOAM 과도해석(900초)을 위에서 내려다본 평면도.
+    <b>색은 온도 하나만</b> 말하고, 바람은 필요할 때만 토글로 켠다.
+    시간을 끌면 프레임 사이가 보간되어 부드럽게 이어진다.
+  </div>
+
+  <div class="controls">
+    <button class="play" id="btnPlay" aria-label="재생">▶</button>
+    <input type="range" id="slider" min="0" max="900" step="1" value="0" aria-label="시각(초)">
+    <div class="tlabel">냉방 후 <b id="tNow">0초</b> / 900초</div>
+    <label class="toggle"><input type="checkbox" id="chkWind"> 바람 화살표 (1.1 m)</label>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>위에서 본 온도 — 높이 1.1 m</h2>
+      <div class="note">에어컨 ◙ 아래가 가장 차다 · 반원(위쪽) 안쪽은 늦게 식는다</div>
+      <canvas id="cvTop"></canvas>
+      <div class="legend"><canvas id="cvLegend"></canvas><span id="legendLabel"></span></div>
+    </div>
+    <div>
+      <div class="panel" style="margin-bottom:12px">
+        <h2>옆에서 본 온도 — 에어컨 통과 단면 (y = 2.0 m)</h2>
+        <div class="note">찬 공기가 내려와 바닥에 깔리고, 더운 공기는 천장에 남는다</div>
+        <canvas id="cvSide"></canvas>
+      </div>
+      <div class="panel">
+        <h2>측정점 A·B·C·D — 시간별 온도 (1.1 m)</h2>
+        <div class="note">그래프를 끌어도 시간이 움직인다</div>
+        <svg id="chart" width="100%"></svg>
+      </div>
+    </div>
+  </div>
+
+  <details class="tableview">
+    <summary>표로 보기 — 프레임별 A/B/C/D · 방 평균 (℃)</summary>
+    <table id="dataTable"></table>
+  </details>
+
+  <div class="caveat">
+    <b>해석의 한계</b> — 이 CFD는 빈 방 기준이라 재배단이 유동에 반영돼 있지 않다 ·
+    취출 방향을 수직 아래로 가정했다(실물 4Way는 베인 약 25°) ·
+    벽 온도 29℃ 고정 가정(실측 미반영).
+  </div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const DATA = __SF_DATA__;
+
+/* ---------- 색: OKLab 보간 램프 + 0.5K 양자화 ---------- */
+function hex2rgb(h) { return [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255); }
+function srgb2lin(c) { return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+function lin2srgb(c) { return c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055; }
+function rgb2oklab([r, g, b]) {
+  r = srgb2lin(r); g = srgb2lin(g); b = srgb2lin(b);
+  const l = Math.cbrt(0.4122214708*r + 0.5363325363*g + 0.0514459929*b);
+  const m = Math.cbrt(0.2119034982*r + 0.6806995451*g + 0.1073969566*b);
+  const s = Math.cbrt(0.0883024619*r + 0.2817188376*g + 0.6299787005*b);
+  return [0.2104542553*l + 0.7936177850*m - 0.0040720468*s,
+          1.9779984951*l - 2.4285922050*m + 0.4505937099*s,
+          0.0259040371*l + 0.7827717662*m - 0.8086757660*s];
+}
+function oklab2rgb([L, a, bb]) {
+  const l = (L + 0.3963377774*a + 0.2158037573*bb) ** 3;
+  const m = (L - 0.1055613458*a - 0.0638541728*bb) ** 3;
+  const s = (L - 0.0894841775*a - 1.2914855480*bb) ** 3;
+  return [ 4.0767416621*l - 3.3077115913*m + 0.2309699292*s,
+          -1.2684380046*l + 2.6097574011*m - 0.3413193965*s,
+          -0.0041960863*l - 0.7034186147*m + 1.7076147010*s]
+    .map(c => Math.round(255 * Math.min(1, Math.max(0, lin2srgb(c)))));
+}
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function labelText(ctx, text, x, y) {           // 진한 단면 위에서도 읽히게 헤일로
+  ctx.lineWidth = 3; ctx.lineJoin = 'round';
+  ctx.strokeStyle = css('--surface'); ctx.strokeText(text, x, y);
+  ctx.fillStyle = css('--ink'); ctx.fillText(text, x, y);
+}
+
+// 다이버징 척도: 중립 25℃, 양팔 4K 대칭. 범위 밖(제트 19℃대)은 끝색으로 클램프.
+const MID = 25, HALF = 4;
+const DMIN = MID - HALF, DMAX = MID + HALF;
+const BAND = 0.5;
+const NBANDS = Math.round((DMAX - DMIN) / BAND);
+let LUT = [];               // 밴드 -> 'rgb(...)'
+function buildLUT() {
+  const stops = css('--ramp').split(',').map(s => rgb2oklab(hex2rgb(s.trim())));
+  LUT = [];
+  for (let i = 0; i < NBANDS; i++) {
+    const fr = (i + 0.5) / NBANDS * (stops.length - 1);
+    const k = Math.min(stops.length - 2, Math.floor(fr)), a = fr - k;
+    const lab = stops[k].map((v, d) => v + a * (stops[k + 1][d] - v));
+    LUT.push('rgb(' + oklab2rgb(lab).join(',') + ')');
+  }
+}
+function bandOf(T) {
+  return Math.min(NBANDS - 1, Math.max(0, Math.floor((T - DMIN) / BAND)));
+}
+
+/* ---------- 데이터 준비 ---------- */
+const TIMES = DATA.meta.times, TEND = TIMES[TIMES.length - 1];
+const ROOM = DATA.meta.room, AC = DATA.meta.ac;
+function prep(slice) {
+  // 셀 피치는 인접 좌표 차가 아니라 (좌표 범위 / 인덱스 범위)로 —
+  // 중간에 빠진 열이 있어도 어긋나지 않는다 (수직단면 줄무늬 버그의 원인).
+  const ext = k => {
+    const v = slice.cells.map(c => c[k]);
+    return [Math.min(...v), Math.max(...v)];
+  };
+  const [i0, i1] = ext(0), [j0, j1] = ext(1);
+  const [x0, x1] = ext(2), [y0, y1] = ext(3);
+  const dx = i1 > i0 ? (x1 - x0) / (i1 - i0) : 0.2;
+  const dy = j1 > j0 ? (y1 - y0) / (j1 - j0) : 0.2;
+  const T = slice.T.map(fr => Float32Array.from(fr, v => v / 100));
+  return { cells: slice.cells, dx, dy, T };
+}
+const HS = prep(DATA.hslice), VS = prep(DATA.vslice);
+
+function frameAt(t) {           // t(초) -> [k, k+1, alpha]
+  if (t <= TIMES[0]) return [0, 0, 0];
+  if (t >= TEND) return [TIMES.length - 1, TIMES.length - 1, 0];
+  let k = 0;
+  while (TIMES[k + 1] < t) k++;
+  return [k, k + 1, (t - TIMES[k]) / (TIMES[k + 1] - TIMES[k])];
+}
+function tempAt(S, i, t) {
+  const [k, k2, a] = frameAt(t);
+  return S.T[k][i] + a * (S.T[k2][i] - S.T[k][i]);
+}
+function meanAt(S, t) {
+  const [k, k2, a] = frameAt(t);
+  let s = 0, n = S.T[k].length;
+  for (let i = 0; i < n; i++) s += S.T[k][i] + a * (S.T[k2][i] - S.T[k][i]);
+  return s / n;
+}
+const PPTS = Object.keys(DATA.probes.T).sort();     // A,B,C,D
+const PCOLORS = ['--series-a', '--series-b', '--series-c', '--series-d'];
+function probeAt(p, t) {
+  const ts = DATA.probes.t, vs = DATA.probes.T[p];
+  if (t <= ts[0]) return vs[0];
+  if (t >= ts[ts.length - 1]) return vs[vs.length - 1];
+  let k = 0;
+  while (ts[k + 1] < t) k++;
+  return vs[k] + (t - ts[k]) / (ts[k + 1] - ts[k]) * (vs[k + 1] - vs[k]);
+}
+
+/* ---------- 캔버스 공통 ---------- */
+function fitCanvas(cv, aspect) {
+  const w = cv.clientWidth || cv.parentElement.clientWidth;
+  const h = Math.round(w * aspect);
+  const r = window.devicePixelRatio || 1;
+  cv.width = Math.round(w * r); cv.height = Math.round(h * r);
+  cv.style.height = h + 'px';
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(r, 0, 0, r, 0, 0);
+  return [ctx, w, h];
+}
+
+/* ---------- 평면도 ---------- */
+const cvTop = document.getElementById('cvTop');
+const PAD = 8;
+let topMap = null;      // 화면좌표 변환 캐시 (툴팁용)
+function roomPath(ctx, sx, sy, x0, y0) {
+  // 직선벽 y=0 + 반타원(rx=Lx/2, ry=Ly) 위쪽
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);                          // (0,0) 화면상 왼쪽 아래
+  ctx.ellipse(x0 + ROOM.Lx / 2 * sx, y0, ROOM.Lx / 2 * sx, ROOM.Ly * sy,
+              0, Math.PI, 0, false);           // 위로 볼록
+  ctx.closePath();
+}
+function drawTop(t) {
+  const [ctx, w, h] = fitCanvas(cvTop, (ROOM.Ly + 0.4) / ROOM.Lx);
+  const sx = (w - PAD * 2) / ROOM.Lx, sy = (h - PAD * 2) / ROOM.Ly;
+  const x0 = PAD, y0 = h - PAD;                // 방 (0,0) = 왼쪽 아래
+  topMap = { sx, sy, x0, y0 };
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.save();
+  roomPath(ctx, sx, sy, x0, y0);
+  ctx.clip();
+  const [k, k2, a] = frameAt(t);
+  const cw = HS.dx * sx + 0.6, ch = HS.dy * sy + 0.6;
+  for (let i = 0; i < HS.cells.length; i++) {
+    const c = HS.cells[i];
+    const T = HS.T[k][i] + a * (HS.T[k2][i] - HS.T[k][i]);
+    ctx.fillStyle = LUT[bandOf(T)];
+    ctx.fillRect(x0 + (c[2] - HS.dx / 2) * sx, y0 - (c[3] + HS.dy / 2) * sy, cw, ch);
+  }
+  ctx.restore();
+
+  roomPath(ctx, sx, sy, x0, y0);
+  ctx.strokeStyle = css('--baseline'); ctx.lineWidth = 1.5; ctx.stroke();
+
+  // 에어컨
+  const ax = x0 + AC[0] * sx, ay = y0 - AC[1] * sy;
+  ctx.fillStyle = css('--surface'); ctx.strokeStyle = css('--ink-2'); ctx.lineWidth = 1.2;
+  ctx.fillRect(ax - 9, ay - 9, 18, 18); ctx.strokeRect(ax - 9, ay - 9, 18, 18);
+  ctx.fillStyle = css('--ink-2');
+  ctx.fillRect(ax - 3, ay - 3, 6, 6);
+  ctx.font = '11px system-ui'; ctx.textAlign = 'left';
+  labelText(ctx, '에어컨', ax + 13, ay + 4);
+
+  // 측정점 A~D (칩은 시리즈색, 글자는 잉크)
+  ctx.font = '600 11px system-ui';
+  PPTS.forEach((p, i) => {
+    const [px, py] = DATA.probes.pos[p];
+    const mx = x0 + px * sx, my = y0 - py * sy;
+    ctx.beginPath(); ctx.arc(mx, my, 5, 0, 7);
+    ctx.fillStyle = css(PCOLORS[i]); ctx.fill();
+    ctx.strokeStyle = css('--surface'); ctx.lineWidth = 2; ctx.stroke();
+    labelText(ctx, p, mx + 8, my + 4);
+  });
+
+  // 바람 (토글)
+  if (document.getElementById('chkWind').checked) drawWind(ctx, t, sx, sy, x0, y0);
+}
+function drawWind(ctx, t, sx, sy, x0, y0) {
+  const rows = DATA.arrows[frameAt(t)[0]] || [];
+  ctx.strokeStyle = css('--ink-2'); ctx.fillStyle = css('--ink-2');
+  ctx.lineWidth = 1.3; ctx.globalAlpha = 0.75;
+  for (const [x, y, ux, uy, sp] of rows) {
+    if (sp < 0.03) continue;
+    const L = Math.sqrt(sp / 0.45) * 26;
+    const n = Math.hypot(ux, uy) || 1;
+    const px = x0 + x * sx, py = y0 - y * sy;
+    const ex = px + ux / n * L, ey = py - uy / n * L;
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(ex, ey); ctx.stroke();
+    const ang = Math.atan2(ey - py, ex - px);
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - 5 * Math.cos(ang - 0.45), ey - 5 * Math.sin(ang - 0.45));
+    ctx.lineTo(ex - 5 * Math.cos(ang + 0.45), ey - 5 * Math.sin(ang + 0.45));
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ---------- 수직 단면 ---------- */
+const cvSide = document.getElementById('cvSide');
+let sideMap = null;
+function drawSide(t) {
+  const [ctx, w, h] = fitCanvas(cvSide, 2.7 / ROOM.Lx * 1.6);
+  const sx = (w - PAD * 2) / ROOM.Lx, sz = (h - PAD * 2) / ROOM.Lz;
+  const x0 = PAD, y0 = h - PAD;
+  sideMap = { sx, sz, x0, y0 };
+  ctx.clearRect(0, 0, w, h);
+  const [k, k2, a] = frameAt(t);
+  const cw = VS.dx * sx + 0.6, ch = VS.dy * sz + 0.6;
+  for (let i = 0; i < VS.cells.length; i++) {
+    const c = VS.cells[i];
+    const T = VS.T[k][i] + a * (VS.T[k2][i] - VS.T[k][i]);
+    ctx.fillStyle = LUT[bandOf(T)];
+    ctx.fillRect(x0 + (c[2] - VS.dx / 2) * sx, y0 - (c[3] + VS.dy / 2) * sz, cw, ch);
+  }
+  ctx.strokeStyle = css('--baseline'); ctx.lineWidth = 1.2;
+  ctx.strokeRect(x0, PAD, ROOM.Lx * sx, ROOM.Lz * sz);
+  // 천장 에어컨 위치
+  const ax = x0 + AC[0] * sx;
+  ctx.fillStyle = css('--ink-2');
+  ctx.fillRect(ax - 8, PAD - 1, 16, 4);
+  ctx.font = '10.5px system-ui'; ctx.textAlign = 'center';
+  labelText(ctx, '에어컨', ax, PAD + 14);
+}
+
+/* ---------- 범례 ---------- */
+function drawLegend() {
+  const cv = document.getElementById('cvLegend');
+  const [ctx, w, h] = fitCanvas(cv, 30 / 340);
+  const bw = w / NBANDS;
+  for (let i = 0; i < NBANDS; i++) {
+    ctx.fillStyle = LUT[i];
+    ctx.fillRect(i * bw, 0, bw + 0.5, 14);
+  }
+  ctx.fillStyle = css('--muted'); ctx.font = '10.5px system-ui'; ctx.textAlign = 'center';
+  for (let T = Math.ceil(DMIN); T <= Math.floor(DMAX); T += 2) {
+    const x = (T - DMIN) / (DMAX - DMIN) * w;
+    ctx.fillRect(x - 0.5, 14, 1, 3);
+    ctx.fillText(T, Math.min(Math.max(x, 8), w - 8), 27);   // 끝 라벨 잘림 방지
+  }
+  document.getElementById('legendLabel').textContent =
+    '℃ · 빨강 = 아직 덥다 · 파랑 = 25℃보다 차다';
+}
+
+/* ---------- 측정점 곡선 (SVG) ---------- */
+const chart = document.getElementById('chart');
+const CY = [20, 29.5];
+let chartGeom = null;
+function buildChart() {
+  const w = chart.clientWidth || chart.parentElement.clientWidth, h = 190;
+  chart.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  chart.setAttribute('height', h);
+  const m = { l: 30, r: 58, t: 8, b: 20 };
+  const px = t => m.l + t / TEND * (w - m.l - m.r);
+  const py = v => m.t + (CY[1] - v) / (CY[1] - CY[0]) * (h - m.t - m.b);
+  chartGeom = { px, py, m, w, h };
+  let s = '';
+  for (let v = 20; v <= 29; v += 3)
+    s += `<line x1="${m.l}" x2="${w - m.r}" y1="${py(v)}" y2="${py(v)}" stroke="${css('--grid')}"/>` +
+         `<text x="${m.l - 6}" y="${py(v) + 3.5}" font-size="10" fill="${css('--muted')}" text-anchor="end">${v}</text>`;
+  for (let t = 0; t <= 900; t += 300)
+    s += `<text x="${px(t)}" y="${h - 6}" font-size="10" fill="${css('--muted')}" text-anchor="middle">${t}초</text>`;
+  // 끝 라벨이 겹치면(B·D는 대칭이라 값이 같다) 위아래로 밀어낸다
+  const lastV = PPTS.map(p => DATA.probes.T[p][DATA.probes.T[p].length - 1]);
+  const order = PPTS.map((_, i) => i).sort((a, b) => lastV[a] - lastV[b]);
+  const labY = {};
+  let prevY = Infinity;
+  for (const i of order) {                       // 아래(높은 y)부터 위로
+    let y = py(lastV[i]) + 3.5;
+    if (prevY - y < 13) y = prevY - 13;
+    labY[i] = y; prevY = y;
+  }
+  PPTS.forEach((p, i) => {
+    const d = DATA.probes.t.map((t, j) =>
+      (j ? 'L' : 'M') + px(t).toFixed(1) + ' ' + py(DATA.probes.T[p][j]).toFixed(1)).join('');
+    s += `<path d="${d}" fill="none" stroke="${css(PCOLORS[i])}" stroke-width="2" stroke-linejoin="round"/>` +
+         `<text x="${w - m.r + 8}" y="${labY[i]}" font-size="11" font-weight="600" fill="${css('--ink')}">` +
+         `${p} <tspan fill="${css('--ink-2')}" font-weight="400">${lastV[i].toFixed(1)}</tspan></text>`;
+  });
+  s += `<line id="cursor" y1="${m.t}" y2="${h - m.b}" stroke="${css('--baseline')}" stroke-width="1.2"/>`;
+  chart.innerHTML = s;
+}
+
+/* ---------- 타일 + 표 ---------- */
+const tilesEl = document.getElementById('tiles');
+function drawTiles(t) {
+  const mean = meanAt(HS, t);
+  const d0 = meanAt(HS, 0) - mean;
+  let s = `<div class="tile hero"><div class="k">방 평균 (1.1 m)</div>` +
+          `<div class="v">${mean.toFixed(1)}℃</div>` +
+          `<div class="d">시작보다 ${d0.toFixed(1)}K 내려감</div></div>`;
+  PPTS.forEach((p, i) => {
+    s += `<div class="tile"><div class="k"><span class="chip" style="background:${css(PCOLORS[i])}"></span>지점 ${p}</div>` +
+         `<div class="v">${probeAt(p, t).toFixed(1)}<span style="font-size:15px">℃</span></div></div>`;
+  });
+  tilesEl.innerHTML = s;
+}
+function buildTable() {
+  let s = '<tr><th>시각</th>' + PPTS.map(p => `<th>${p}</th>`).join('') + '<th>방 평균</th></tr>';
+  TIMES.forEach(t => {
+    s += `<tr><td>${Math.round(t)}초</td>` +
+         PPTS.map(p => `<td>${probeAt(p, t).toFixed(1)}</td>`).join('') +
+         `<td>${meanAt(HS, t).toFixed(1)}</td></tr>`;
+  });
+  document.getElementById('dataTable').innerHTML = s;
+}
+
+/* ---------- 툴팁 ---------- */
+const tip = document.getElementById('tooltip');
+function hookTooltip(cv, getInfo) {
+  cv.addEventListener('mousemove', e => {
+    const r = cv.getBoundingClientRect();
+    const info = getInfo(e.clientX - r.left, e.clientY - r.top);
+    if (!info) { tip.style.display = 'none'; return; }
+    tip.innerHTML = `<b>${info.T.toFixed(1)}℃</b><div class="tt-sub">${info.sub}</div>`;
+    tip.style.display = 'block';
+    tip.style.left = Math.min(e.clientX + 14, innerWidth - 130) + 'px';
+    tip.style.top = (e.clientY + 14) + 'px';
+  });
+  cv.addEventListener('mouseleave', () => tip.style.display = 'none');
+}
+function nearestT(S, map, mx, my, vertical) {
+  const x = (mx - map.x0) / map.sx;
+  const y = (map.y0 - my) / (vertical ? map.sz : map.sy);
+  let best = -1, bd = 1e9;
+  for (let i = 0; i < S.cells.length; i++) {
+    const c = S.cells[i];
+    const d = (c[2] - x) ** 2 + (c[3] - y) ** 2;
+    if (d < bd) { bd = d; best = i; }
+  }
+  if (bd > (S.dx * 2) ** 2) return null;
+  const c = S.cells[best];
+  return { T: tempAt(S, best, tNow), c };
+}
+hookTooltip(cvTop, (mx, my) => {
+  if (!topMap) return null;
+  const r = nearestT(HS, topMap, mx, my, false);
+  return r && { T: r.T, sub: `x ${r.c[2].toFixed(1)} m · y ${r.c[3].toFixed(1)} m` };
+});
+hookTooltip(cvSide, (mx, my) => {
+  if (!sideMap) return null;
+  const r = nearestT(VS, sideMap, mx, my, true);
+  return r && { T: r.T, sub: `x ${r.c[2].toFixed(1)} m · 높이 ${r.c[3].toFixed(1)} m` };
+});
+
+/* ---------- 시간 구동 ---------- */
+let tNow = 0, playing = false, rafId = 0, lastTs = 0;
+const slider = document.getElementById('slider');
+const btnPlay = document.getElementById('btnPlay');
+const SPEED = 30;                     // 재생 1초 = 실제 30초
+function setTime(t, fromSlider) {
+  tNow = Math.max(0, Math.min(TEND, t));
+  if (!fromSlider) slider.value = tNow;
+  document.getElementById('tNow').textContent = Math.round(tNow) + '초';
+  drawTop(tNow); drawSide(tNow); drawTiles(tNow);
+  if (chartGeom) {
+    const cur = document.getElementById('cursor');
+    if (cur) { const x = chartGeom.px(tNow); cur.setAttribute('x1', x); cur.setAttribute('x2', x); }
+  }
+}
+function tick(ts) {
+  if (!playing) return;
+  if (lastTs) {
+    let t = tNow + (ts - lastTs) / 1000 * SPEED;
+    if (t >= TEND) t = 0;             // 무한 반복
+    setTime(t);
+  }
+  lastTs = ts;
+  rafId = requestAnimationFrame(tick);
+}
+btnPlay.addEventListener('click', () => {
+  playing = !playing;
+  btnPlay.textContent = playing ? '⏸' : '▶';
+  lastTs = 0;
+  if (playing) rafId = requestAnimationFrame(tick); else cancelAnimationFrame(rafId);
+});
+slider.addEventListener('input', () => setTime(+slider.value, true));
+document.getElementById('chkWind').addEventListener('change', () => drawTop(tNow));
+
+// 곡선 차트에서도 스크럽
+function chartScrub(e) {
+  if (!chartGeom) return;
+  const r = chart.getBoundingClientRect();
+  const t = (e.clientX - r.left - chartGeom.m.l) /
+            (r.width - chartGeom.m.l - chartGeom.m.r) * TEND;
+  setTime(t);
+}
+chart.addEventListener('pointerdown', e => {
+  chartScrub(e); chart.setPointerCapture(e.pointerId);
+  chart.addEventListener('pointermove', chartScrub);
+}, true);
+chart.addEventListener('pointerup', () => chart.removeEventListener('pointermove', chartScrub));
+
+/* ---------- 초기화 · 테마 · 리사이즈 ---------- */
+function rebuildAll() {
+  buildLUT(); drawLegend(); buildChart(); buildTable(); setTime(tNow);
+}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rebuildAll);
+let rsz;
+addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(rebuildAll, 150); });
+
+// 딥링크: ?t=320&wind=1&theme=dark
+const Q = new URLSearchParams(location.search);
+if (Q.get('theme') === 'dark' || Q.get('theme') === 'light')
+  document.documentElement.dataset.theme = Q.get('theme');
+if (Q.get('wind') === '1') document.getElementById('chkWind').checked = true;
+tNow = Math.max(0, Math.min(TEND, +Q.get('t') || 0));
+rebuildAll();
+</script>
+</body>
+</html>
