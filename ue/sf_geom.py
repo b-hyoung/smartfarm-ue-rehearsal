@@ -145,6 +145,35 @@ def slice_material(opacity=0.72):
     return mat
 
 
+def curtain_material(opacity=0.35):
+    """취출 커튼용 — 정점색 Unlit 반투명, 단면보다 훨씬 투명.
+
+    사용자 결정(2026-09-10): 주인공은 방 공기의 온도 카펫이고, 바람(커튼)은
+    공간을 가리지 않게 투명도를 높여 보조로 둔다.
+    """
+    path = "/Game/Materials/M_SF_CurtainTrans"
+    mat = unreal.EditorAssetLibrary.load_asset(path)
+    if mat is not None:
+        return mat
+    at = unreal.AssetToolsHelpers.get_asset_tools()
+    mat = at.create_asset("M_SF_CurtainTrans", "/Game/Materials",
+                          unreal.Material, unreal.MaterialFactoryNew())
+    mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)
+    mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
+    mat.set_editor_property("two_sided", True)
+    lib = unreal.MaterialEditingLibrary
+    vc = lib.create_material_expression(
+        mat, unreal.MaterialExpressionVertexColor, -350, 0)
+    lib.connect_material_property(vc, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+    op = lib.create_material_expression(
+        mat, unreal.MaterialExpressionConstant, -350, 180)
+    op.set_editor_property("r", opacity)
+    lib.connect_material_property(op, "", unreal.MaterialProperty.MP_OPACITY)
+    lib.recompile_material(mat)
+    unreal.EditorAssetLibrary.save_asset(path)
+    return mat
+
+
 def flow_anim_material(name="M_SF_FlowAnim", stripes=6.0, speed=1.2):
     """유선 관을 따라 **무늬가 흘러가는** Unlit 머티리얼.
 
