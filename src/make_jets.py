@@ -19,10 +19,12 @@ import os
 import numpy as np
 
 from src.config import load_config
+from src.make_traces import Field, load_frame
 from src.vane_mock import TIMES, temperature, velocity
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(REPO, "data", "jets")
+FRAME_DIR = os.path.join(REPO, "data", "frames")
 KELVIN = 273.15
 
 AC = (4.0, 2.0)
@@ -77,13 +79,63 @@ def integrate_sheet(d, cfg, t):
     return rows
 
 
+def _load_T(idx):
+    import csv as _csv
+    path = os.path.join(FRAME_DIR, "frame_%02d.csv" % idx)
+    Ts = []
+    with open(path, newline="", encoding="utf-8") as f:
+        for r in _csv.DictReader(f):
+            Ts.append(float(r["T"]))
+    return np.asarray(Ts, dtype=np.float64)
+
+
+def integrate_sheet_grid(d, cfg, fidx):
+    """진짜 CFD 프레임의 격자 속도장으로 적분 (mock 해석식 대신)."""
+    pts_f, vel = load_frame(fidx)
+    fld = Field(pts_f, vel)
+    tfld = Field(pts_f, _load_T(fidx)[:, None])
+    (x0, y0), (x1, y1) = SHEETS[d]
+    if d in ("Yp", "Ym"):
+        seeds = [(x0 + (x1 - x0) * i / (K - 1), y0, Z_SEED) for i in range(K)]
+    else:
+        seeds = [(x0, y0 + (y1 - y0) * i / (K - 1), Z_SEED) for i in range(K)]
+    pts = np.array(seeds)
+    alive = np.ones(K, dtype=bool)
+    rows = []
+    dt = 0.05
+    for step in range(N):
+        T = tfld.sample(pts)[:, 0] - KELVIN
+        for k in range(K):
+            rows.append((d, k, step, *pts[k], T[k]))
+        v1 = fld.sample(pts)
+        v2 = fld.sample(pts + v1 * (dt / 2))
+        nxt = pts + v2 * dt
+        for k in range(K):
+            if alive[k]:
+                if not in_room(nxt[k], cfg) or np.linalg.norm(v2[k]) < 0.03:
+                    alive[k] = False
+                else:
+                    pts[k] = nxt[k]
+    return rows
+
+
 def main():
     cfg = load_config(os.path.join(REPO, "geometry.json"))
     os.makedirs(OUT, exist_ok=True)
+    man_p = os.path.join(FRAME_DIR, "manifest.json")
+    src = ""
+    if os.path.isfile(man_p):
+        src = str(json.load(open(man_p, encoding="utf-8")).get("source", ""))
+    real = "MOCK" not in src.upper()
+    print("모드: %s (frames source=%s)" % ("실데이터 격자" if real else "mock 해석식",
+                                          src[:40]))
     for f, t in enumerate(TIMES):
         rows = []
         for d in SHEETS:
-            rows += integrate_sheet(d, cfg, max(t, 5.0))   # t=0도 형태는 보이게
+            if real:
+                rows += integrate_sheet_grid(d, cfg, f)
+            else:
+                rows += integrate_sheet(d, cfg, max(t, 5.0))
         path = os.path.join(OUT, "jet_%02d.csv" % f)
         with open(path, "w", encoding="utf-8", newline="") as fh:
             fh.write("dir,k,step,x,y,z,T\n")
