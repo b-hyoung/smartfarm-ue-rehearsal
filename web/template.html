@@ -225,14 +225,17 @@ const DMIN = MID - HALF, DMAX = MID + HALF;
 const BAND = 0.5;
 const NBANDS = Math.round((DMAX - DMIN) / BAND);
 let LUT = [];               // 밴드 -> 'rgb(...)'
+let LUTRGB = [];            // 밴드 -> [r,g,b] (픽셀 루프용)
 function buildLUT() {
   const stops = css('--ramp').split(',').map(s => rgb2oklab(hex2rgb(s.trim())));
-  LUT = [];
+  LUT = []; LUTRGB = [];
   for (let i = 0; i < NBANDS; i++) {
     const fr = (i + 0.5) / NBANDS * (stops.length - 1);
     const k = Math.min(stops.length - 2, Math.floor(fr)), a = fr - k;
     const lab = stops[k].map((v, d) => v + a * (stops[k + 1][d] - v));
-    LUT.push('rgb(' + oklab2rgb(lab).join(',') + ')');
+    const rgb = oklab2rgb(lab);
+    LUT.push('rgb(' + rgb.join(',') + ')');
+    LUTRGB.push(rgb);
   }
 }
 function bandOf(T) {
@@ -253,8 +256,78 @@ function prep(slice) {
   const [x0, x1] = ext(2), [y0, y1] = ext(3);
   const dx = i1 > i0 ? (x1 - x0) / (i1 - i0) : 0.2;
   const dy = j1 > j0 ? (y1 - y0) / (j1 - j0) : 0.2;
+  const nx = i1 - i0 + 1, ny = j1 - j0 + 1;
   const T = slice.T.map(fr => Float32Array.from(fr, v => v / 100));
-  return { cells: slice.cells, dx, dy, T };
+  // 픽셀 보간용 정규 격자. 비어 있는 칸(D자 바깥 근처)은 최근접 값으로 채운다 —
+  // 경계 바로 안쪽 픽셀이 구멍 없이 칠해지고, 바깥은 어차피 마스크로 잘린다.
+  const F = T.map(fr => {
+    const g = new Float32Array(nx * ny).fill(NaN);
+    slice.cells.forEach((c, n) => { g[(c[1] - j0) * nx + (c[0] - i0)] = fr[n]; });
+    for (let pass = 0; pass < 2; pass++) {
+      for (let j = 0; j < ny; j++) {          // 행 방향 앞뒤 채움
+        let last = NaN;
+        for (let i = 0; i < nx; i++) {
+          const k = j * nx + i;
+          if (isNaN(g[k])) { if (!isNaN(last)) g[k] = last; } else last = g[k];
+        }
+        last = NaN;
+        for (let i = nx - 1; i >= 0; i--) {
+          const k = j * nx + i;
+          if (isNaN(g[k])) { if (!isNaN(last)) g[k] = last; } else last = g[k];
+        }
+      }
+      for (let i = 0; i < nx; i++) {          // 열 방향
+        let last = NaN;
+        for (let j = 0; j < ny; j++) {
+          const k = j * nx + i;
+          if (isNaN(g[k])) { if (!isNaN(last)) g[k] = last; } else last = g[k];
+        }
+        last = NaN;
+        for (let j = ny - 1; j >= 0; j--) {
+          const k = j * nx + i;
+          if (isNaN(g[k])) { if (!isNaN(last)) g[k] = last; } else last = g[k];
+        }
+      }
+    }
+    // 슬라이스 CSV는 최근접 샘플이라 30~50cm 플래토(블록)가 남아 있다.
+    // 실제 온도장은 매끄러우니 가벼운 분리형 박스블러(2셀 x 2회 ≈ 가우시안)로 복원.
+    for (let it = 0; it < 2; it++) { boxBlur(g, nx, ny, 2, true); boxBlur(g, nx, ny, 2, false); }
+    return g;
+  });
+  return { dx, dy, nx, ny, xmin: x0, ymin: y0, T, F };
+}
+function boxBlur(g, nx, ny, r, horiz) {
+  const len = horiz ? nx : ny, lines = horiz ? ny : nx;
+  const tmp = new Float32Array(len);
+  for (let l = 0; l < lines; l++) {
+    const at = k => horiz ? g[l * nx + k] : g[k * nx + l];
+    for (let k = 0; k < len; k++) {
+      let s = 0, n = 0;
+      for (let o = -r; o <= r; o++) {
+        const q = k + o;
+        if (q >= 0 && q < len) { s += at(q); n++; }
+      }
+      tmp[k] = s / n;
+    }
+    for (let k = 0; k < len; k++) {
+      if (horiz) g[l * nx + k] = tmp[k]; else g[k * nx + l] = tmp[k];
+    }
+  }
+}
+function sampleGrid(S, g, x, y) {             // 쌍선형 보간
+  let gx = (x - S.xmin) / S.dx, gy = (y - S.ymin) / S.dy;
+  gx = Math.max(0, Math.min(S.nx - 1.001, gx));
+  gy = Math.max(0, Math.min(S.ny - 1.001, gy));
+  const i = Math.floor(gx), j = Math.floor(gy), fx = gx - i, fy = gy - j;
+  const k = j * S.nx + i;
+  const t0 = g[k] + (g[k + 1] - g[k]) * fx;
+  const t1 = g[k + S.nx] + (g[k + S.nx + 1] - g[k + S.nx]) * fx;
+  return t0 + (t1 - t0) * fy;
+}
+function fieldT(S, x, y, t) {
+  const [k, k2, a] = frameAt(t);
+  const v = sampleGrid(S, S.F[k], x, y);
+  return a ? v + a * (sampleGrid(S, S.F[k2], x, y) - v) : v;
 }
 const HS = prep(DATA.hslice), VS = prep(DATA.vslice);
 
@@ -298,6 +371,30 @@ function fitCanvas(cv, aspect) {
   return [ctx, w, h];
 }
 
+/* ---------- 필드 렌더 공통 ---------- */
+const OFF = document.createElement('canvas');
+function renderField(ctx, w, h, probe) {
+  // probe(px,py): 온도(℃) 또는 -1(영역 밖). 반해상도 ImageData -> 스무딩 확대.
+  const rw = Math.max(2, Math.round(w / 2)), rh = Math.max(2, Math.round(h / 2));
+  OFF.width = rw; OFF.height = rh;
+  const octx = OFF.getContext('2d');
+  const img = octx.createImageData(rw, rh);
+  const d = img.data, kx = w / rw, ky = h / rh;
+  let n = 0;
+  for (let j = 0; j < rh; j++) {
+    const py = (j + 0.5) * ky;
+    for (let i = 0; i < rw; i++, n += 4) {
+      const T = probe((i + 0.5) * kx, py);
+      if (T < 0) continue;                     // 알파 0 = 투명
+      const c = LUTRGB[bandOf(T)];
+      d[n] = c[0]; d[n + 1] = c[1]; d[n + 2] = c[2]; d[n + 3] = 255;
+    }
+  }
+  octx.putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(OFF, 0, 0, w, h);
+}
+
 /* ---------- 평면도 ---------- */
 const cvTop = document.getElementById('cvTop');
 const PAD = 8;
@@ -317,18 +414,15 @@ function drawTop(t) {
   topMap = { sx, sy, x0, y0 };
   ctx.clearRect(0, 0, w, h);
 
-  ctx.save();
-  roomPath(ctx, sx, sy, x0, y0);
-  ctx.clip();
-  const [k, k2, a] = frameAt(t);
-  const cw = HS.dx * sx + 0.6, ch = HS.dy * sy + 0.6;
-  for (let i = 0; i < HS.cells.length; i++) {
-    const c = HS.cells[i];
-    const T = HS.T[k][i] + a * (HS.T[k2][i] - HS.T[k][i]);
-    ctx.fillStyle = LUT[bandOf(T)];
-    ctx.fillRect(x0 + (c[2] - HS.dx / 2) * sx, y0 - (c[3] + HS.dy / 2) * sy, cw, ch);
-  }
-  ctx.restore();
+  // 픽셀 단위 쌍선형 보간 렌더 — 셀 사각형을 그대로 칠하면 블록처럼 보인다.
+  // 반해상도로 계산해서 부드럽게 확대(스무딩)하면 속도·화질 둘 다 잡힌다.
+  renderField(ctx, w, h, (px, py) => {
+    const x = (px - x0) / sx, y = (y0 - py) / sy;
+    if (y < 0 || y > ROOM.Ly) return -1;
+    const ex = (x - ROOM.Lx / 2) / (ROOM.Lx / 2), ey = y / ROOM.Ly;
+    if (ex * ex + ey * ey > 1) return -1;      // D자 바깥
+    return fieldT(HS, x, y, t);
+  });
 
   roomPath(ctx, sx, sy, x0, y0);
   ctx.strokeStyle = css('--baseline'); ctx.lineWidth = 1.5; ctx.stroke();
@@ -386,14 +480,11 @@ function drawSide(t) {
   const x0 = PAD, y0 = h - PAD;
   sideMap = { sx, sz, x0, y0 };
   ctx.clearRect(0, 0, w, h);
-  const [k, k2, a] = frameAt(t);
-  const cw = VS.dx * sx + 0.6, ch = VS.dy * sz + 0.6;
-  for (let i = 0; i < VS.cells.length; i++) {
-    const c = VS.cells[i];
-    const T = VS.T[k][i] + a * (VS.T[k2][i] - VS.T[k][i]);
-    ctx.fillStyle = LUT[bandOf(T)];
-    ctx.fillRect(x0 + (c[2] - VS.dx / 2) * sx, y0 - (c[3] + VS.dy / 2) * sz, cw, ch);
-  }
+  renderField(ctx, w, h, (px, py) => {
+    const x = (px - x0) / sx, z = (y0 - py) / sz;
+    if (x < 0 || x > ROOM.Lx || z < 0 || z > ROOM.Lz) return -1;
+    return fieldT(VS, x, z, t);
+  });
   ctx.strokeStyle = css('--baseline'); ctx.lineWidth = 1.2;
   ctx.strokeRect(x0, PAD, ROOM.Lx * sx, ROOM.Lz * sz);
   // 천장 에어컨 위치
@@ -500,28 +591,19 @@ function hookTooltip(cv, getInfo) {
   });
   cv.addEventListener('mouseleave', () => tip.style.display = 'none');
 }
-function nearestT(S, map, mx, my, vertical) {
-  const x = (mx - map.x0) / map.sx;
-  const y = (map.y0 - my) / (vertical ? map.sz : map.sy);
-  let best = -1, bd = 1e9;
-  for (let i = 0; i < S.cells.length; i++) {
-    const c = S.cells[i];
-    const d = (c[2] - x) ** 2 + (c[3] - y) ** 2;
-    if (d < bd) { bd = d; best = i; }
-  }
-  if (bd > (S.dx * 2) ** 2) return null;
-  const c = S.cells[best];
-  return { T: tempAt(S, best, tNow), c };
-}
 hookTooltip(cvTop, (mx, my) => {
   if (!topMap) return null;
-  const r = nearestT(HS, topMap, mx, my, false);
-  return r && { T: r.T, sub: `x ${r.c[2].toFixed(1)} m · y ${r.c[3].toFixed(1)} m` };
+  const x = (mx - topMap.x0) / topMap.sx, y = (topMap.y0 - my) / topMap.sy;
+  if (y < 0 || y > ROOM.Ly) return null;
+  const ex = (x - ROOM.Lx / 2) / (ROOM.Lx / 2);
+  if (ex * ex + (y / ROOM.Ly) ** 2 > 1) return null;
+  return { T: fieldT(HS, x, y, tNow), sub: `x ${x.toFixed(1)} m · y ${y.toFixed(1)} m` };
 });
 hookTooltip(cvSide, (mx, my) => {
   if (!sideMap) return null;
-  const r = nearestT(VS, sideMap, mx, my, true);
-  return r && { T: r.T, sub: `x ${r.c[2].toFixed(1)} m · 높이 ${r.c[3].toFixed(1)} m` };
+  const x = (mx - sideMap.x0) / sideMap.sx, z = (sideMap.y0 - my) / sideMap.sz;
+  if (x < 0 || x > ROOM.Lx || z < 0 || z > ROOM.Lz) return null;
+  return { T: fieldT(VS, x, z, tNow), sub: `x ${x.toFixed(1)} m · 높이 ${z.toFixed(1)} m` };
 });
 
 /* ---------- 시간 구동 ---------- */
