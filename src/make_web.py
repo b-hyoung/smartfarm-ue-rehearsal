@@ -124,7 +124,13 @@ def main():
     dmin = math.floor(tmin * 2) / 2
     dmax = math.ceil(tmax * 2) / 2
 
+    power = {}
+    pw_p = os.path.join(REPO, "data", "power.json")
+    if os.path.isfile(pw_p):
+        power = json.load(open(pw_p, encoding="utf-8"))
+
     data = {
+        "power": power,
         "meta": {
             "solver": man.get("solver", ""),
             "source": man.get("source", ""),

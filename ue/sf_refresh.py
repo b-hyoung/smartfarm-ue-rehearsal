@@ -63,11 +63,43 @@ def run():
     _exec_script("sf_sequencer2.py",
                  {"speedup": 10, "fps": 10, "rebuild_actors": False})
 
+    _update_power_text()
+
     import importlib
     import sf_play
     importlib.reload(sf_play)
     sf_play.go(30)
     unreal.log("SF_REFRESH: 완료 — 새 위치 기준으로 재생 중")
+
+
+def _update_power_text():
+    """예상 소비전력을 3D 텍스트로 (임시값 — 기본 TextRender 폰트라 영문)."""
+    p = os.path.join(REPO, "data", "power.json")
+    if not os.path.isfile(p):
+        return
+    pw = json.load(open(p, encoding="utf-8"))
+    cool = pw["cool_W"][-1] / 1000.0          # 정착 후 값
+    led = pw["light_W"] / 1000.0
+    txt = ("EST POWER (temp values)\n"
+           "AC %.2f kW + LED %.2f kW = %.2f kW\n"
+           "15 min = %.2f kWh" % (cool, led, cool + led, pw["kwh_15min"]))
+    eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    actor = None
+    for a in eas.get_all_level_actors():
+        if a.get_actor_label() == "SF_PowerText":
+            actor = a
+            break
+    if actor is None:
+        actor = eas.spawn_actor_from_class(
+            unreal.TextRenderActor, unreal.Vector(400, 640, 235),
+            unreal.Rotator(0, 0, -90))         # 평벽(-y) 쪽 관찰자를 향해
+        actor.set_actor_label("SF_PowerText")
+        actor.set_folder_path("SF")
+    c = actor.get_editor_property("text_render")
+    c.set_editor_property("world_size", 26.0)
+    c.set_editor_property("horizontal_alignment",
+                          unreal.HorizTextAligment.EHTA_CENTER)
+    c.set_text(txt)
 
 
 if __name__ == "__main__":

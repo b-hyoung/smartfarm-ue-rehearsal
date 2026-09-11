@@ -22,7 +22,8 @@ import numpy as np
 
 from src.config import load_config
 from src.geometry import inside_mask
-from src.vane_mock import TIMES, temperature, velocity, write_probes
+from src.power_model import FAN_W, series as power_series
+from src.vane_mock import LIGHT_W, TIMES, temperature, velocity, write_probes
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KELVIN = 273.15
@@ -161,6 +162,23 @@ def main():
         write_vslice(cfg, ac, f, t, light)
         write_jets(cfg, ac, f, t, light)
     write_probes(cfg, ac, light)
+
+    # 전력(임시값 기반): 냉방 = 에너지수지(power_model), 조명 = pct x LIGHT_W
+    rows = power_series(os.path.join(REPO, "data", "probes.csv"))
+    pw = {"t": [], "cool_W": [], "light_W": round(light * LIGHT_W, 1),
+          "fan_W": FAN_W,
+          "note": "임시값: COP 3.5(1등급 추정)·조명 480W 가정 — 실측으로 교체"}
+    for t in TIMES:
+        r = min(rows, key=lambda x: abs(x[0] - t))
+        pw["t"].append(t)
+        pw["cool_W"].append(round(r[3], 1))
+    kwh = 0.0
+    for (t0, _, _, p0), (t1, _, _, p1) in zip(rows, rows[1:]):
+        kwh += (p0 + p1) / 2 * (t1 - t0) / 3600.0
+    pw["kwh_15min"] = round((kwh + light * LIGHT_W * 900 / 3600.0) / 1000.0, 3)
+    with open(os.path.join(REPO, "data", "power.json"), "w",
+              encoding="utf-8") as fh:
+        json.dump(pw, fh, ensure_ascii=False)
 
     man = {"source": "MOCK-live (수식 예측, AC=%.2f,%.2f, 조명 %.0f%% — 대리모델로 교체 예정)"
                      % (ac[0], ac[1], light * 100),

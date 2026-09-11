@@ -86,7 +86,7 @@
                  font-size: 13px; color: var(--ink-2); cursor: pointer; user-select: none; }
   label.toggle input { accent-color: var(--series-a); width: 15px; height: 15px; }
 
-  .tiles { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .tiles { display: grid; grid-template-columns: 1.35fr 1.35fr repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
   .tile {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 10px; padding: 12px 14px;
@@ -561,6 +561,21 @@ function drawTiles(t) {
   let s = `<div class="tile hero"><div class="k">방 평균 (1.1 m)</div>` +
           `<div class="v">${mean.toFixed(1)}℃</div>` +
           `<div class="d">시작보다 ${d0.toFixed(1)}K 내려감</div></div>`;
+  if (DATA.power && DATA.power.t) {
+    const P = DATA.power;
+    let cool = P.cool_W[P.cool_W.length - 1];
+    for (let i = 0; i < P.t.length - 1; i++)
+      if (t >= P.t[i] && t <= P.t[i + 1]) {
+        const a = (t - P.t[i]) / (P.t[i + 1] - P.t[i]);
+        cool = P.cool_W[i] + a * (P.cool_W[i + 1] - P.cool_W[i]);
+        break;
+      }
+    const tot = (cool + P.light_W) / 1000;
+    s += `<div class="tile hero"><div class="k">예상 소비전력 (임시값)</div>` +
+         `<div class="v">${tot.toFixed(2)}<span style="font-size:15px"> kW</span></div>` +
+         `<div class="d">냉방 ${(cool / 1000).toFixed(2)} · 조명 ${(P.light_W / 1000).toFixed(2)}` +
+         ` · 15분 ${P.kwh_15min} kWh</div></div>`;
+  }
   PPTS.forEach((p, i) => {
     s += `<div class="tile"><div class="k"><span class="chip" style="background:${css(PCOLORS[i])}"></span>지점 ${p}</div>` +
          `<div class="v">${probeAt(p, t).toFixed(1)}<span style="font-size:15px">℃</span></div></div>`;
