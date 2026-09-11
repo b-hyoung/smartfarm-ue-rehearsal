@@ -111,11 +111,17 @@ def velocity(pts, t, cfg, ac=None, light=0.0, rack=None):
     return np.stack([ux, uy, w], axis=1) * ramp
 
 
-def temperature(pts, t, cfg, ac=None, light=0.0, rack=None):
+def temperature(pts, t, cfg, ac=None, light=0.0, rack=None, fit=None):
     """냉각 도달 지연 d(점) + 국소 시정수. 천장층 → 벽 → 바닥 중앙 순서로 식는다.
 
     light(0~1): 조명 광열. ① 방 평형온도가 P/UA 만큼 올라가고(덜 식음)
     ② 재배단 위가 국소적으로 더 덥다. 총량 LIGHT_W 는 임시값.
+
+    fit: 역산(PINN 자리, src/pinn_check.py)이 보정하는 미지 입력 3개.
+        {"dT_end": ℃ 평형온도 오프셋(열부하/UA 오차),
+         "s_tau": 시정수 배율(풍량·믹싱 오차),
+         "s_delay": 도달지연 배율(취출 유로 오차)}
+    t 는 스칼라 또는 (n_t,1) 배열 — 배열이면 (n_t, n_pts) 로 브로드캐스트된다.
     """
     ax, ay = ac if ac is not None else (AC[0], AC[1])
     x, y, z = pts[:, 0], pts[:, 1], pts[:, 2]
@@ -148,6 +154,12 @@ def temperature(pts, t, cfg, ac=None, light=0.0, rack=None):
         T_end = T_end + light * 1.8 * hot
 
     tau = 70.0 + 90.0 * np.clip(1.0 - z / zc, 0.0, 1.0)    # 아래쪽일수록 느리게
+
+    if fit:
+        T_end = T_end + float(fit.get("dT_end", 0.0))
+        tau = tau * float(fit.get("s_tau", 1.0))
+        delay = delay * float(fit.get("s_delay", 1.0))
+
     te = np.maximum(t - delay, 0.0)
     prog = 1.0 - np.exp(-te / tau)
     T_C = T_START + (T_end - T_START) * prog
