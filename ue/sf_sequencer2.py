@@ -40,8 +40,7 @@ les = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
 at = unreal.AssetToolsHelpers.get_asset_tools()
 
 
-def build_jets(frame):
-    """jet_NN.csv -> 커튼 4장 메시 (정점색 = 온도)."""
+def load_jet_grid(frame):
     path = os.path.join(REPO, "data", "jets", "jet_%02d.csv" % frame)
     sheets = {}
     kmax = smax = 0
@@ -49,28 +48,58 @@ def build_jets(frame):
         for r in csv.DictReader(fh):
             k, st = int(r["k"]), int(r["step"])
             sheets.setdefault(r["dir"], {})[(k, st)] = (
-                float(r["x"]) * S, float(r["y"]) * S, float(r["z"]) * S,
-                float(r["T"]))
+                float(r["x"]) * S, float(r["y"]) * S,
+                min(float(r["z"]) * S, 268.0), float(r["T"]))
             kmax, smax = max(kmax, k + 1), max(smax, st + 1)
-    verts, tris, norms, uvs, cols = [], [], [], [], []
+    return sheets, kmax, smax
+
+
+def build_jets(frame, frame_next):
+    """커튼 4장 — 정점색=현재 온도, UV1/UV2=다음 프레임 색, UV2.y/UV3=위치 델타.
+
+    "이미지가 바뀐다" 지적의 해법: 다음 프레임 데이터를 정점에 같이 실어서
+    머티리얼이 BlendU(시퀀서 구동)로 색은 번지고 형태는 모핑하게 한다.
+    """
+    cur, kmax, smax = load_jet_grid(frame)
+    nxt, _, _ = load_jet_grid(frame_next)
+    verts, tris, norms = [], [], []
+    uv0, uv1, uv2, uv3, cols = [], [], [], [], []
     up = unreal.Vector(0.0, 0.0, 1.0)
-    for d, grid in sheets.items():
+    for d in sorted(cur):
         base = len(verts)
         for k in range(kmax):
             for st in range(smax):
-                x, y, z, T = grid[(k, st)]
-                verts.append(unreal.Vector(x, y, min(z, 268.0)))
+                x, y, z, T = cur[d][(k, st)]
+                xn, yn, zn, Tn = nxt[d][(k, st)]
+                verts.append(unreal.Vector(x, y, z))
                 norms.append(up)
-                uvs.append(unreal.Vector2D(st / (smax - 1.0), k / (kmax - 1.0)))
                 # 커튼은 연속 그라디언트 — 곡면 위 0.5K 띠는 주름처럼 보인다
-                cols.append(G.temp_color(T))
+                c = G.temp_color(T)
+                cn = G.temp_color(Tn)
+                cols.append(c)
+                uv0.append(unreal.Vector2D(st / (smax - 1.0), k / (kmax - 1.0)))
+                uv1.append(unreal.Vector2D(cn.r, cn.g))
+                uv2.append(unreal.Vector2D(cn.b, xn - x))
+                uv3.append(unreal.Vector2D(yn - y, zn - z))
         for k in range(kmax - 1):
             for st in range(smax - 1):
                 a = base + k * smax + st
                 b = a + smax
                 tris += [a, a + 1, b,   a + 1, b + 1, b]
                 tris += [a, b, a + 1,   a + 1, b, b + 1]
-    return verts, tris, norms, uvs, cols
+    return verts, tris, norms, uv0, uv1, uv2, uv3, cols
+
+
+def build_slice_blend(frame, frame_next):
+    """온도 카펫 — 현재 프레임 메시에 다음 프레임 색을 UV1/UV2 로 싣는다.
+
+    카펫 격자는 프레임과 무관하게 동일하므로 정점 순서가 1:1 대응한다.
+    """
+    v, t, n, u, c = G.build_slice(G.load_slice(REPO, frame))
+    _, _, _, _, cn = G.build_slice(G.load_slice(REPO, frame_next))
+    uv1 = [unreal.Vector2D(x.r, x.g) for x in cn]
+    uv2 = [unreal.Vector2D(x.b, 0.0) for x in cn]
+    return v, t, n, u, uv1, uv2, c
 
 
 def main():
@@ -91,35 +120,38 @@ def main():
 
     actors = []
     for f in range(15):
+        fn = min(f + 1, 14)
         label = "SF_Anim2_%02d" % f
         for a in list(eas.get_all_level_actors()):
             if a.get_actor_label() == label:
                 eas.destroy_actor(a)
         actor, pmc = G.get_proc_actor(label, "Anim2Mesh_%02d" % f)
         pmc.clear_all_mesh_sections()
-        marks = G.build_markers(G.probe_points_at(series, times[f]),
-                                r_sphere=11.0, r_bar=6.5)
-        sections = (build_jets(f),
-                    G.build_slice(G.load_slice(REPO, f)),
-                    marks)
-        for idx, data in enumerate(sections):
-            verts, tris, normals, uvs, colors = data
-            if not verts:
-                continue
+
+        # 0=커튼: 색+형태를 다음 프레임으로 보간(모핑) + 흐름 파도
+        jv, jt, jn, ju0, ju1, ju2, ju3, jc = build_jets(f, fn)
+        pmc.create_mesh_section_linear_color(
+            0, jv, jt, jn, ju0, ju1, ju2, ju3, jc, [_t] * len(jv), False)
+        pmc.set_material(0, G.curtain_flow_blend_material())
+
+        # 1=온도카펫: 색을 다음 프레임으로 보간
+        sv, st_, sn, su0, su1, su2, sc = build_slice_blend(f, fn)
+        pmc.create_mesh_section_linear_color(
+            1, sv, st_, sn, su0, su1, su2, [], sc, [_t] * len(sv), False)
+        pmc.set_material(1, G.slice_blend_material())
+
+        # 2=마커 (작아서 보간 없이 교체)
+        mv, mt, mn, mu, mc = G.build_markers(
+            G.probe_points_at(series, times[f]), r_sphere=11.0, r_bar=6.5)
+        if mv:
             pmc.create_mesh_section_linear_color(
-                idx, verts, tris, normals, uvs, [], [], [], colors,
-                [_t] * len(verts), False)
-            # 0=커튼(반투명 파도가 흐름) 1=온도카펫(주인공) 2=마커(불투명)
-            if idx == 0:
-                pmc.set_material(idx, G.curtain_flow_material())
-            elif idx == 1:
-                pmc.set_material(idx, mat_slice)
-            else:
-                pmc.set_material(idx, mat_vc)
+                2, mv, mt, mn, mu, [], [], [], mc, [_t] * len(mv), False)
+            pmc.set_material(2, mat_vc)
+
         actor.set_actor_hidden_in_game(True)
         actor.set_is_temporarily_hidden_in_editor(True)
         actors.append((f, actor))
-        print("SF_SEQ2: %s  정점 %d" % (label, len(sections[0][0])))
+        print("SF_SEQ2: %s  커튼정점 %d" % (label, len(jv)))
 
     # ── 시퀀스 ─────────────────────────────────────────────
     if unreal.EditorAssetLibrary.does_asset_exist(SEQ_PATH):
@@ -149,6 +181,22 @@ def main():
                 unreal.MovieSceneScriptingBoolChannel):
             ch.set_default(True)
             ch.add_key(unreal.FrameNumber(a), True)
+
+    # BlendU 톱니파 — 각 표시창에서 0→1 로 올라가며 다음 프레임으로 보간/모핑
+    # ⚠ add_scalar_parameter_key 의 FrameNumber 는 표시 프레임이 아니라
+    #   **틱 해상도**(기본 24000/s) 단위다. 표시 프레임 그대로 넣으면 키가
+    #   재생 0.005초 안에 몰려서 BlendU 가 항상 1 — "보간이 안 된다" 사고.
+    tick = seq.get_tick_resolution()
+    scale = int(round(tick.numerator / float(tick.denominator) / FPS))
+    mpc = G.blend_mpc()
+    mtrack = seq.add_track(unreal.MovieSceneMaterialParameterCollectionTrack)
+    mtrack.set_editor_property("mpc", mpc)
+    msec = mtrack.add_section()
+    msec.set_range(0, win[-1][2])
+    for _actor, a, b in win:
+        msec.add_scalar_parameter_key("BlendU", unreal.FrameNumber(a * scale), 0.0)
+        msec.add_scalar_parameter_key("BlendU",
+                                      unreal.FrameNumber((b - 1) * scale), 1.0)
     unreal.EditorAssetLibrary.save_asset(SEQ_PATH)
 
     for a in list(eas.get_all_level_actors()):

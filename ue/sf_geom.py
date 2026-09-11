@@ -243,6 +243,173 @@ def curtain_flow_material(opacity_base=0.14, opacity_amp=0.38,
     return mat
 
 
+def blend_mpc():
+    """시퀀서가 모는 전역 블렌드 스칼라(BlendU 0→1) — 프레임 사이 보간용.
+
+    "색이 변한다기보다 이미지가 바뀐다" 지적의 해법: 스냅샷 교체 대신
+    머티리얼이 현재/다음 프레임을 BlendU 로 보간한다. BlendU 는 이
+    MaterialParameterCollection 을 시퀀서 트랙이 톱니파(창마다 0→1)로 몬다.
+    """
+    path = "/Game/Materials/MPC_SF_Blend"
+    mpc = unreal.EditorAssetLibrary.load_asset(path)
+    if mpc is None:
+        at = unreal.AssetToolsHelpers.get_asset_tools()
+        mpc = at.create_asset("MPC_SF_Blend", "/Game/Materials",
+                              unreal.MaterialParameterCollection,
+                              unreal.MaterialParameterCollectionFactoryNew())
+        p = unreal.CollectionScalarParameter()
+        p.set_editor_property("parameter_name", "BlendU")
+        p.set_editor_property("default_value", 0.0)
+        mpc.set_editor_property("scalar_parameters", [p])
+        unreal.EditorAssetLibrary.save_asset(path)
+    return mpc
+
+
+def _blend_emissive(mat, lib, node, wire):
+    """공용 노드 묶음: lerp(정점색, UV1/UV2 에 실린 다음 프레임 색, BlendU).
+
+    반환: (lerp 노드, blendU 노드) — 호출부가 emissive 에 잇는다.
+    정점 데이터 규약: VertexColor=현재 색, UV1=(nextR,nextG), UV2.r=nextB.
+    """
+    vc = node(unreal.MaterialExpressionVertexColor, -700, -160)
+    uv1 = node(unreal.MaterialExpressionTextureCoordinate, -900, 0,
+               coordinate_index=1)
+    uv2 = node(unreal.MaterialExpressionTextureCoordinate, -900, 120,
+               coordinate_index=2)
+    m_b = node(unreal.MaterialExpressionComponentMask, -750, 120,
+               r=True, g=False, b=False, a=False)
+    wire(uv2, "", m_b, "")
+    app = node(unreal.MaterialExpressionAppendVector, -600, 40)
+    wire(uv1, "", app, "A")
+    wire(m_b, "", app, "B")
+    col = node(unreal.MaterialExpressionCollectionParameter, -600, 220)
+    col.set_editor_property("collection", blend_mpc())
+    col.set_editor_property("parameter_name", "BlendU")
+    lerp = node(unreal.MaterialExpressionLinearInterpolate, -420, -40)
+    wire(vc, "", lerp, "A")
+    wire(app, "", lerp, "B")
+    wire(col, "", lerp, "Alpha")
+    return lerp, col
+
+
+def slice_blend_material(opacity=0.72):
+    """온도 카펫용 — 현재/다음 프레임 색을 BlendU 로 보간하는 반투명 Unlit."""
+    path = "/Game/Materials/M_SF_SliceBlend"
+    mat = unreal.EditorAssetLibrary.load_asset(path)
+    if mat is not None:
+        return mat
+    at = unreal.AssetToolsHelpers.get_asset_tools()
+    mat = at.create_asset("M_SF_SliceBlend", "/Game/Materials",
+                          unreal.Material, unreal.MaterialFactoryNew())
+    mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)
+    mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
+    mat.set_editor_property("two_sided", True)
+    lib = unreal.MaterialEditingLibrary
+
+    def node(cls, x, y, **props):
+        e = lib.create_material_expression(mat, cls, x, y)
+        for k, v in props.items():
+            e.set_editor_property(k, v)
+        return e
+
+    def wire(a, ao, b, bi):
+        lib.connect_material_expressions(a, ao, b, bi)
+
+    lerp, _ = _blend_emissive(mat, lib, node, wire)
+    lib.connect_material_property(lerp, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+    op = node(unreal.MaterialExpressionConstant, -420, 200, r=opacity)
+    lib.connect_material_property(op, "", unreal.MaterialProperty.MP_OPACITY)
+    lib.recompile_material(mat)
+    unreal.EditorAssetLibrary.save_asset(path)
+    return mat
+
+
+def curtain_flow_blend_material(opacity_base=0.14, opacity_amp=0.38,
+                                stripes=2.5, speed=0.45):
+    """커튼용 — 색·위치 모두 다음 프레임으로 보간(모핑) + 흐름 파도 투명도.
+
+    정점 규약: VertexColor=현재 색, UV0=(진행률,가로), UV1=(nextR,nextG),
+    UV2=(nextB, dx), UV3=(dy, dz). WPO = (dx,dy,dz) * BlendU.
+    """
+    path = "/Game/Materials/M_SF_CurtainFlowBlend"
+    mat = unreal.EditorAssetLibrary.load_asset(path)
+    if mat is not None:
+        return mat
+    at = unreal.AssetToolsHelpers.get_asset_tools()
+    mat = at.create_asset("M_SF_CurtainFlowBlend", "/Game/Materials",
+                          unreal.Material, unreal.MaterialFactoryNew())
+    mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)
+    mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
+    mat.set_editor_property("two_sided", True)
+    lib = unreal.MaterialEditingLibrary
+
+    def node(cls, x, y, **props):
+        e = lib.create_material_expression(mat, cls, x, y)
+        for k, v in props.items():
+            e.set_editor_property(k, v)
+        return e
+
+    def wire(a, ao, b, bi):
+        lib.connect_material_expressions(a, ao, b, bi)
+
+    lerp, col = _blend_emissive(mat, lib, node, wire)
+    lib.connect_material_property(lerp, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+
+    # 위치 모핑: (dx,dy,dz) * BlendU → WPO
+    uv2b = node(unreal.MaterialExpressionTextureCoordinate, -900, 320,
+                coordinate_index=2)
+    m_dx = node(unreal.MaterialExpressionComponentMask, -750, 320,
+                r=False, g=True, b=False, a=False)
+    wire(uv2b, "", m_dx, "")
+    uv3 = node(unreal.MaterialExpressionTextureCoordinate, -900, 440,
+               coordinate_index=3)
+    d3 = node(unreal.MaterialExpressionAppendVector, -600, 360)
+    wire(m_dx, "", d3, "A")
+    wire(uv3, "", d3, "B")
+    wpo = node(unreal.MaterialExpressionMultiply, -420, 360)
+    wire(d3, "", wpo, "A")
+    wire(col, "", wpo, "B")
+    lib.connect_material_property(
+        wpo, "", unreal.MaterialProperty.MP_WORLD_POSITION_OFFSET)
+
+    # 흐름 파도 투명도 (기존 CurtainFlow 와 동일 수식)
+    tc = node(unreal.MaterialExpressionTextureCoordinate, -1200, 560,
+              coordinate_index=0)
+    umask = node(unreal.MaterialExpressionComponentMask, -1050, 560,
+                 r=True, g=False, b=False, a=False)
+    wire(tc, "", umask, "")
+    n_str = node(unreal.MaterialExpressionConstant, -1050, 680, r=stripes)
+    umul = node(unreal.MaterialExpressionMultiply, -900, 560)
+    wire(umask, "", umul, "A")
+    wire(n_str, "", umul, "B")
+    tnode = node(unreal.MaterialExpressionTime, -1050, 800)
+    n_spd = node(unreal.MaterialExpressionConstant, -1050, 910, r=speed)
+    tmul = node(unreal.MaterialExpressionMultiply, -900, 840)
+    wire(tnode, "", tmul, "A")
+    wire(n_spd, "", tmul, "B")
+    sub = node(unreal.MaterialExpressionSubtract, -750, 640)
+    wire(umul, "", sub, "A")
+    wire(tmul, "", sub, "B")
+    fr = node(unreal.MaterialExpressionFrac, -620, 640)
+    wire(sub, "", fr, "")
+    ex = node(unreal.MaterialExpressionConstant, -620, 760, r=2.0)
+    pw = node(unreal.MaterialExpressionPower, -480, 640)
+    wire(fr, "", pw, "Base")
+    wire(ex, "", pw, "Exp")
+    amp = node(unreal.MaterialExpressionConstant, -480, 760, r=opacity_amp)
+    amul = node(unreal.MaterialExpressionMultiply, -340, 640)
+    wire(pw, "", amul, "A")
+    wire(amp, "", amul, "B")
+    base = node(unreal.MaterialExpressionConstant, -340, 760, r=opacity_base)
+    aadd = node(unreal.MaterialExpressionAdd, -200, 640)
+    wire(amul, "", aadd, "A")
+    wire(base, "", aadd, "B")
+    lib.connect_material_property(aadd, "", unreal.MaterialProperty.MP_OPACITY)
+    lib.recompile_material(mat)
+    unreal.EditorAssetLibrary.save_asset(path)
+    return mat
+
+
 def flow_anim_material(name="M_SF_FlowAnim", stripes=6.0, speed=1.2):
     """유선 관을 따라 **무늬가 흘러가는** Unlit 머티리얼.
 
