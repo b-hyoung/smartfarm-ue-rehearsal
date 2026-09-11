@@ -123,11 +123,14 @@ def temperature(pts, t, cfg, ac=None, light=0.0):
     zc = cfg.room.Lz
 
     # 냉기 도달 지연: 천장을 타고(r) → 벽에서 내려와(zc-z) → 바닥을 돌아온다
+    # ⚠ 진짜 vane25 가 60초에 방평균 26.2℃ 였음 — 측면취출 믹싱이 빨라서
+    #   지연을 처음 가정(200초대)보다 크게 줄였다 (2026-09-11 웹 그래프로 발견)
     dw = _wall_dist(x, y, cfg)
     near_ceil = np.exp(-(((zc - z) / LAYER) ** 2))
-    d_ceil = r / 0.045                          # 천장층: 900초 안에 다 덮는 속도
-    d_wall = dw / 0.9 * 60 + (zc - z) / 0.011   # 벽에서 내려오는 경로
-    delay = np.where(near_ceil > 0.4, d_ceil, np.minimum(d_wall, d_ceil + (zc - z) / 0.008))
+    d_ceil = r / 0.15                           # 천장층 전파
+    d_wall = dw / 0.9 * 25 + (zc - z) / 0.035   # 벽에서 내려오는 경로
+    delay = np.where(near_ceil > 0.4, d_ceil,
+                     np.minimum(d_wall, d_ceil + (zc - z) / 0.025))
 
     # 최종(900초+) 온도장: 성층 + 제트층 한랭
     T_end = T_FLOOR_END + (T_CEIL_END - T_FLOOR_END) * (z / zc)
@@ -143,7 +146,7 @@ def temperature(pts, t, cfg, ac=None, light=0.0):
         hot = _rack_falloff(x, y) * np.exp(-(((z - Z_LIGHT) / 0.45) ** 2))
         T_end = T_end + light * 1.8 * hot
 
-    tau = 90.0 + 140.0 * np.clip(1.0 - z / zc, 0.0, 1.0)   # 아래쪽일수록 느리게
+    tau = 70.0 + 90.0 * np.clip(1.0 - z / zc, 0.0, 1.0)    # 아래쪽일수록 느리게
     te = np.maximum(t - delay, 0.0)
     prog = 1.0 - np.exp(-te / tau)
     T_C = T_START + (T_end - T_START) * prog

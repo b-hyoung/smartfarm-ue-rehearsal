@@ -127,6 +127,7 @@ def main():
     data = {
         "meta": {
             "solver": man.get("solver", ""),
+            "source": man.get("source", ""),
             "room": man["room_m"],
             "ac": man["ac"]["centre_ue_m"][:2],
             "times": times,

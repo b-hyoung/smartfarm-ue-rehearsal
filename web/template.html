@@ -180,10 +180,8 @@
   </details>
 
   <div class="caveat">
-    <b>이 데이터는 acRoom-vane25</b> — 실물 4Way 카세트처럼 4방향 베인 25° 측면
-    취출을 반영한 계산(2026-09-10). 찬 제트가 천장을 타다 벽에 닿기 전에
-    가라앉는 것(cold dump)까지 계산에서 나온 결과다. ·
-    <b>남은 한계</b>: 빈 방 해석이라 재배단이 유동에 없다 ·
+    <b>데이터 출처</b>: <span id="srcLine"></span> ·
+    <b>남은 한계</b>: 재배단이 유동을 막지 않음(열원만 반영) ·
     벽 온도 29℃ 고정 가정(실측 미반영).
   </div>
 </div>
@@ -657,6 +655,7 @@ chart.addEventListener('pointerdown', e => {
 chart.addEventListener('pointerup', () => chart.removeEventListener('pointermove', chartScrub));
 
 /* ---------- 초기화 · 테마 · 리사이즈 ---------- */
+document.getElementById('srcLine').textContent = DATA.meta.source || DATA.meta.solver || '-';
 function rebuildAll() {
   buildLUT(); drawLegend(); buildChart(); buildTable(); setTime(tNow);
 }
