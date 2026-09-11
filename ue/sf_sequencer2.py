@@ -131,10 +131,18 @@ def main():
     existing = {a.get_actor_label(): a for a in eas.get_all_level_actors()
                 if a.get_actor_label().startswith("SF_Anim2_")}
     if not REBUILD_ACTORS and len(existing) == 15:
-        actors = [(f, existing["SF_Anim2_%02d" % f]) for f in range(15)]
+        txts = {a.get_actor_label(): a for a in eas.get_all_level_actors()
+                if a.get_actor_label().startswith("SF_PwrTxt_")}
+        actors = [(f, existing["SF_Anim2_%02d" % f],
+                   txts.get("SF_PwrTxt_%02d" % f)) for f in range(15)]
         print("SF_SEQ2: 기존 액터 15개 재사용")
         build_sequence_only(actors, times)
         return
+
+    power = {}
+    pw_p = os.path.join(REPO, "data", "power.json")
+    if os.path.isfile(pw_p):
+        power = json.load(open(pw_p, encoding="utf-8"))
 
     actors = []
     for f in range(15):
@@ -168,10 +176,58 @@ def main():
 
         actor.set_actor_hidden_in_game(True)
         actor.set_is_temporarily_hidden_in_editor(True)
-        actors.append((f, actor))
+
+        # 프레임별 전력 텍스트 — 재생 중 실시간 변화 (시퀀서가 가시성 토글)
+        txt = None
+        if power.get("t"):
+            cool = power["cool_W"][f] / 1000.0
+            led = power.get("light_W", 0.0) / 1000.0
+            tl = "SF_PwrTxt_%02d" % f
+            for a in list(eas.get_all_level_actors()):
+                if a.get_actor_label() == tl:
+                    eas.destroy_actor(a)
+            # 평벽(-y) 바깥 위 — 방 안 어디서도 가려지지 않는 자리
+            txt = eas.spawn_actor_from_class(
+                unreal.TextRenderActor, unreal.Vector(400, -40, 300),
+                unreal.Rotator(0, 0, -90))
+            txt.set_actor_label(tl)
+            txt.set_folder_path("SF/Power")
+            tc = txt.get_editor_property("text_render")
+            tc.set_editor_property("world_size", 34.0)
+            tc.set_editor_property("horizontal_alignment",
+                                   unreal.HorizTextAligment.EHTA_CENTER)
+            tc.set_text("t=%ds   AC %.2f kW  LED %.2f kW   TOTAL %.2f kW"
+                        % (int(times[f]), cool, led, cool + led))
+            txt.set_actor_hidden_in_game(True)
+            txt.set_is_temporarily_hidden_in_editor(True)
+
+        actors.append((f, actor, txt))
         print("SF_SEQ2: %s  커튼정점 %d" % (label, len(jv)))
 
+    if power.get("t"):
+        _ensure_power_text_light()
     build_sequence_only(actors, times)
+
+
+def _ensure_power_text_light():
+    """전력 텍스트 조명 — 기본 텍스트 머티리얼은 lit 이라 어두운 씬에선 안 보인다.
+
+    (재배등 감쇠반경 320 밖은 완전 암흑 → 흰 글자가 검정 위 검정으로 렌더.
+     SceneCapture 검증으로 확인.) 텍스트 전용 포인트라이트를 앞에 하나 둔다.
+    """
+    label = "SF_PwrTxtLight"
+    for a in eas.get_all_level_actors():
+        if a.get_actor_label() == label:
+            return
+    l = eas.spawn_actor_from_class(unreal.PointLight,
+                                   unreal.Vector(400, -200, 300),
+                                   unreal.Rotator())
+    l.set_actor_label(label)
+    l.set_folder_path("SF/Power")
+    c = l.get_editor_property("point_light_component")
+    c.set_intensity(5000.0)
+    c.set_editor_property("attenuation_radius", 400.0)
+    c.set_editor_property("cast_shadows", False)
 
 
 def build_sequence_only(actors, times):
@@ -184,13 +240,17 @@ def build_sequence_only(actors, times):
                           unreal.LevelSequenceFactoryNew())
     end_s = max(times.values())
     win = []
-    for i, (f, actor) in enumerate(actors):
+    for i, entry in enumerate(actors):
+        f, actor = entry[0], entry[1]
+        txt = entry[2] if len(entry) > 2 else None
         t0 = times[f]
         t1 = times[actors[i + 1][0]] if i + 1 < len(actors) \
             else end_s + (end_s - times[actors[i - 1][0]])
-        win.append((actor, int(round(t0 / SPEEDUP * FPS)),
-                    max(int(round(t1 / SPEEDUP * FPS)),
-                        int(round(t0 / SPEEDUP * FPS)) + 1)))
+        a_ = int(round(t0 / SPEEDUP * FPS))
+        b_ = max(int(round(t1 / SPEEDUP * FPS)), a_ + 1)
+        win.append((actor, a_, b_))
+        if txt is not None:                 # 전력 텍스트도 같은 창으로 토글
+            win.append((txt, a_, b_))
     seq.set_display_rate(unreal.FrameRate(FPS, 1))
     seq.set_playback_start(0)
     seq.set_playback_end(win[-1][2])

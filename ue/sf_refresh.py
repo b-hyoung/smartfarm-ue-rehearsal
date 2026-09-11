@@ -73,7 +73,7 @@ def run():
     _exec_script("sf_sequencer2.py",
                  {"speedup": 10, "fps": 10, "rebuild_actors": False})
 
-    _update_power_text()
+    _remove_legacy_power_text()
 
     import importlib
     import sf_play
@@ -82,8 +82,16 @@ def run():
     unreal.log("SF_REFRESH: 완료 — 새 위치 기준으로 재생 중")
 
 
-def _update_power_text():
-    """예상 소비전력을 3D 텍스트로 (임시값 — 기본 TextRender 폰트라 영문)."""
+def _remove_legacy_power_text():
+    """구버전 고정 텍스트 제거 — 전력은 프레임별 SF_PwrTxt_* 가 실시간 표시."""
+    eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    for a in list(eas.get_all_level_actors()):
+        if a.get_actor_label() == "SF_PowerText":
+            eas.destroy_actor(a)
+
+
+def _update_power_text_unused():
+    """(구) 예상 소비전력 고정 텍스트."""
     p = os.path.join(REPO, "data", "power.json")
     if not os.path.isfile(p):
         return
