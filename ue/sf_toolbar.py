@@ -15,6 +15,9 @@ UE_DIR_CMD = ("import sys, importlib; "
               "import sf_play; importlib.reload(sf_play); ")
 
 BUTTONS = [
+    ("SF_Refresh", "SF 갱신",
+     "에어컨(SF_AC_Root)을 옮긴 위치 기준으로 예상 온도·기류 재생성 (임시 수식 예측)",
+     "import sf_refresh; importlib.reload(sf_refresh); sf_refresh.run()"),
     ("SF_Play30", "SF 30배속", "32초 재생 (1초 = 실제 30초)", "sf_play.go(30)"),
     ("SF_Play10", "SF 10배속", "90초 재생 (1초 = 실제 10초)", "sf_play.go(10)"),
     ("SF_Stop", "SF 정지", "재생 일시정지", "sf_play.stop()"),

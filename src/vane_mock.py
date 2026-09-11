@@ -51,10 +51,15 @@ def _wall_dist(x, y, cfg):
     return np.minimum(d_ell, np.maximum(y, 0.0))  # 평벽(y=0)까지 거리와의 최소
 
 
-def velocity(pts, t, cfg):
-    """천장 방사 제트 + 벽 하강 + 바닥 귀환 + 중앙 상승(리턴). m/s."""
+def velocity(pts, t, cfg, ac=None):
+    """천장 방사 제트 + 벽 하강 + 바닥 귀환 + 중앙 상승(리턴). m/s.
+
+    ac=(x, y): 에어컨 수평 위치(m). 생략 시 기본 위치 — "옮기면 값이 바뀌는"
+    라이브 트윈은 이 인자로 임의 위치의 예상 유동장을 얻는다.
+    """
+    ax, ay = ac if ac is not None else (AC[0], AC[1])
     x, y, z = pts[:, 0], pts[:, 1], pts[:, 2]
-    dx, dy = x - AC[0], y - AC[1]
+    dx, dy = x - ax, y - ay
     r = np.sqrt(dx * dx + dy * dy)
     er_x, er_y = dx / np.maximum(r, 1e-6), dy / np.maximum(r, 1e-6)
     zc = cfg.room.Lz
@@ -85,10 +90,11 @@ def velocity(pts, t, cfg):
     return np.stack([ux, uy, w], axis=1) * ramp
 
 
-def temperature(pts, t, cfg):
+def temperature(pts, t, cfg, ac=None):
     """냉각 도달 지연 d(점) + 국소 시정수. 천장층 → 벽 → 바닥 중앙 순서로 식는다."""
+    ax, ay = ac if ac is not None else (AC[0], AC[1])
     x, y, z = pts[:, 0], pts[:, 1], pts[:, 2]
-    dx, dy = x - AC[0], y - AC[1]
+    dx, dy = x - ax, y - ay
     r = np.sqrt(dx * dx + dy * dy)
     zc = cfg.room.Lz
 
@@ -114,8 +120,11 @@ def temperature(pts, t, cfg):
     return T_C + KELVIN
 
 
-def write_probes(cfg):
-    """A/B/C/D × 3높이 × 1.15초 간격 — 진짜 probes.csv 와 같은 스키마."""
+def write_probes(cfg, ac=None):
+    """A/B/C/D × 3높이 × 1.15초 간격 — 진짜 probes.csv 와 같은 스키마.
+
+    측정점은 방에 고정이고(센서 위치), 에어컨(ac)이 옮겨지면 값만 달라진다.
+    """
     pos = {"A": (4.0, 2.0), "B": (7.5, 0.8), "C": (4.0, 4.5), "D": (0.5, 0.8)}
     heights = [0.1, 1.1, 1.7]
     ts = np.arange(0.0, 900.0 + 1e-6, 1.15)
@@ -124,8 +133,8 @@ def write_probes(cfg):
     names = [n for n in pos for _ in heights]
     hs = heights * len(pos)
     for t in ts:
-        T = temperature(pts, t, cfg) - KELVIN
-        U = np.linalg.norm(velocity(pts, t, cfg), axis=1)
+        T = temperature(pts, t, cfg, ac) - KELVIN
+        U = np.linalg.norm(velocity(pts, t, cfg, ac), axis=1)
         for i, n in enumerate(names):
             rows.append((round(t, 2), n, pts[i, 0], pts[i, 1], hs[i],
                          round(float(T[i]), 3), round(float(U[i]), 4)))

@@ -35,3 +35,22 @@ def stop():
     lib = unreal.LevelSequenceEditorBlueprintLibrary
     lib.pause()
     unreal.log("SF_PLAY: 일시정지")
+
+
+def hide_frames():
+    """프레임 액터(SF_Anim2_*) 전부 숨김.
+
+    ⚠ '에디터 임시 숨김'은 레벨에 저장되지 않는다 — 에디터를 새로 켜면
+    15장의 반투명 단면이 전부 겹쳐 보여서 z-파이팅으로 색이 반짝거린다
+    (사용자 버그 제보). 그래서 에디터 시작 시(init_unreal) 이걸 다시 돌린다.
+    시퀀서가 재생할 때는 가시성 트랙이 알아서 켠다.
+    """
+    eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    n = 0
+    for a in eas.get_all_level_actors():
+        if a.get_actor_label().startswith(("SF_Anim2_", "SF_Anim_")):
+            a.set_is_temporarily_hidden_in_editor(True)
+            a.set_actor_hidden_in_game(True)
+            n += 1
+    unreal.log("SF_PLAY: 프레임 액터 %d개 숨김" % n)
+    return n
