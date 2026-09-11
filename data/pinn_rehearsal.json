@@ -1,0 +1,177 @@
+{
+  "iters": 15000,
+  "fit": {
+    "alpha_m2s": 0.091409,
+    "tau_s": 303.656598,
+    "T_eq_C": 16.368271
+  },
+  "score": {
+    "slice": {
+      "rms_pinn": 0.623,
+      "rms_mock": 1.572,
+      "per_frame": [
+        {
+          "t_s": 0.0,
+          "rms_pinn": 0.952,
+          "rms_mock": 0.997
+        },
+        {
+          "t_s": 60.0,
+          "rms_pinn": 0.819,
+          "rms_mock": 2.632
+        },
+        {
+          "t_s": 130.0,
+          "rms_pinn": 0.67,
+          "rms_mock": 2.213
+        },
+        {
+          "t_s": 190.0,
+          "rms_pinn": 0.743,
+          "rms_mock": 1.854
+        },
+        {
+          "t_s": 260.0,
+          "rms_pinn": 0.585,
+          "rms_mock": 1.609
+        },
+        {
+          "t_s": 320.0,
+          "rms_pinn": 0.542,
+          "rms_mock": 1.471
+        },
+        {
+          "t_s": 390.0,
+          "rms_pinn": 0.602,
+          "rms_mock": 1.393
+        },
+        {
+          "t_s": 450.0,
+          "rms_pinn": 0.571,
+          "rms_mock": 1.341
+        },
+        {
+          "t_s": 510.0,
+          "rms_pinn": 0.538,
+          "rms_mock": 1.329
+        },
+        {
+          "t_s": 580.0,
+          "rms_pinn": 0.53,
+          "rms_mock": 1.326
+        },
+        {
+          "t_s": 640.0,
+          "rms_pinn": 0.528,
+          "rms_mock": 1.326
+        },
+        {
+          "t_s": 710.0,
+          "rms_pinn": 0.523,
+          "rms_mock": 1.326
+        },
+        {
+          "t_s": 770.0,
+          "rms_pinn": 0.52,
+          "rms_mock": 1.326
+        },
+        {
+          "t_s": 840.0,
+          "rms_pinn": 0.517,
+          "rms_mock": 1.325
+        },
+        {
+          "t_s": 900.0,
+          "rms_pinn": 0.514,
+          "rms_mock": 1.323
+        }
+      ]
+    },
+    "vslice": {
+      "rms_pinn": 0.905,
+      "rms_mock": 1.919,
+      "per_frame": [
+        {
+          "t_s": 0.0,
+          "rms_pinn": 1.909,
+          "rms_mock": 1.994
+        },
+        {
+          "t_s": 60.0,
+          "rms_pinn": 1.251,
+          "rms_mock": 2.934
+        },
+        {
+          "t_s": 130.0,
+          "rms_pinn": 0.841,
+          "rms_mock": 2.371
+        },
+        {
+          "t_s": 190.0,
+          "rms_pinn": 0.816,
+          "rms_mock": 2.152
+        },
+        {
+          "t_s": 260.0,
+          "rms_pinn": 0.793,
+          "rms_mock": 2.002
+        },
+        {
+          "t_s": 320.0,
+          "rms_pinn": 0.782,
+          "rms_mock": 1.819
+        },
+        {
+          "t_s": 390.0,
+          "rms_pinn": 0.745,
+          "rms_mock": 1.758
+        },
+        {
+          "t_s": 450.0,
+          "rms_pinn": 0.737,
+          "rms_mock": 1.692
+        },
+        {
+          "t_s": 510.0,
+          "rms_pinn": 0.716,
+          "rms_mock": 1.662
+        },
+        {
+          "t_s": 580.0,
+          "rms_pinn": 0.704,
+          "rms_mock": 1.656
+        },
+        {
+          "t_s": 640.0,
+          "rms_pinn": 0.698,
+          "rms_mock": 1.655
+        },
+        {
+          "t_s": 710.0,
+          "rms_pinn": 0.693,
+          "rms_mock": 1.652
+        },
+        {
+          "t_s": 770.0,
+          "rms_pinn": 0.688,
+          "rms_mock": 1.65
+        },
+        {
+          "t_s": 840.0,
+          "rms_pinn": 0.682,
+          "rms_mock": 1.647
+        },
+        {
+          "t_s": 900.0,
+          "rms_pinn": 0.677,
+          "rms_mock": 1.645
+        }
+      ]
+    }
+  },
+  "versions": {
+    "deepxde": "1.15.0",
+    "torch": "2.14.0+cu126"
+  },
+  "note": "리허설 — 가짜 실측(vane25 CFD 센서 12점). 물리는 단순화(이류 없음). 실측 오면 입력만 교체."
+}

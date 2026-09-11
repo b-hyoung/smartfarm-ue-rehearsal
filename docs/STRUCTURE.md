@@ -29,7 +29,8 @@
 | 재배단 기류 차단 | 없음 (열원만) | CFD 케이스 | 재배단 포함 격자 재계산 |
 | PINO 교재 | mock 750쌍 | `src/make_dataset.py` | 진짜 CFD 케이스 |
 | 실측 | CFD 백업 2케이스(가짜) | `data/_real-vane25/`, `data/_real-vert/` | R1 실측 CSV (스키마 동일) |
-| PINN 역산 | 격자 최소제곱 3파라미터 | `src/pinn_check.py` | 진짜 PINN (물리손실 포함) |
+| PINN 역산 | 격자 최소제곱 3파라미터 | `src/pinn_check.py` | 후보: DeepXDE 리허설 (아래) |
+| PINN 본체 | DeepXDE 역문제 리허설 | `src/pinn_rehearsal.py` | 실측 CSV + (필요시) 이류 포함 물리 |
 
 ## 검사 실행 (PINN 자리)
 
@@ -40,6 +41,14 @@ py -m src.pinn_check data/_real-vane25/probes.csv        # 실측 오면 경로�
 잔차 → dT_end(열부하/UA)·s_tau(풍량)·s_delay(유로) 역산 → 판정
 (≤0.5℃ 적합 / ≤1.0 주의 / 초과 불일치). 결과 `data/pinn_check.json`.
 현재(가짜 실측): vane25 보정 후 0.55℃ · vert 1.55℃ = 불일치 감지 ✓
+
+```
+py -m src.pinn_rehearsal        # DeepXDE PINN 리허설 (GPU ~6분)
+```
+
+센서 12점 + 단순화 열수지만으로 장 복원 → 단면 정답지 채점:
+PINN 0.62/0.90℃ vs mock 수식 1.57/1.92℃ (수평/수직). Wei & Ooka(2023) 방식.
+근거·한계·skopt DLL 우회는 파일 머리주석. 결과 `data/pinn_rehearsal.json`.
 
 ## 임시값 검증 ↔ 실측 매핑
 
