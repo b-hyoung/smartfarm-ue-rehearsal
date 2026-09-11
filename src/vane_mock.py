@@ -40,6 +40,19 @@ T_FLOOR_END = 22.9        # 900초 바닥 근처
 T_CEIL_END = 23.8         # 900초 천장(제트 밖)
 T_JET_END = 20.5          # 900초 제트층(에어컨 근처)
 
+# ── 조명(광열) — 임시값, 실제 LED 와트·IES 분포로 교체 예정 ──────────
+LIGHT_W = 480.0           # LED 총 소비전력 가정 (240 W x 2단) — ★ 실측으로 교체
+UA_EFF = 641.0            # 방 유효 열손실계수 W/K (§9 역산값) — 평형온도 상승용
+RACK_C = (4.0, 2.0)       # 재배단 중심 (방 가운데, 회의록 기준)
+RACK_HX, RACK_HY = 1.2, 0.4   # 재배단 반폭 (2.4 x 0.8 m)
+Z_LIGHT = 1.60            # 상단(2단) 조명 높이 — 2단 재배단 기준
+
+
+def _rack_falloff(x, y):
+    rx = (x - RACK_C[0]) / RACK_HX
+    ry = (y - RACK_C[1]) / RACK_HY
+    return np.exp(-(rx * rx + ry * ry))
+
 
 def _wall_dist(x, y, cfg):
     """D자 경계까지의 대략적 수평 거리(m). 타원 반경 방향 근사."""
@@ -51,11 +64,12 @@ def _wall_dist(x, y, cfg):
     return np.minimum(d_ell, np.maximum(y, 0.0))  # 평벽(y=0)까지 거리와의 최소
 
 
-def velocity(pts, t, cfg, ac=None):
+def velocity(pts, t, cfg, ac=None, light=0.0):
     """천장 방사 제트 + 벽 하강 + 바닥 귀환 + 중앙 상승(리턴). m/s.
 
     ac=(x, y): 에어컨 수평 위치(m). 생략 시 기본 위치 — "옮기면 값이 바뀌는"
     라이브 트윈은 이 인자로 임의 위치의 예상 유동장을 얻는다.
+    light: 조명 점등률 0~1 — 재배단 위로 열 플룸(상승기류)이 생긴다.
     """
     ax, ay = ac if ac is not None else (AC[0], AC[1])
     x, y, z = pts[:, 0], pts[:, 1], pts[:, 2]
@@ -86,12 +100,22 @@ def velocity(pts, t, cfg, ac=None):
     ux = (u_r + u_back) * er_x
     uy = (u_r + u_back) * er_y
     w = w_jet + w_wall + w_up
+
+    # ⑤ 조명 플룸: 재배단 위 더운 공기가 떠오른다 (광열 → 부력)
+    if light > 0.0:
+        plume = _rack_falloff(x, y) * np.clip((z - 1.5) / 1.0, 0.0, 1.0)
+        w = w + 0.25 * light * plume
+
     ramp = 1.0 - np.exp(-t / cfg.flow.tau_flow_s)
     return np.stack([ux, uy, w], axis=1) * ramp
 
 
-def temperature(pts, t, cfg, ac=None):
-    """냉각 도달 지연 d(점) + 국소 시정수. 천장층 → 벽 → 바닥 중앙 순서로 식는다."""
+def temperature(pts, t, cfg, ac=None, light=0.0):
+    """냉각 도달 지연 d(점) + 국소 시정수. 천장층 → 벽 → 바닥 중앙 순서로 식는다.
+
+    light(0~1): 조명 광열. ① 방 평형온도가 P/UA 만큼 올라가고(덜 식음)
+    ② 재배단 위가 국소적으로 더 덥다. 총량 LIGHT_W 는 임시값.
+    """
     ax, ay = ac if ac is not None else (AC[0], AC[1])
     x, y, z = pts[:, 0], pts[:, 1], pts[:, 2]
     dx, dy = x - ax, y - ay
@@ -113,6 +137,12 @@ def temperature(pts, t, cfg, ac=None):
     T_end = np.minimum(T_end + 0, np.where(
         (near_ceil > 0.5) & (r < 0.9), T_SUPPLY + 3.0 + r * 2.0, T_end))
 
+    # 조명 광열: ① 전역 평형 상승 (P/UA) ② 재배단 위 국소 가열
+    if light > 0.0:
+        T_end = T_end + light * LIGHT_W / UA_EFF
+        hot = _rack_falloff(x, y) * np.exp(-(((z - Z_LIGHT) / 0.45) ** 2))
+        T_end = T_end + light * 1.8 * hot
+
     tau = 90.0 + 140.0 * np.clip(1.0 - z / zc, 0.0, 1.0)   # 아래쪽일수록 느리게
     te = np.maximum(t - delay, 0.0)
     prog = 1.0 - np.exp(-te / tau)
@@ -120,7 +150,7 @@ def temperature(pts, t, cfg, ac=None):
     return T_C + KELVIN
 
 
-def write_probes(cfg, ac=None):
+def write_probes(cfg, ac=None, light=0.0):
     """A/B/C/D × 3높이 × 1.15초 간격 — 진짜 probes.csv 와 같은 스키마.
 
     측정점은 방에 고정이고(센서 위치), 에어컨(ac)이 옮겨지면 값만 달라진다.
@@ -133,8 +163,8 @@ def write_probes(cfg, ac=None):
     names = [n for n in pos for _ in heights]
     hs = heights * len(pos)
     for t in ts:
-        T = temperature(pts, t, cfg, ac) - KELVIN
-        U = np.linalg.norm(velocity(pts, t, cfg, ac), axis=1)
+        T = temperature(pts, t, cfg, ac, light) - KELVIN
+        U = np.linalg.norm(velocity(pts, t, cfg, ac, light), axis=1)
         for i, n in enumerate(names):
             rows.append((round(t, 2), n, pts[i, 0], pts[i, 1], hs[i],
                          round(float(T[i]), 3), round(float(U[i]), 4)))

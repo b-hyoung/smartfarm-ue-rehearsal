@@ -1,9 +1,9 @@
 """SF_Rehearsal: 스마트팜 재배단을 배치한다. (목적 O4)
 
-실제 구성 (사용자 확인, 2026-09-03)
-    **3단 수직 재배단 1대, 방 중앙**
+실제 구성 (사용자 확인, 2026-09-11)
+    **2단 수직 재배단 1대, 방 중앙** + 단별 LED 바 (광열 모델과 위치 정렬)
 
-    ← 처음엔 2단 8세트로 만들었으나 실제와 달라 교체.
+    ← 3단으로 만들었으나 사용자 확인으로 2단 교정.
 
 ⚠ 중요 — 이 오브젝트는 CFD 해석에 들어가 있지 않습니다.
    현재 CFD 는 '빈 방' 해석입니다. 화면에 재배단이 보여도 기류는
@@ -21,10 +21,11 @@ LX, LY, LZ = 8.0, 5.7, 2.7      # 방 (평벽 길이, 곡면 정점 깊이, 높�
 CX = LX / 2.0
 
 # ── 재배단 규격 (m) — ⚠ 실측 대기, 현재는 가정값 ──────────────
-RACK_X, RACK_Y = 4.0, 2.85      # 배치 위치 = 방 중앙
+RACK_X, RACK_Y = 4.0, 2.0       # 배치 위치 — vane_mock.RACK_C 와 일치해야 함
 BED_W = 2.40                    # 선반 가로 (길이 방향)
 BED_D = 0.80                    # 선반 깊이
-TIER_Z = [0.55, 1.20, 1.85]     # 3단 — 바닥에서 각 단 높이
+TIER_Z = [0.55, 1.35]           # 2단 — 바닥에서 각 단 높이
+LED_Z = [1.28, 1.60]            # 각 단 위 LED 바 높이 (상단 = vane_mock.Z_LIGHT)
 POST_W = 0.06                   # 기둥 두께
 BED_T = 0.05                    # 선반 두께
 TOP_MARGIN = 0.15               # 최상단 선반 위로 기둥이 더 올라가는 길이
@@ -50,7 +51,7 @@ if cube is None:
     raise RuntimeError("/Engine/BasicShapes/Cube 를 못 찾음")
 
 
-def box(center_m, size_m, label):
+def box(center_m, size_m, label, color=None):
     a = eas.spawn_actor_from_class(
         unreal.StaticMeshActor,
         unreal.Vector(center_m[0] * S, center_m[1] * S, center_m[2] * S))
@@ -61,7 +62,15 @@ def box(center_m, size_m, label):
         smc.set_material(0, mat)
     a.set_actor_scale3d(unreal.Vector(size_m[0], size_m[1], size_m[2]))
     smc.set_mobility(unreal.ComponentMobility.STATIC)
+    if color:
+        smc.set_vector_parameter_value_on_materials("Color", color)
+    a.set_folder_path("SF/Rack")
     return a
+
+
+C_POST = unreal.Vector(0.35, 0.36, 0.38)
+C_BED = unreal.Vector(0.75, 0.78, 0.80)
+C_LED = unreal.Vector(1.0, 0.25, 0.85)      # LED 핑크 (식물조명 특유의 색)
 
 
 # 방 안에 들어가는지 확인 (네 모서리)
@@ -79,17 +88,22 @@ for k, (sx, sy) in enumerate([(-1, -1), (-1, 1), (1, -1), (1, 1)]):
     box((RACK_X + sx * (BED_W / 2 - POST_W / 2),
          RACK_Y + sy * (BED_D / 2 - POST_W / 2),
          h / 2.0),
-        (POST_W, POST_W, h), "SF_Rack_post%d" % k)
+        (POST_W, POST_W, h), "SF_Rack_post%d" % k, color=C_POST)
     made += 1
 
-# 선반 3단
+# 선반 2단 + 단별 LED 바
 for t, z in enumerate(TIER_Z):
-    box((RACK_X, RACK_Y, z), (BED_W, BED_D, BED_T), "SF_Rack_bed%d" % t)
+    box((RACK_X, RACK_Y, z), (BED_W, BED_D, BED_T), "SF_Rack_bed%d" % t,
+        color=C_BED)
+    made += 1
+for t, z in enumerate(LED_Z):
+    box((RACK_X, RACK_Y, z), (BED_W * 0.96, 0.10, 0.02),
+        "SF_Rack_led%d" % t, color=C_LED)
     made += 1
 
 les.save_current_level()
-msg = ("SF_RACKS: 3단 재배단 1대, 중앙 (%.1f, %.1f). "
-       "액터 %d개 (기둥 4 + 선반 3), 이전 %d개 제거. "
+msg = ("SF_RACKS: 2단 재배단 1대(+LED바), 중앙 (%.1f, %.1f). "
+       "액터 %d개, 이전 %d개 제거. "
        "선반 %.2f x %.2f m, 단 높이 %s m"
        % (RACK_X, RACK_Y, made, removed, BED_W, BED_D,
           "/".join("%.2f" % z for z in TIER_Z)))

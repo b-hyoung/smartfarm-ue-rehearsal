@@ -53,14 +53,14 @@ def _backup_real_once():
     print("실데이터(vane25) -> data/_real-vane25/ 대피")
 
 
-def write_hslice(cfg, ac, f, t):
+def write_hslice(cfg, ac, f, t, light=0.0):
     xs = np.linspace(0.0, cfg.room.Lx, 101)
     ys = np.linspace(0.0, cfg.room.Ly, 72)
     X, Y = np.meshgrid(xs, ys, indexing="ij")
     m = inside_mask(X.ravel(), Y.ravel(), cfg)
     ix, iy = np.meshgrid(range(101), range(72), indexing="ij")
     pts = np.stack([X.ravel(), Y.ravel(), np.full(X.size, Z_H)], axis=1)[m]
-    T = temperature(pts, t, cfg, ac) - KELVIN
+    T = temperature(pts, t, cfg, ac, light) - KELVIN
     path = os.path.join(REPO, "data", "slices", "slice_%02d.csv" % f)
     with open(path, "w", encoding="utf-8", newline="") as fh:
         fh.write("ix,iy,x,y,T\n")
@@ -68,7 +68,7 @@ def write_hslice(cfg, ac, f, t):
             fh.write("%d,%d,%.1f,%.1f,%.3f\n" % (i, j, p[0] * 100, p[1] * 100, tv))
 
 
-def write_vslice(cfg, ac, f, t):
+def write_vslice(cfg, ac, f, t, light=0.0):
     """에어컨을 지나는 y=ac_y 수직 단면."""
     xs = np.linspace(0.0, cfg.room.Lx, 101)
     zs = np.linspace(0.05, cfg.room.Lz - 0.05, 34)
@@ -76,7 +76,7 @@ def write_vslice(cfg, ac, f, t):
     m = inside_mask(X.ravel(), np.full(X.size, ac[1]), cfg)
     ix, iz = np.meshgrid(range(101), range(34), indexing="ij")
     pts = np.stack([X.ravel(), np.full(X.size, ac[1]), Z.ravel()], axis=1)[m]
-    T = temperature(pts, t, cfg, ac) - KELVIN
+    T = temperature(pts, t, cfg, ac, light) - KELVIN
     path = os.path.join(REPO, "data", "slices", "vslice_%02d.csv" % f)
     with open(path, "w", encoding="utf-8", newline="") as fh:
         fh.write("ix,iz,x,z,T\n")
@@ -91,7 +91,7 @@ def in_room(p, cfg):
     return bool(inside_mask(np.array([x]), np.array([y]), cfg)[0])
 
 
-def write_jets(cfg, ac, f, t):
+def write_jets(cfg, ac, f, t, light=0.0):
     """슬롯 4방향 커튼 — 시드는 에어컨 위치를 따라간다."""
     sheets = {
         "Xp": [(ac[0] + 0.457, ac[1] - 0.30 + 0.60 * i / (K - 1), Z_SEED)
@@ -111,8 +111,8 @@ def write_jets(cfg, ac, f, t):
         P = np.zeros((N, K, 3))
         for step in range(N):
             P[step] = pts
-            v1 = velocity(pts, te, cfg, ac)
-            v2 = velocity(pts + v1 * (DT / 2), te, cfg, ac)
+            v1 = velocity(pts, te, cfg, ac, light)
+            v2 = velocity(pts + v1 * (DT / 2), te, cfg, ac, light)
             nxt = pts + v2 * DT
             for k in range(K):
                 if alive[k]:
@@ -127,7 +127,7 @@ def write_jets(cfg, ac, f, t):
                 Q[s] = P[a:b].mean(axis=0)
             P = Q
         for step in range(N):
-            T = temperature(P[step], te, cfg, ac) - KELVIN
+            T = temperature(P[step], te, cfg, ac, light) - KELVIN
             for k in range(K):
                 rows.append((d, k, step, *P[step, k], T[k]))
     path = os.path.join(REPO, "data", "jets", "jet_%02d.csv" % f)
@@ -147,18 +147,23 @@ def main():
     ac = (float(np.clip(ac[0], 0.7, cfg.room.Lx - 0.7)),
           float(np.clip(ac[1], 0.7, cfg.room.Ly - 0.7)))
 
+    light = 0.0
+    lp = os.path.join(REPO, "data", "_light.json")
+    if os.path.isfile(lp):
+        light = float(json.load(open(lp, encoding="utf-8")).get("pct", 0)) / 100.0
+
     _backup_real_once()
     for d in ("slices", "jets", "frames"):
         os.makedirs(os.path.join(REPO, "data", d), exist_ok=True)
 
     for f, t in enumerate(TIMES):
-        write_hslice(cfg, ac, f, t)
-        write_vslice(cfg, ac, f, t)
-        write_jets(cfg, ac, f, t)
-    write_probes(cfg, ac)
+        write_hslice(cfg, ac, f, t, light)
+        write_vslice(cfg, ac, f, t, light)
+        write_jets(cfg, ac, f, t, light)
+    write_probes(cfg, ac, light)
 
-    man = {"source": "MOCK-live (수식 예측, AC=%.2f,%.2f — 대리모델로 교체 예정)"
-                     % ac,
+    man = {"source": "MOCK-live (수식 예측, AC=%.2f,%.2f, 조명 %.0f%% — 대리모델로 교체 예정)"
+                     % (ac[0], ac[1], light * 100),
            "solver": "field model (src/predict_mock.py)",
            "room_m": {"Lx": cfg.room.Lx, "Ly": cfg.room.Ly, "Lz": cfg.room.Lz},
            "ac": {"centre_ue_m": [ac[0], ac[1], cfg.room.Lz]},
@@ -167,7 +172,7 @@ def main():
     with open(os.path.join(REPO, "data", "frames", "manifest.json"), "w",
               encoding="utf-8") as fh:
         json.dump(man, fh, ensure_ascii=False, indent=2)
-    print("PREDICT-MOCK done: AC=(%.2f, %.2f)  15프레임 단면·커튼·프로브 갱신" % ac)
+    print("PREDICT-MOCK done: AC=(%.2f, %.2f) 조명 %.0f%%  15프레임 갱신" % (ac[0], ac[1], light * 100))
 
 
 if __name__ == "__main__":
