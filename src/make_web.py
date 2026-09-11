@@ -149,6 +149,10 @@ def main():
     html = tpl.replace("__SF_DATA__", blob)
 
     os.makedirs(OUT, exist_ok=True)
+    # 3D 뷰(정적)도 같이 배포
+    import shutil
+    shutil.copy2(os.path.join(REPO, "web", "3d.html"),
+                 os.path.join(OUT, "3d.html"))
     out_path = os.path.join(OUT, "index.html")
     with open(out_path, "w", encoding="utf-8") as fp:
         fp.write(html)
