@@ -119,6 +119,19 @@ for p in parts:
                       unreal.AttachmentRule.KEEP_WORLD,
                       unreal.AttachmentRule.KEEP_WORLD, False)
 
+# ── 한 덩어리로 ────────────────────────────────────────────
+# ① 아웃라이너 폴더 정리  ② 액터 그룹핑 — 어느 부품을 집어도 전체가
+# 같이 선택·이동된다 ("판넬만 따로 움직인다" 문제의 처방)
+for p in [root] + parts:
+    p.set_folder_path("SF/AC")
+try:
+    unreal.ActorGroupingUtils.set_grouping_active(True)
+    agu = unreal.get_default_object(unreal.ActorGroupingUtils)
+    agu.group_actors([root] + parts)
+    unreal.log("SF_AC: 액터 그룹핑 적용 (부품 클릭 = 전체 선택)")
+except Exception as e:
+    unreal.log_warning("SF_AC: 그룹핑 실패(%s) — SF_AC_Root 를 잡고 옮기세요" % e)
+
 les.save_current_level()
 msg = ("SF_AC: 4Way 카세트 배치 (%.2f, %.2f, %.2f). "
        "루트 SF_AC_Root + 부품 %d개 (본체/판넬/슬롯4/리턴). 이전 %d개 제거.\n"
