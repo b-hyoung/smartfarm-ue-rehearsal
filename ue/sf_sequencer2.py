@@ -29,10 +29,19 @@ import sf_geom as G  # noqa: E402
 importlib.reload(G)
 
 S = 100.0
-FPS = 30
-SPEEDUP = 30.0
+# 배속·fps 는 data/_seq.json 으로 바꿀 수 있다: {"speedup": 10, "fps": 10}
+#   ★ fps == speedup 이면 "표시 프레임 번호 = 실제 경과 초" 가 유지된다
+#     (30x/30fps → 32초, 10x/10fps → 90초)
+_cfg = {}
+_cfg_p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                      "data", "_seq.json")
+if os.path.isfile(_cfg_p):
+    _cfg = json.load(open(_cfg_p, encoding="utf-8"))
+FPS = int(_cfg.get("fps", 30))
+SPEEDUP = float(_cfg.get("speedup", 30.0))
+REBUILD_ACTORS = bool(_cfg.get("rebuild_actors", True))
 SEQ_DIR = "/Game/Cinematics"
-SEQ_NAME = "SEQ_SF_Flow"
+SEQ_NAME = "SEQ_SF_Flow" if int(SPEEDUP) == 30 else "SEQ_SF_Flow_%dx" % int(SPEEDUP)
 SEQ_PATH = "%s/%s" % (SEQ_DIR, SEQ_NAME)
 
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
@@ -118,6 +127,15 @@ def main():
             a.set_actor_hidden_in_game(True)
             a.set_is_temporarily_hidden_in_editor(True)
 
+    # 액터 15개가 이미 있으면(다른 배속 시퀀스만 추가할 때) 재빌드 생략 가능
+    existing = {a.get_actor_label(): a for a in eas.get_all_level_actors()
+                if a.get_actor_label().startswith("SF_Anim2_")}
+    if not REBUILD_ACTORS and len(existing) == 15:
+        actors = [(f, existing["SF_Anim2_%02d" % f]) for f in range(15)]
+        print("SF_SEQ2: 기존 액터 15개 재사용")
+        build_sequence_only(actors, times)
+        return
+
     actors = []
     for f in range(15):
         fn = min(f + 1, 14)
@@ -153,6 +171,10 @@ def main():
         actors.append((f, actor))
         print("SF_SEQ2: %s  커튼정점 %d" % (label, len(jv)))
 
+    build_sequence_only(actors, times)
+
+
+def build_sequence_only(actors, times):
     # ── 시퀀스 ─────────────────────────────────────────────
     if unreal.EditorAssetLibrary.does_asset_exist(SEQ_PATH):
         unreal.EditorAssetLibrary.delete_asset(SEQ_PATH)
@@ -214,8 +236,8 @@ def main():
     act.set_editor_property("playback_settings", settings)
 
     les.save_current_level()
-    print("SF_SEQ2: %s · 15프레임 · 길이 %.1f초 (실제 900초, 30배속) · PIE 자동재생"
-          % (SEQ_PATH, win[-1][2] / float(FPS)))
+    print("SF_SEQ2: %s · %dfps · 길이 %.1f초 (실제 900초, %.0f배속) · PIE 자동재생"
+          % (SEQ_PATH, FPS, win[-1][2] / float(FPS), SPEEDUP))
 
 
 main()
