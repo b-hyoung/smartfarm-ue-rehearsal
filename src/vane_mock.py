@@ -48,9 +48,10 @@ RACK_HX, RACK_HY = 1.2, 0.4   # 재배단 반폭 (2.4 x 0.8 m)
 Z_LIGHT = 1.60            # 상단(2단) 조명 높이 — 2단 재배단 기준
 
 
-def _rack_falloff(x, y):
-    rx = (x - RACK_C[0]) / RACK_HX
-    ry = (y - RACK_C[1]) / RACK_HY
+def _rack_falloff(x, y, rack=None):
+    cx, cy = rack if rack is not None else RACK_C
+    rx = (x - cx) / RACK_HX
+    ry = (y - cy) / RACK_HY
     return np.exp(-(rx * rx + ry * ry))
 
 
@@ -64,7 +65,7 @@ def _wall_dist(x, y, cfg):
     return np.minimum(d_ell, np.maximum(y, 0.0))  # 평벽(y=0)까지 거리와의 최소
 
 
-def velocity(pts, t, cfg, ac=None, light=0.0):
+def velocity(pts, t, cfg, ac=None, light=0.0, rack=None):
     """천장 방사 제트 + 벽 하강 + 바닥 귀환 + 중앙 상승(리턴). m/s.
 
     ac=(x, y): 에어컨 수평 위치(m). 생략 시 기본 위치 — "옮기면 값이 바뀌는"
@@ -103,14 +104,14 @@ def velocity(pts, t, cfg, ac=None, light=0.0):
 
     # ⑤ 조명 플룸: 재배단 위 더운 공기가 떠오른다 (광열 → 부력)
     if light > 0.0:
-        plume = _rack_falloff(x, y) * np.clip((z - 1.5) / 1.0, 0.0, 1.0)
+        plume = _rack_falloff(x, y, rack) * np.clip((z - 1.5) / 1.0, 0.0, 1.0)
         w = w + 0.25 * light * plume
 
     ramp = 1.0 - np.exp(-t / cfg.flow.tau_flow_s)
     return np.stack([ux, uy, w], axis=1) * ramp
 
 
-def temperature(pts, t, cfg, ac=None, light=0.0):
+def temperature(pts, t, cfg, ac=None, light=0.0, rack=None):
     """냉각 도달 지연 d(점) + 국소 시정수. 천장층 → 벽 → 바닥 중앙 순서로 식는다.
 
     light(0~1): 조명 광열. ① 방 평형온도가 P/UA 만큼 올라가고(덜 식음)
@@ -143,7 +144,7 @@ def temperature(pts, t, cfg, ac=None, light=0.0):
     # 조명 광열: ① 전역 평형 상승 (P/UA) ② 재배단 위 국소 가열
     if light > 0.0:
         T_end = T_end + light * LIGHT_W / UA_EFF
-        hot = _rack_falloff(x, y) * np.exp(-(((z - Z_LIGHT) / 0.45) ** 2))
+        hot = _rack_falloff(x, y, rack) * np.exp(-(((z - Z_LIGHT) / 0.45) ** 2))
         T_end = T_end + light * 1.8 * hot
 
     tau = 70.0 + 90.0 * np.clip(1.0 - z / zc, 0.0, 1.0)    # 아래쪽일수록 느리게
@@ -153,7 +154,7 @@ def temperature(pts, t, cfg, ac=None, light=0.0):
     return T_C + KELVIN
 
 
-def write_probes(cfg, ac=None, light=0.0):
+def write_probes(cfg, ac=None, light=0.0, rack=None):
     """A/B/C/D × 3높이 × 1.15초 간격 — 진짜 probes.csv 와 같은 스키마.
 
     측정점은 방에 고정이고(센서 위치), 에어컨(ac)이 옮겨지면 값만 달라진다.
@@ -166,8 +167,8 @@ def write_probes(cfg, ac=None, light=0.0):
     names = [n for n in pos for _ in heights]
     hs = heights * len(pos)
     for t in ts:
-        T = temperature(pts, t, cfg, ac, light) - KELVIN
-        U = np.linalg.norm(velocity(pts, t, cfg, ac, light), axis=1)
+        T = temperature(pts, t, cfg, ac, light, rack) - KELVIN
+        U = np.linalg.norm(velocity(pts, t, cfg, ac, light, rack), axis=1)
         for i, n in enumerate(names):
             rows.append((round(t, 2), n, pts[i, 0], pts[i, 1], hs[i],
                          round(float(T[i]), 3), round(float(U[i]), 4)))

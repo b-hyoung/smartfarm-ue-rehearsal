@@ -48,6 +48,16 @@ def run():
     with open(os.path.join(REPO, "data", "_ac.json"), "w",
               encoding="utf-8") as fh:
         json.dump({"ac": ac}, fh)
+
+    # 재배단(=조명 열원) 위치 — 옮겼으면 광열 덩어리·플룸이 따라간다
+    for a in eas.get_all_level_actors():
+        if a.get_actor_label() == "SF_Rack_bed0":
+            rl = a.get_actor_location()
+            with open(os.path.join(REPO, "data", "_rack.json"), "w",
+                      encoding="utf-8") as fh:
+                json.dump({"rack": [round(rl.x / 100.0, 3),
+                                    round(rl.y / 100.0, 3)]}, fh)
+            break
     unreal.log("SF_REFRESH: AC=(%.2f, %.2f)m — 예측 생성 중..." % (ac[0], ac[1]))
 
     r = subprocess.run(["py", "-m", "src.predict_mock"], cwd=REPO,

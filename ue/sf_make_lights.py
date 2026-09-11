@@ -26,6 +26,13 @@ COLOR = unreal.LinearColor(1.0, 0.35, 0.75, 1.0)   # 식물등 핑크
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
 les = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
 
+# 재배단이 옮겨져 있으면 그 위치에 등을 단다 (bed0 앵커)
+for _a in eas.get_all_level_actors():
+    if _a.get_actor_label() == "SF_Rack_bed0":
+        _l = _a.get_actor_location()
+        RACK_X, RACK_Y = _l.x / 100.0, _l.y / 100.0
+        break
+
 pct = 100.0
 p = os.path.join(REPO, "data", "_light.json")
 if os.path.isfile(p):
@@ -59,6 +66,16 @@ for t, z in enumerate(LED_Z):
 for a in eas.get_all_level_actors():
     if a.get_actor_label() == "SF_Sun":
         a.light_component.set_intensity(1.2)
+
+# 재배단 + 등을 한 그룹으로 — 아무거나 잡고 끌면 같이 움직인다
+try:
+    unreal.ActorGroupingUtils.set_grouping_active(True)
+    agu = unreal.get_default_object(unreal.ActorGroupingUtils)
+    grp = [a for a in eas.get_all_level_actors()
+           if a.get_actor_label().startswith(("SF_Rack", "SF_GrowLight"))]
+    agu.group_actors(grp)
+except Exception as e:
+    unreal.log_warning("SF_LIGHTS: 그룹핑 실패 %s" % e)
 
 les.save_current_level()
 print("SF_LIGHTS: RectLight %d개 (단당 %.0f lm, 점등률 %.0f%%). "

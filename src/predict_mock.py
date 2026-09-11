@@ -54,14 +54,14 @@ def _backup_real_once():
     print("실데이터(vane25) -> data/_real-vane25/ 대피")
 
 
-def write_hslice(cfg, ac, f, t, light=0.0):
+def write_hslice(cfg, ac, f, t, light=0.0, rack=None):
     xs = np.linspace(0.0, cfg.room.Lx, 101)
     ys = np.linspace(0.0, cfg.room.Ly, 72)
     X, Y = np.meshgrid(xs, ys, indexing="ij")
     m = inside_mask(X.ravel(), Y.ravel(), cfg)
     ix, iy = np.meshgrid(range(101), range(72), indexing="ij")
     pts = np.stack([X.ravel(), Y.ravel(), np.full(X.size, Z_H)], axis=1)[m]
-    T = temperature(pts, t, cfg, ac, light) - KELVIN
+    T = temperature(pts, t, cfg, ac, light, rack) - KELVIN
     path = os.path.join(REPO, "data", "slices", "slice_%02d.csv" % f)
     with open(path, "w", encoding="utf-8", newline="") as fh:
         fh.write("ix,iy,x,y,T\n")
@@ -69,7 +69,7 @@ def write_hslice(cfg, ac, f, t, light=0.0):
             fh.write("%d,%d,%.1f,%.1f,%.3f\n" % (i, j, p[0] * 100, p[1] * 100, tv))
 
 
-def write_vslice(cfg, ac, f, t, light=0.0):
+def write_vslice(cfg, ac, f, t, light=0.0, rack=None):
     """에어컨을 지나는 y=ac_y 수직 단면."""
     xs = np.linspace(0.0, cfg.room.Lx, 101)
     zs = np.linspace(0.05, cfg.room.Lz - 0.05, 34)
@@ -77,7 +77,7 @@ def write_vslice(cfg, ac, f, t, light=0.0):
     m = inside_mask(X.ravel(), np.full(X.size, ac[1]), cfg)
     ix, iz = np.meshgrid(range(101), range(34), indexing="ij")
     pts = np.stack([X.ravel(), np.full(X.size, ac[1]), Z.ravel()], axis=1)[m]
-    T = temperature(pts, t, cfg, ac, light) - KELVIN
+    T = temperature(pts, t, cfg, ac, light, rack) - KELVIN
     path = os.path.join(REPO, "data", "slices", "vslice_%02d.csv" % f)
     with open(path, "w", encoding="utf-8", newline="") as fh:
         fh.write("ix,iz,x,z,T\n")
@@ -92,7 +92,7 @@ def in_room(p, cfg):
     return bool(inside_mask(np.array([x]), np.array([y]), cfg)[0])
 
 
-def write_jets(cfg, ac, f, t, light=0.0):
+def write_jets(cfg, ac, f, t, light=0.0, rack=None):
     """슬롯 4방향 커튼 — 시드는 에어컨 위치를 따라간다."""
     sheets = {
         "Xp": [(ac[0] + 0.457, ac[1] - 0.30 + 0.60 * i / (K - 1), Z_SEED)
@@ -112,8 +112,8 @@ def write_jets(cfg, ac, f, t, light=0.0):
         P = np.zeros((N, K, 3))
         for step in range(N):
             P[step] = pts
-            v1 = velocity(pts, te, cfg, ac, light)
-            v2 = velocity(pts + v1 * (DT / 2), te, cfg, ac, light)
+            v1 = velocity(pts, te, cfg, ac, light, rack)
+            v2 = velocity(pts + v1 * (DT / 2), te, cfg, ac, light, rack)
             nxt = pts + v2 * DT
             for k in range(K):
                 if alive[k]:
@@ -128,7 +128,7 @@ def write_jets(cfg, ac, f, t, light=0.0):
                 Q[s] = P[a:b].mean(axis=0)
             P = Q
         for step in range(N):
-            T = temperature(P[step], te, cfg, ac, light) - KELVIN
+            T = temperature(P[step], te, cfg, ac, light, rack) - KELVIN
             for k in range(K):
                 rows.append((d, k, step, *P[step, k], T[k]))
     path = os.path.join(REPO, "data", "jets", "jet_%02d.csv" % f)
@@ -153,15 +153,20 @@ def main():
     if os.path.isfile(lp):
         light = float(json.load(open(lp, encoding="utf-8")).get("pct", 0)) / 100.0
 
+    rack = None
+    rp = os.path.join(REPO, "data", "_rack.json")
+    if os.path.isfile(rp):
+        rack = tuple(json.load(open(rp, encoding="utf-8"))["rack"])[:2]
+
     _backup_real_once()
     for d in ("slices", "jets", "frames"):
         os.makedirs(os.path.join(REPO, "data", d), exist_ok=True)
 
     for f, t in enumerate(TIMES):
-        write_hslice(cfg, ac, f, t, light)
-        write_vslice(cfg, ac, f, t, light)
-        write_jets(cfg, ac, f, t, light)
-    write_probes(cfg, ac, light)
+        write_hslice(cfg, ac, f, t, light, rack)
+        write_vslice(cfg, ac, f, t, light, rack)
+        write_jets(cfg, ac, f, t, light, rack)
+    write_probes(cfg, ac, light, rack)
 
     # 전력(임시값 기반): 냉방 = 에너지수지(power_model), 조명 = pct x LIGHT_W
     rows = power_series(os.path.join(REPO, "data", "probes.csv"))
