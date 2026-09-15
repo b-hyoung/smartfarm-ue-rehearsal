@@ -35,7 +35,11 @@ KELVIN = 273.15
 TMIN, TMAX = 18.5, 29.0        # 웹/UE 색척도와 동일
 DX = 0.1                        # m / 복셀
 NX, NY, NZ = 80, 57, 27
-VOXEL_CM = DX * 100.0           # UE 단위(cm) 복셀 크기
+# 복셀 10 = UE 단위(cm). SVT FrameTransform 으로 들어가 [0..800,0..570,0..270]에
+# 정착한다. ⚠ 컴포넌트의 FrameTransform 동기화는 **재생 틱에서만** 일어난다
+# (엔진 소스 HeterogeneousVolumeComponent.cpp 696행) — 에디터에서 갓 임포트하면
+# 1/10 크기로 보이다가, 시퀀서 재생/PIE 한 번이면 방 크기로 맞는다. 액터는 identity.
+VOXEL_CM = 10.0
 
 
 def load_frame(idx):
