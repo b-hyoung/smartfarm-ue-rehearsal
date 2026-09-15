@@ -90,6 +90,22 @@ docker run --rm --user 1000:1000 -e HOME=/tmp \
   bash /data/cases/<케이스>/RUN.sh
 ```
 
+## 폴더 재배치 이력 (2026-09-15)
+
+"지금 화면이 수식이냐 PINN이냐" 혼선을 계기로 구조를 갈아엎었다. 원칙:
+
+- **역할이 폴더다**: `pipeline/`(변환만, 예측 없음) · `models/`(수식 — 화면에
+  연결된 유일한 예측기) · `ml/`(신경망 — 전부 리허설, 미연결).
+  파일이 어느 폴더에 있는지가 곧 "이 값을 믿어도 되나"의 답이다.
+- **보존 데이터는 `data/archive/`**: `_real-vane25`, `_real-vert` 같은 언더스코어
+  이름을 폐지하고 `archive/vane25`, `archive/vert` 로 통합. 복원은
+  `py -m src.pipeline.restore <이름>` 한 줄.
+- **공용(config·geometry)은 src 루트 유지** — import 경로 변경 최소화.
+- **ue/ 는 평면 유지(의도)**: sh 래퍼·툴바 커맨드·sf_* 상호 import 가 평면
+  구조를 전제해서, 옮기면 깨지는 범위 대비 이득이 없다. 접두사(sf_make_/sf_)로 구분.
+- 옛 경로(`src/make_web.py` 등)가 적힌 문서는 `docs/plans/`·`docs/specs/`(역사
+  기록)뿐이다 — 당시 기록이라 일부러 안 고쳤다. 현행 문서는 전부 새 경로.
+
 ## 함정 모음 (한 번씩 다 밟은 것)
 
 - 에디터 백그라운드 스로틀링, SceneCapture 는 볼륨 못 찍음 → `docs/UE-NOTES.md`
