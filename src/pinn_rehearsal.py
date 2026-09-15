@@ -8,7 +8,7 @@
     · 원전: Raissi et al., J. Comput. Phys. 2019
 
 무엇을 하나
-    입력: 가짜 실측 = data/_real-vane25/probes.csv 의 센서 12점(A~D × 3높이)만.
+    입력: 가짜 실측 = data/archive/vane25/probes.csv 의 센서 12점(A~D × 3높이)만.
     물리: 단순화 열수지 — u_t = a Δu + k (u_eq − u)
           (유효확산 a, 벌크 혼합/냉각률 k, 평형온도 u_eq 를 미지수로 역산.
            유동(이류)은 안 푼다 — PINN 실패모드 문헌 따라 쉬운 방정식부터.)
@@ -45,7 +45,7 @@ import numpy as np                                            # noqa: E402
 import torch                                                  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REAL = os.path.join(REPO, "data", "_real-vane25")
+REAL = os.path.join(REPO, "data", "archive", "vane25")
 OUT_JSON = os.path.join(REPO, "data", "pinn_rehearsal.json")
 
 # 정규화 — PINN 은 O(1) 스케일이 아니면 잘 안 배운다 (실패모드 문헌)

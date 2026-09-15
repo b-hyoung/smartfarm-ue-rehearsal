@@ -38,20 +38,20 @@ def _backup_real_once():
     if not os.path.isfile(man_p):
         return
     src = str(json.load(open(man_p, encoding="utf-8")).get("source", ""))
-    bak = os.path.join(REPO, "data", "_real-vane25")
+    bak = os.path.join(REPO, "data", "archive", "vane25")
     if "MOCK" in src.upper() or os.path.isdir(bak):
         return
     os.makedirs(bak)
-    for d in ("slices", "jets"):
+    # ⚠ frames 를 통째로 복사한다. 처음엔 manifest 만 대피해서 프레임 CSV
+    #   15개(7시간 계산 원본)가 날아갈 뻔했다 — WSL 반출본으로 복구했음(9/15).
+    for d in ("slices", "jets", "frames"):
         p = os.path.join(REPO, "data", d)
         if os.path.isdir(p):
             shutil.copytree(p, os.path.join(bak, d))
-    for f in ("probes.csv", os.path.join("frames", "manifest.json")):
-        p = os.path.join(REPO, "data", f)
-        if os.path.isfile(p):
-            os.makedirs(os.path.dirname(os.path.join(bak, f)), exist_ok=True)
-            shutil.copy2(p, os.path.join(bak, f))
-    print("실데이터(vane25) -> data/_real-vane25/ 대피")
+    p = os.path.join(REPO, "data", "probes.csv")
+    if os.path.isfile(p):
+        shutil.copy2(p, os.path.join(bak, "probes.csv"))
+    print("실데이터(vane25) -> data/archive/vane25/ 대피")
 
 
 def write_hslice(cfg, ac, f, t, light=0.0, rack=None):

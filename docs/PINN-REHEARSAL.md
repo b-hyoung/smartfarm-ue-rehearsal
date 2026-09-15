@@ -10,7 +10,7 @@
 ## 데이터 흐름
 
 ```
-가짜 실측 = vane25 CFD 결과 (data/_real-vane25/)
+가짜 실측 = vane25 CFD 결과 (data/archive/vane25/)
    │
    ├─ 센서 12점 시계열만 PINN에 입력  (A~D × 0.1/1.1/1.7 m, 0~900 s)
    │      + 물리: 단순화 열수지 u_t = aΔu + k(u_eq − u), 미지수 a·k·u_eq 역산

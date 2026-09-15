@@ -28,14 +28,14 @@
 | 방 열손실 | 641 W/K (역산) | `src/vane_mock.py` UA_EFF | PINN 재역산 |
 | 재배단 기류 차단 | 없음 (열원만) | CFD 케이스 | 재배단 포함 격자 재계산 |
 | PINO 교재 | mock 750쌍 | `src/make_dataset.py` | 진짜 CFD 케이스 |
-| 실측 | CFD 백업 2케이스(가짜) | `data/_real-vane25/`, `data/_real-vert/` | R1 실측 CSV (스키마 동일) |
+| 실측 | CFD 백업 2케이스(가짜) | `data/archive/vane25`, `data/archive/vert` | R1 실측 CSV (스키마 동일) |
 | PINN 역산 | 격자 최소제곱 3파라미터 | `src/pinn_check.py` | 후보: DeepXDE 리허설 (아래) |
 | PINN 본체 | DeepXDE 역문제 리허설 | `src/pinn_rehearsal.py` | 실측 CSV + (필요시) 이류 포함 물리 |
 
 ## 검사 실행 (PINN 자리)
 
 ```
-py -m src.pinn_check data/_real-vane25/probes.csv        # 실측 오면 경로만 교체
+py -m src.pinn_check data/archive/vane25/probes.csv        # 실측 오면 경로만 교체
 ```
 
 잔차 → dT_end(열부하/UA)·s_tau(풍량)·s_delay(유로) 역산 → 판정

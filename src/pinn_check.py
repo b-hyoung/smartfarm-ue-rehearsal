@@ -14,8 +14,8 @@
 판정: 보정 후 RMS ≤0.5℃ 적합(파라미터만 보정) · ≤1.0 주의 · 초과 불일치
 (모델 가정 자체가 틀림 — 예: 수직취출인데 측면취출 모델).
 
-실행  py -m src.pinn_check data/_real-vane25/probes.csv
-      py -m src.pinn_check data/_real-vert/probes.csv --label vert
+실행  py -m src.pinn_check data/archive/vane25/probes.csv
+      py -m src.pinn_check data/archive/vert/probes.csv --label vert
 결과  콘솔 + data/pinn_check.json (라벨별 누적)
 """
 from __future__ import annotations
