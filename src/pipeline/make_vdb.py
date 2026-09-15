@@ -32,8 +32,11 @@ except ModuleNotFoundError:
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(REPO, "out", "vdb")
 KELVIN = 273.15
-TMIN, TMAX = 18.5, 29.0        # 웹/UE 색척도와 동일
-DX = 0.1                        # m / 복셀
+# 정규화·복셀 단일 출처: geometry.json viz
+_viz = json.load(open(os.path.join(REPO, "geometry.json"), encoding="utf-8")).get("viz", {})
+TMIN = float(_viz.get("vdb_t_min", 18.5))
+TMAX = float(_viz.get("vdb_t_max", 29.0))
+DX = float(_viz.get("vdb_voxel_m", 0.1))
 NX, NY, NZ = 80, 57, 27
 # 복셀 10 = UE 단위(cm). SVT FrameTransform 으로 들어가 [0..800,0..570,0..270]에
 # 정착한다. ⚠ 컴포넌트의 FrameTransform 동기화는 **재생 틱에서만** 일어난다

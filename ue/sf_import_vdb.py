@@ -9,13 +9,16 @@ Heterogeneous Volume 액터 + 볼륨 머티리얼을 세운다.
   온도 색램프(파랑→빨강)로, 소광은 상수.
 """
 import os
+import sys
 
 import unreal
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-VDB0 = os.path.join(REPO, "out", "vdb", "sf_temp.0000.vdb")
-SVT_DIR = "/Game/Volumes"
-MAT_PATH = "/Game/Materials/M_SF_Volume"
+sys.path.append(os.path.join(REPO, "ue"))
+import sf_config as CFG
+VDB0 = os.path.join(CFG.OUT_DIR, "vdb", "sf_temp.0000.vdb")
+SVT_DIR = CFG.VOLUMES_DIR
+MAT_PATH = CFG.MAT["volume"]
 
 # ── 1) VDB 시퀀스 임포트 ─────────────────────────────────────
 if not unreal.EditorAssetLibrary.does_directory_exist(SVT_DIR):

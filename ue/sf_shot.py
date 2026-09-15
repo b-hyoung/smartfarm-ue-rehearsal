@@ -1,7 +1,12 @@
 """활성 레벨 뷰포트를 PNG 로 저장. 애니메이션 프레임 굽는 데도 씀."""
-import unreal, os, time
+import os
+import sys
+import unreal
 
-OUT_DIR = r"C:\Users\hunvr\Desktop\smartfarm-cfd\out\ue_shots"
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import sf_config as CFG
+
+OUT_DIR = CFG.SHOT_DIR
 NAME    = os.environ.get("SF_SHOT_NAME", "shot")
 
 os.makedirs(OUT_DIR, exist_ok=True)

@@ -4,7 +4,10 @@
 import unreal
 import csv
 
-CSV_PATH = r"C:\Users\hunvr\Desktop\bobs_projects\smartfarm-ue-rehearsal\data\frames\frame_14.csv"
+import os as _os, sys as _sys
+_sys.path.append(_os.path.dirname(_os.path.abspath(__file__)))
+import sf_config as _CFG
+CSV_PATH = _os.path.join(_CFG.DATA_DIR, "frames", "frame_14.csv")
 TARGET_POINTS = 3000        # 다운샘플 목표 점 수
 TMIN, TMAX = 16.35, 28.85     # 컬러맵 고정 범위(섭씨)
                             #  mock 계약은 20~29 였으나 실제 CFD 는 17.8~28.9.

@@ -15,9 +15,12 @@ import csv
 import os
 import unreal
 
-REPO = r"C:\Users\hunvr\Desktop\bobs_projects\smartfarm-ue-rehearsal"
+import sys as _sys
+_sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import sf_config as _CFG
+REPO = _CFG.REPO
 FRAME_DIR = os.path.join(REPO, "data", "frames")
-SHOT_DIR = r"C:\Users\hunvr\Desktop\smartfarm-cfd\out\ue_anim"
+SHOT_DIR = _CFG.ANIM_SHOT_DIR
 
 TMIN, TMAX = 16.35, 28.85     # ★ 전 프레임 고정. 프레임마다 바꾸면 비교 불가
 POS_SCALE = 100.0

@@ -4,7 +4,8 @@ cd "$(dirname "$0")/.."
 python - "$1" "$2" "${3:-60}" <<'PY'
 import json, os, sys
 cam = [float(t) for t in sys.argv[1].split(",")]
-out = r"C:\Users\hunvr\Desktop\smartfarm-cfd\out\ue_shots" + "\\" + sys.argv[2] + ".png"
+out = os.path.join(os.getcwd(), "out", "ue_shots", sys.argv[2] + ".png")
+os.makedirs(os.path.dirname(out), exist_ok=True)
 json.dump({"cam": cam, "out": out, "fov": float(sys.argv[3])},
           open("data/_cap.json", "w", encoding="utf-8"))
 PY

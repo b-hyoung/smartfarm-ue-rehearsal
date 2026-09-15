@@ -17,7 +17,10 @@
 """
 import unreal
 
-MAT_PATH = "/Game/Materials/M_SF_VolumeFog"
+import os as _os, sys as _sys
+_sys.path.append(_os.path.dirname(_os.path.abspath(__file__)))
+import sf_config as _CFG
+MAT_PATH = _CFG.MAT["volume_fog"]
 THRESH = 0.45      # 정규화 온도 문턱 (0.45 ≈ 23.2℃)
 GAIN = 3.0
 BRIGHT = 3.0
@@ -26,7 +29,7 @@ DENSITY = 0.7
 lib = unreal.MaterialEditingLibrary
 mat = unreal.EditorAssetLibrary.load_asset(MAT_PATH)
 if mat is None:
-    svt = unreal.load_asset("/Game/Volumes/sf_temp")
+    svt = unreal.load_asset(_CFG.SVT_PATH)
     at = unreal.AssetToolsHelpers.get_asset_tools()
     mat = at.create_asset("M_SF_VolumeFog", "/Game/Materials",
                           unreal.Material, unreal.MaterialFactoryNew())

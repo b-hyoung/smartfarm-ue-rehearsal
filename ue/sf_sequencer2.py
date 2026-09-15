@@ -25,6 +25,7 @@ UE_DIR = os.path.join(REPO, "ue")
 if UE_DIR not in sys.path:
     sys.path.append(UE_DIR)
 
+import sf_config as CFG  # noqa: E402
 import sf_geom as G  # noqa: E402
 importlib.reload(G)
 
@@ -42,7 +43,7 @@ SPEEDUP = float(_cfg.get("speedup", 30.0))
 REBUILD_ACTORS = bool(_cfg.get("rebuild_actors", True))
 # mesh=False 면 CSV 기반 표시(커튼*카펫*마커)를 시퀀스에서 빼고 VDB 볼륨만 몬다
 SHOW_MESH = bool(_cfg.get("mesh", True))
-SEQ_DIR = "/Game/Cinematics"
+SEQ_DIR = CFG.SEQ_DIR
 SEQ_NAME = "SEQ_SF_Flow" if int(SPEEDUP) == 30 else "SEQ_SF_Flow_%dx" % int(SPEEDUP)
 SEQ_PATH = "%s/%s" % (SEQ_DIR, SEQ_NAME)
 

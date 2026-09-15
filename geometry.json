@@ -1,11 +1,54 @@
 {
-  "room":  { "Lx": 8.0, "Ly": 5.7, "Lz": 2.7, "unit": "m",
-             "note": "반원 바운딩박스 800x570x270cm. 직선벽 y=0, 곡면벽 y+ 반타원 근사" },
-  "ac":    { "x": 4.0, "y": 2.5, "z": 2.7, "jet_radius": 0.8 },
-  "grid":  { "spacing": 0.10 },
-  "time":  { "frames": 15, "interval_s": 20.0 },
-  "temperature_C": { "start": 29.0, "ac": 20.0, "side": 22.0, "side_z": 1.1,
-                     "tau_near_s": 60.0, "tau_far_s": 150.0 },
-  "flow":  { "u_max": 0.8, "tau_flow_s": 40.0 },
-  "colormap_C": { "min": 20.0, "max": 29.0 }
+  "room": {
+    "Lx": 8.0,
+    "Ly": 5.7,
+    "Lz": 2.7,
+    "unit": "m",
+    "note": "반원 바운딩박스 800x570x270cm. 직선벽 y=0, 곡면벽 y+ 반타원 근사"
+  },
+  "ac": {
+    "x": 4.0,
+    "y": 2.5,
+    "z": 2.7,
+    "jet_radius": 0.8
+  },
+  "grid": {
+    "spacing": 0.1
+  },
+  "time": {
+    "frames": 15,
+    "interval_s": 20.0
+  },
+  "temperature_C": {
+    "start": 29.0,
+    "ac": 20.0,
+    "side": 22.0,
+    "side_z": 1.1,
+    "tau_near_s": 60.0,
+    "tau_far_s": 150.0
+  },
+  "flow": {
+    "u_max": 0.8,
+    "tau_flow_s": 40.0
+  },
+  "colormap_C": {
+    "min": 20.0,
+    "max": 29.0
+  },
+  "viz": {
+    "_comment": "시각화 단일 출처 — ue/sf_config.py 와 src(pipeline) 가 읽는다",
+    "ramp_t_min": 20.4,
+    "ramp_t_max": 28.9,
+    "vdb_t_min": 18.5,
+    "vdb_t_max": 29.0,
+    "vdb_voxel_m": 0.1,
+    "fog_cold_thresh": 0.5,
+    "fog_cold_gain": 2.5,
+    "fog_base_glow": 0.35,
+    "fog_cold_glow": 2.2,
+    "fog_base_dens": 0.05,
+    "fog_cold_dens": 0.5,
+    "seq_fps": 30,
+    "seq_speedup": 30
+  }
 }

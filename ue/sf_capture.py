@@ -16,11 +16,15 @@
 """
 import json
 import os
+import sys
+
 import unreal
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_OUT = os.path.join("C:\\", "Users", "hunvr", "Desktop",
-                           "smartfarm-cfd", "out", "ue_shots", "cap.png")
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import sf_config as CFG  # noqa: E402
+
+DEFAULT_OUT = os.path.join(CFG.SHOT_DIR, "capture.png")
 
 cfg = {}
 cfg_path = os.path.join(REPO, "data", "_cap.json")

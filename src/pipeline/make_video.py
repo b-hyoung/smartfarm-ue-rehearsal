@@ -31,7 +31,10 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 ANIM = os.path.join(REPO, "out", "anim")
 OUT = os.path.join(REPO, "out")
 
-TMIN, TMAX = 20.4, 28.9     # ue/sf_geom.py 와 반드시 같아야 한다
+# 램프 스케일 단일 출처: geometry.json viz (ue/sf_config.py 와 같은 값)
+import json as _json
+_viz = _json.load(open(os.path.join(REPO, "geometry.json"), encoding="utf-8")).get("viz", {})
+TMIN, TMAX = float(_viz.get("ramp_t_min", 20.4)), float(_viz.get("ramp_t_max", 28.9))
 # 재생 1초 = 실제 30초 (UE 시퀀스와 같은 배속). 900초 -> 30초.
 # 프레임을 균등 간격으로 붙이면 (a) 5초짜리라 볼 시간이 없고
 # (b) CFD 프레임 간격이 60~70초로 균일하지 않아 시간이 고르게 안 흐른다.

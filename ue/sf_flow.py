@@ -18,7 +18,10 @@ import csv
 import os
 import unreal
 
-REPO = r"C:\Users\hunvr\Desktop\bobs_projects\smartfarm-ue-rehearsal"
+import sys as _sys
+_sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import sf_config as _CFG
+REPO = _CFG.REPO
 TRACE_DIR = os.path.join(REPO, "data", "traces")
 
 S = 100.0                 # m -> cm

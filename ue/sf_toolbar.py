@@ -9,10 +9,13 @@ ue/Content/Python/init_unreal.py 가 이 모듈을 부른다.
 """
 import unreal
 
+import os as _os
+
+_UE_DIR = _os.path.dirname(_os.path.abspath(__file__))   # 하드코딩 제거 - 실행 위치에서 파생
 UE_DIR_CMD = ("import sys, importlib; "
-              "p = r'C:\\Users\\hunvr\\Desktop\\bobs_projects\\smartfarm-ue-rehearsal\\ue'; "
+              "p = r'%s'; "
               "sys.path.append(p) if p not in sys.path else None; "
-              "import sf_play; importlib.reload(sf_play); ")
+              "import sf_play; importlib.reload(sf_play); ") % _UE_DIR
 
 BUTTONS = [
     ("SF_Refresh", "SF 갱신",

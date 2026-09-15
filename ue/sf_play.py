@@ -6,7 +6,10 @@ stop() → 일시정지
 """
 import unreal
 
-SEQ_DIR = "/Game/Cinematics"
+import os as _os, sys as _sys
+_sys.path.append(_os.path.dirname(_os.path.abspath(__file__)))
+import sf_config as _CFG
+SEQ_DIR = _CFG.SEQ_DIR
 
 
 def _seq_path(speed):

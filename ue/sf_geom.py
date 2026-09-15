@@ -27,10 +27,13 @@ import unreal
 #   20.4 = 전 프레임 최저(20.46) 바로 아래, 28.9 = 냉방 전 실온(28.85).
 #   이러면 애니메이션이 통째로 빨강 -> 파랑으로 간다.
 #   급기(18.2℃)는 파랑에 포화되는데, 제일 찬 것이니 그게 맞다.
-TMIN, TMAX = 20.4, 28.9
-MAT_PATH = "/Game/Materials/M_SF_VertexColor"
-SLICE_MAT_PATH = "/Game/Materials/M_SF_SliceTrans"
-FLOW_MAT_PATH = "/Game/Materials/M_SF_FlowAnim"
+import sf_config as CFG
+
+TMIN, TMAX = CFG.RAMP_TMIN, CFG.RAMP_TMAX
+
+MAT_PATH = CFG.MAT["vertex_color"]
+SLICE_MAT_PATH = CFG.MAT["slice_trans"]
+FLOW_MAT_PATH = CFG.MAT["flow_anim"]
 
 # 유선 튜브
 TUBE_R_MIN, TUBE_R_MAX = 1.2, 3.8
@@ -151,7 +154,7 @@ def curtain_material(opacity=0.35):
     사용자 결정(2026-09-10): 주인공은 방 공기의 온도 카펫이고, 바람(커튼)은
     공간을 가리지 않게 투명도를 높여 보조로 둔다.
     """
-    path = "/Game/Materials/M_SF_CurtainTrans"
+    path = CFG.MAT["curtain_trans"]
     mat = unreal.EditorAssetLibrary.load_asset(path)
     if mat is not None:
         return mat
@@ -183,7 +186,7 @@ def curtain_flow_material(opacity_base=0.14, opacity_amp=0.38,
         opacity = base + amp * frac(u*stripes - Time*speed)^2
     UV0.u = 궤적 진행률(취출구 0 → 끝 1)이므로 무늬는 항상 바람 방향으로 간다.
     """
-    path = "/Game/Materials/M_SF_CurtainFlow"
+    path = CFG.MAT["curtain_flow"]
     mat = unreal.EditorAssetLibrary.load_asset(path)
     if mat is not None:
         return mat
@@ -250,7 +253,7 @@ def blend_mpc():
     머티리얼이 현재/다음 프레임을 BlendU 로 보간한다. BlendU 는 이
     MaterialParameterCollection 을 시퀀서 트랙이 톱니파(창마다 0→1)로 몬다.
     """
-    path = "/Game/Materials/MPC_SF_Blend"
+    path = CFG.MAT["mpc_blend"]
     mpc = unreal.EditorAssetLibrary.load_asset(path)
     if mpc is None:
         at = unreal.AssetToolsHelpers.get_asset_tools()
@@ -294,7 +297,7 @@ def _blend_emissive(mat, lib, node, wire):
 
 def slice_blend_material(opacity=0.72):
     """온도 카펫용 — 현재/다음 프레임 색을 BlendU 로 보간하는 반투명 Unlit."""
-    path = "/Game/Materials/M_SF_SliceBlend"
+    path = CFG.MAT["slice_blend"]
     mat = unreal.EditorAssetLibrary.load_asset(path)
     if mat is not None:
         return mat
@@ -331,7 +334,7 @@ def curtain_flow_blend_material(opacity_base=0.14, opacity_amp=0.38,
     정점 규약: VertexColor=현재 색, UV0=(진행률,가로), UV1=(nextR,nextG),
     UV2=(nextB, dx), UV3=(dy, dz). WPO = (dx,dy,dz) * BlendU.
     """
-    path = "/Game/Materials/M_SF_CurtainFlowBlend"
+    path = CFG.MAT["curtain_flow_blend"]
     mat = unreal.EditorAssetLibrary.load_asset(path)
     if mat is not None:
         return mat

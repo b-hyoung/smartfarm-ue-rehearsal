@@ -19,7 +19,10 @@ import math
 import os
 import unreal
 
-OUT = r"C:\Users\hunvr\Desktop\bobs_projects\smartfarm-ue-rehearsal\data\ac_params.json"
+import sys as _sys
+_sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import sf_config as _CFG
+OUT = os.path.join(_CFG.DATA_DIR, "ac_params.json")
 S = 100.0
 X_SHIFT = 4.0          # UE x  → CFD x 는 -4.0
 
