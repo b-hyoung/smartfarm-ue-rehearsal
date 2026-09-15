@@ -14,7 +14,7 @@
     굵기 = 그 지점의 속도. 얇으면 정체, 굵으면 빠른 흐름.
 
 입력
-    data/ribbons/ribbon_<frame>.csv   (src/make_ribbons.py 가 생성, 좌표 cm / T 섭씨)
+    data/ribbons/ribbon_<frame>.csv   (src/pipeline/make_ribbons.py 가 생성, 좌표 cm / T 섭씨)
     data/_nia.json 의 "frame" 을 읽는다 (없으면 14)
 
     py ue/ue_exec.py -f ue/sf_streamlines.py
@@ -88,7 +88,7 @@ def vertex_color_material():
 def load_lines(frame):
     path = os.path.join(REPO, "data", "ribbons", "ribbon_%02d.csv" % frame)
     if not os.path.isfile(path):
-        raise RuntimeError("ribbon 파일 없음: %s  (py -m src.make_ribbons %d)"
+        raise RuntimeError("ribbon 파일 없음: %s  (py -m src.pipeline.make_ribbons %d)"
                            % (path, frame))
     lines = {}
     with open(path, newline="", encoding="utf-8") as f:

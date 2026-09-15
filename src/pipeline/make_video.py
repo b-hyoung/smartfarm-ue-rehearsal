@@ -14,7 +14,7 @@
     out/smartfarm-flow.mp4       (ffmpeg 있으면)
 
 실행
-    py -m src.make_video
+    py -m src.pipeline.make_video
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ import subprocess
 
 from PIL import Image, ImageDraw, ImageFont
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ANIM = os.path.join(REPO, "out", "anim")
 OUT = os.path.join(REPO, "out")
 

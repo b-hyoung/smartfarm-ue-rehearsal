@@ -14,8 +14,8 @@
         ux,uy,uz 는 **단위벡터**. 길이는 UE 쪽에서 speed 로 정한다.
 
 실행
-    py -m src.make_arrows            # 전 프레임
-    py -m src.make_arrows 14         # 한 프레임만
+    py -m src.pipeline.make_arrows            # 전 프레임
+    py -m src.pipeline.make_arrows 14         # 한 프레임만
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ import sys
 
 import numpy as np
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 FRAME_DIR = os.path.join(REPO, "data", "frames")
 OUT_DIR = os.path.join(REPO, "data", "arrows")
 

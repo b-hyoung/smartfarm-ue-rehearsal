@@ -40,8 +40,8 @@
 ```bash
 py -m pip install numpy pandas matplotlib pytest
 py -m pytest -q                 # 11 passed 확인
-py -m src.generate_frames       # data/frames/ 에 15프레임 CSV + manifest
-py -m src.preview               # data/preview/ 에 단면 PNG
+py -m src.models.generate_frames       # data/frames/ 에 15프레임 CSV + manifest
+py -m src.pipeline.preview               # data/preview/ 에 단면 PNG
 ```
 모든 파라미터(치수·에어컨 위치·온도·τ·격자·프레임수·컬러맵)는 **`geometry.json` 한 곳**. 값만 바꾸면 코드 안 고치고 시나리오 변경.
 

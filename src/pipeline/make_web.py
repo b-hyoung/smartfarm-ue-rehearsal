@@ -15,7 +15,7 @@
     out/web/index.html          자급자족 단일 파일 (데이터 인라인)
 
 실행
-    py -m src.make_web
+    py -m src.pipeline.make_web
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ import json
 import math
 import os
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(REPO, "out", "web")
 N_FRAMES = 15
 

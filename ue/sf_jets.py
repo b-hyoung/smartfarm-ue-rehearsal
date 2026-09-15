@@ -1,6 +1,6 @@
 """4방향 취출 리본 커튼을 레벨에 세운다 — SF_Jets (ProceduralMesh).
 
-    data/jets/jet_NN.csv (src/make_jets.py) -> 시트 4장, 정점색 = 온도
+    data/jets/jet_NN.csv (src/pipeline/make_jets.py) -> 시트 4장, 정점색 = 온도
 
 프레임 선택: data/_jets.json {"frame": N}  (없으면 5 = t=320s)
 

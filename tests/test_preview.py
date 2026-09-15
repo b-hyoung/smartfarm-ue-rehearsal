@@ -1,5 +1,5 @@
-from src.generate_frames import generate
-from src.preview import make_preview
+from src.models.generate_frames import generate
+from src.pipeline.preview import make_preview
 
 
 def test_preview_creates_png(tiny_cfg, tmp_path):

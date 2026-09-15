@@ -1,4 +1,4 @@
-"""프레임별 CSV(진짜 CFD와 동일 스키마) + manifest.json 생성. CLI: py -m src.generate_frames"""
+"""프레임별 CSV(진짜 CFD와 동일 스키마) + manifest.json 생성. CLI: py -m src.models.generate_frames"""
 import json
 import os
 import numpy as np
@@ -6,7 +6,7 @@ import pandas as pd
 
 from src.config import load_config
 from src.geometry import make_grid
-from src.field_model import temperature, velocity
+from src.models.field_model import temperature, velocity
 
 HEADER = ["x", "y", "z", "T", "Ux", "Uy", "Uz", "p", "source"]
 

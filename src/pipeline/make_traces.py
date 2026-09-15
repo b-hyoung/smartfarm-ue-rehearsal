@@ -16,8 +16,8 @@
         (좌표 m, UE 반입 시 x100)
 
 실행
-    py -m src.make_traces            # 전 프레임
-    py -m src.make_traces 14         # 한 프레임만
+    py -m src.pipeline.make_traces            # 전 프레임
+    py -m src.pipeline.make_traces 14         # 한 프레임만
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ import sys
 
 import numpy as np
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 FRAME_DIR = os.path.join(REPO, "data", "frames")
 OUT_DIR = os.path.join(REPO, "data", "traces")
 

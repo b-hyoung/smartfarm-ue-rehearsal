@@ -1,6 +1,6 @@
 # PINN 리허설 결과 — 센서 12점으로 방 전체 온도장 복원
 
-2026-09-11. 코드 `src/pinn_rehearsal.py` · 결과 `data/pinn_rehearsal.json`
+2026-09-11. 코드 `src/ml/pinn_rehearsal.py` · 결과 `data/pinn_rehearsal.json`
 
 ## 한 줄 요약
 
@@ -48,7 +48,7 @@
 ## 실행 · 교체 지점
 
 ```
-py -m src.pinn_rehearsal          # GPU ~6분 (deepxde 1.15 + torch/cu126)
+py -m src.ml.pinn_rehearsal          # GPU ~6분 (deepxde 1.15 + torch/cu126)
 ```
 
 - 실측 도착 → 입력 CSV 경로만 교체 (스키마 `t_s,point,ue_x,ue_y,z,T_C`)
@@ -61,4 +61,4 @@ py -m src.pinn_rehearsal          # GPU ~6분 (deepxde 1.15 + torch/cu126)
 - [DeepXDE 역문제 데모](https://deepxde.readthedocs.io/en/latest/demos/pinn_inverse/diffusion.1d.inverse.html) — 구현 틀
 - Raissi et al., J. Comput. Phys. (2019) — PINN 원전
 - ⚠ 이 PC 앱 제어 정책이 sklearn DLL 차단 → skopt 스텁 우회
-  (`src/pinn_rehearsal.py` 머리주석, hanes `pandas-dll-blocked-sac.md`)
+  (`src/ml/pinn_rehearsal.py` 머리주석, hanes `pandas-dll-blocked-sac.md`)

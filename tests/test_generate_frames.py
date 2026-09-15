@@ -1,6 +1,6 @@
 import json
 import pandas as pd
-from src.generate_frames import generate, HEADER
+from src.models.generate_frames import generate, HEADER
 from src.geometry import make_grid
 
 

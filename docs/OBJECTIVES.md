@@ -115,7 +115,7 @@ A 를 먼저 확보하고 B 를 시도한다.
 
 ```
 data/frames/frame_14.csv        OpenFOAM 900초 결과
-   ↓ src/make_fga.py            48 x 34 x 16 격자로 리샘플, cm/s 로 환산
+   ↓ src/pipeline/make_fga.py            48 x 34 x 16 격자로 리샘플, cm/s 로 환산
 data/fga/flow_14.fga            Fluid Grid ASCII
    ↓ unreal.VectorFieldStaticFactory
 /Game/VectorFields/VF_flow_14   VectorField 에셋 (bounds 0~800, 0~570, 0~270 cm)
@@ -172,7 +172,7 @@ SF_Niagara_Flow (NiagaraActor)  파티클이 CFD 속도를 따라 이류
 
 ```
 data/frames/frame_14.csv  +  data/traces/trace_14.csv
-    v src/make_ribbons.py       궤적 각 점에 그 자리 T 를 최근접 조회로 실음
+    v src/pipeline/make_ribbons.py       궤적 각 점에 그 자리 T 를 최근접 조회로 실음
 data/ribbons/ribbon_14.csv      pid, x, y, z, T, speed  (cm / 섭씨)
     v ue/sf_streamlines.py      3면 튜브 + 정점색
 SF_Streamlines (ProceduralMesh) 유선 140개 · 정점 33,600 · 삼각형 66,360
@@ -214,7 +214,7 @@ SF_Streamlines (ProceduralMesh) 유선 140개 · 정점 33,600 · 삼각형 66,3
 그래서 화살표째 우리가 만들고 Niagara 액터는 껐다.
 
 ```
-frame_14.csv → src/make_arrows.py → data/arrows/arrow_14.csv
+frame_14.csv → src/pipeline/make_arrows.py → data/arrows/arrow_14.csv
              → ue/sf_arrows.py    → SF_Arrows (ProceduralMesh)
    화살표 363개 · 정점 3,630 · 삼각형 3,993
 ```
@@ -251,10 +251,10 @@ frame_14.csv → src/make_arrows.py → data/arrows/arrow_14.csv
 ### 파이프라인
 
 ```
-frames + traces → src/make_ribbons.py  → data/ribbons/ribbon_NN.csv
-frames          → src/make_arrows.py   → data/arrows/arrow_NN.csv
+frames + traces → src/pipeline/make_ribbons.py  → data/ribbons/ribbon_NN.csv
+frames          → src/pipeline/make_arrows.py   → data/arrows/arrow_NN.csv
                 → ue/sf_bake_anim.py   → out/anim/f_NN.png      (SceneCapture2D)
-                → src/make_video.py    → out/smartfarm-flow.gif / .mp4
+                → src/pipeline/make_video.py    → out/smartfarm-flow.gif / .mp4
 ```
 
 한 번의 원격 연결로 15프레임을 다 돈다. 액터는 한 번만 만들고 **메시 섹션만 갈아 끼운다.**
@@ -306,7 +306,7 @@ frames          → src/make_arrows.py   → data/arrows/arrow_NN.csv
 | `sh ue/frame.sh N` | 특정 프레임만 레벨에 세우기 |
 | `data/probes.csv` | A/B/C/D × 3높이 × 781시각 (실측 비교 기준값) |
 
-### 역산으로 확인한 것 (src/room_model.py)
+### 역산으로 확인한 것 (src/models/room_model.py)
 
 ```
 CFD 곡선   T(t) = 23.44 + 5.43 exp(-t/232)   RMS 0.018 K
@@ -336,7 +336,7 @@ tau 가 V/Q 와 정확히 같다는 건 벽 열유입이 **방 평균온도에 �
 ### (1) 색칠된 면적이 없었다 → 1.1 m 온도 단면 추가
 
 관(유선)과 화살표만으로는 색칠된 픽셀이 너무 적어서 색이 변해도 눈에 안 띈다.
-`src/make_slice.py` → `data/slices/slice_NN.csv` (51x36 격자, 1,420점) →
+`src/pipeline/make_slice.py` → `data/slices/slice_NN.csv` (51x36 격자, 1,420점) →
 `sf_geom.build_slice()` → `SF_Slice` (반투명 정점색 메시).
 
 - 불투명하면 아래 유선을 가리고, 0.55 로 투명하게 하면 검은 배경이 비쳐 색이 죽는다.
@@ -413,13 +413,13 @@ t=640 → 프레임10 파랑). 시퀀스 표시프레임 번호 = 실제 경과 
 
 - 레벨: `sf_geom.build_markers(neutral=True)` — **중립 회색** 위치 기둥+구.
   색을 빼서 온도 컬러맵과 오독될 여지를 없앴다.
-- 영상: `src/make_video.py draw_probe_chart()` — 우상단에 **A/B/C/D 온도 시계열
+- 영상: `src/pipeline/make_video.py draw_probe_chart()` — 우상단에 **A/B/C/D 온도 시계열
   그래프 + 현재 시각 커서 + 값 라벨** (`data/probes.csv` 기반). 점의 색이 아니라
   숫자와 곡선으로 말한다.
 
 ### (3) 공간이 더 읽히게 — 수직 단면 + 방 윤곽
 
-- `SF_VSlice` — 에어컨을 지나는 **y=2.0 m 수직 온도 단면** (`src/make_slice.py` →
+- `SF_VSlice` — 에어컨을 지나는 **y=2.0 m 수직 온도 단면** (`src/pipeline/make_slice.py` →
   `data/slices/vslice_NN.csv`). 수평 단면 하나로는 한 높이만 보인다. 이 면이 있어야
   찬 공기가 내려오고 더운 공기가 천장에 남는 **성층**과 하강 제트가 보인다.
 - `SF_Outline` — 방 윤곽선(바닥·천장 테두리). 바닥을 어둡게 했더니 공간 형태가
@@ -455,7 +455,7 @@ t=640 → 프레임10 파랑). 시퀀스 표시프레임 번호 = 실제 경과 
 - **cold dump 확인**: 찬 제트가 천장을 타다 벽에 닿기 전(취출 ~2.5 m)에
   부력이 관성을 이겨 가라앉는다. C 방향 t=375s: 바깥 0.58 + 하강 0.34 m/s.
   mock 커튼(벽까지 가서 하강)은 이 점이 틀렸다 — 표현은 유지하되 궤적은
-  실데이터 적분으로 교체(`src/make_jets.py` 격자 모드).
+  실데이터 적분으로 교체(`src/pipeline/make_jets.py` 격자 모드).
 - **측면 취출이 냉각을 훨씬 잘한다**: 믹싱이 좋아 60초에 이미 2.6 K 하락.
   "천장 아래부터 시원해진다"는 사용자 체감과 일치.
 

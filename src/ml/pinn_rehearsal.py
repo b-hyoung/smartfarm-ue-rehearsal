@@ -24,8 +24,8 @@
   deepxde 는 준난수 샘플링(LHS/Sobol)에만 skopt 를 쓰므로, pseudo 샘플링만
   쓰는 한 빈 모듈로 충분하다. (pandas 차단과 같은 계열 — hanes 참조)
 
-실행  py -m src.pinn_rehearsal            (GPU 몇 분)
-      py -m src.pinn_rehearsal --iters 3000   (빠른 확인)
+실행  py -m src.ml.pinn_rehearsal            (GPU 몇 분)
+      py -m src.ml.pinn_rehearsal --iters 3000   (빠른 확인)
 """
 from __future__ import annotations
 
@@ -44,7 +44,7 @@ import deepxde as dde                                         # noqa: E402
 import numpy as np                                            # noqa: E402
 import torch                                                  # noqa: E402
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 REAL = os.path.join(REPO, "data", "archive", "vane25")
 OUT_JSON = os.path.join(REPO, "data", "pinn_rehearsal.json")
 
@@ -163,7 +163,7 @@ def load_slice(kind, i):
 
 def score(model):
     """단면 정답지 채점 — PINN(센서 12점) vs mock 수식(기본값) RMS ℃."""
-    from src import vane_mock as VM
+    from src.models import vane_mock as VM
     from src.config import load_config
     cfg = load_config(os.path.join(REPO, "geometry.json"))
     man = json.load(open(os.path.join(REAL, "frames", "manifest.json"),

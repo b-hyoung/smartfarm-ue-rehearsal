@@ -127,5 +127,5 @@ GameDefaultMap=/Game/Maps/SF_Room.SF_Room
 - 둘 다: 위 두 개를 같이, 또는 그냥 액터를 지운다
 
 `SF_Niagara_Flow` 는 결국 삭제했다. 되살리려면 `py ue/ue_exec.py -f ue/sf_niagara.py`.
-`.fga` 파이프라인(`src/make_fga.py`, `/Game/VectorFields/*`)은 그대로 남겨 뒀다 —
+`.fga` 파이프라인(`src/pipeline/make_fga.py`, `/Game/VectorFields/*`)은 그대로 남겨 뒀다 —
 나중에 제대로 된 Niagara 시스템을 저작하면 그때 바로 물릴 수 있다.

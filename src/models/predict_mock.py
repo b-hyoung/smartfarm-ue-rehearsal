@@ -10,7 +10,7 @@
    이 파일 하나만 교체하면 된다 — 출력 스키마가 계약이고, UE 쪽은 그대로다.
    manifest source 에 MOCK 을 박아 실데이터와 절대 안 섞이게 한다.
 
-실행  py -m src.predict_mock
+실행  py -m src.models.predict_mock
 """
 from __future__ import annotations
 
@@ -22,10 +22,10 @@ import numpy as np
 
 from src.config import load_config
 from src.geometry import inside_mask
-from src.power_model import FAN_W, series as power_series
-from src.vane_mock import LIGHT_W, TIMES, temperature, velocity, write_probes
+from src.models.power_model import FAN_W, series as power_series
+from src.models.vane_mock import LIGHT_W, TIMES, temperature, velocity, write_probes
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 KELVIN = 273.15
 Z_H = 1.1               # 수평 단면 높이 (프로브 기준)
 Z_SEED = 2.60

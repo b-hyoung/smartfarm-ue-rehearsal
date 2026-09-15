@@ -10,8 +10,8 @@
     mask (72, 101)     D자 방 안쪽 True
   + meta.json          격자·단위·좌표 규약 (R5 와의 계약 문서)
 
-실행  py -m src.make_dataset          (기본: 위치 50곳 × 15시각 = 750쌍)
-      py -m src.make_dataset 200      (위치 수 지정)
+실행  py -m src.ml.make_dataset          (기본: 위치 50곳 × 15시각 = 750쌍)
+      py -m src.ml.make_dataset 200      (위치 수 지정)
 """
 from __future__ import annotations
 
@@ -23,9 +23,9 @@ import numpy as np
 
 from src.config import load_config
 from src.geometry import inside_mask
-from src.vane_mock import TIMES, temperature
+from src.models.vane_mock import TIMES, temperature
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(REPO, "data", "dataset")
 KELVIN = 273.15
 NX, NY, NZ = 101, 72, 34

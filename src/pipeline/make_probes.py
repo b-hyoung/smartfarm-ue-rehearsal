@@ -13,7 +13,7 @@ probes 는 솔버가 그 좌표에서 직접 뽑은 값이라 중간 가공이 �
 입력  data/_probes_T.raw, _probes_U.raw   (wsl 케이스에서 복사)
 출력  data/probes.csv                     t, 지점, 높이, T(℃), |U|(m/s)
 
-실행  py -m src.make_probes
+실행  py -m src.pipeline.make_probes
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ import math
 import os
 import re
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 KELVIN = 273.15
 X_SHIFT = 4.0          # CFD x + 4.0 = UE x
 

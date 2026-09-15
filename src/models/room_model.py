@@ -21,7 +21,7 @@
     CFD 가 23.5C 에서 멎는다면 그 차이가 곧 **벽 부하**다. 그 크기를 역산한다.
 
 실행
-    py -m src.room_model
+    py -m src.models.room_model
 """
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ import os
 
 import numpy as np
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 FRAME_DIR = os.path.join(REPO, "data", "frames")
 
 # ── 방/기기 제원 ──────────────────────────────────────────────

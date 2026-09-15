@@ -1,7 +1,7 @@
 """[SF 갱신] — 에어컨을 옮긴 자리 기준으로 예상 온도·기류를 다시 만들어 재생.
 
     SF_AC_Root 위치 읽기 → data/_ac.json
-      → (외부 py) src.predict_mock: 단면·커튼·프로브 재생성 (수식, 수 초)
+      → (외부 py) src.models.predict_mock: 단면·커튼·프로브 재생성 (수식, 수 초)
       → sf_sequencer2: 30배속·10배속 시퀀스 재빌드
       → 재생
 
@@ -60,7 +60,7 @@ def run():
             break
     unreal.log("SF_REFRESH: AC=(%.2f, %.2f)m — 예측 생성 중..." % (ac[0], ac[1]))
 
-    r = subprocess.run(["py", "-m", "src.predict_mock"], cwd=REPO,
+    r = subprocess.run(["py", "-m", "src.models.predict_mock"], cwd=REPO,
                        capture_output=True, text=True, timeout=600)
     if r.returncode != 0:
         unreal.log_warning("SF_REFRESH: 예측기 실패\n%s" % (r.stderr or "")[-800:])

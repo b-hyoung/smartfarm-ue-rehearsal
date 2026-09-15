@@ -4,7 +4,7 @@ docs/OBJECTIVES.md §3 체크리스트를 자동 실행합니다.
 각 항목은 **반증을 시도**하는 방식으로 씁니다. 통과가 목적이 아니라
 틀린 곳을 드러내는 게 목적입니다.
 
-    py -m src.verify
+    py -m src.pipeline.verify
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ try:
 except Exception:
     pass
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 FRAME_DIR = os.path.join(REPO, "data", "frames")
 TRACE_DIR = os.path.join(REPO, "data", "traces")
 

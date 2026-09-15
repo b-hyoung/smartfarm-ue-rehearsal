@@ -11,8 +11,8 @@
    명판의 정격 소비전력을 주면 그걸로 교정한다. 그 전까지 이 값은
    "경향은 맞는 근사"로만 쓸 것. R4(EnergyPlus)·전력 실측이 오면 교체.
 
-실행  py -m src.power_model            (data/probes.csv 기준)
-      py -m src.power_model 경로.csv   (다른 probes 파일)
+실행  py -m src.models.power_model            (data/probes.csv 기준)
+      py -m src.models.power_model 경로.csv   (다른 probes 파일)
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ import csv
 import os
 import sys
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 FLOW_CMM = 25.0          # 취출 유량 (CFD 경계조건)
 T_SUPPLY = 16.35         # 급기 온도 ℃

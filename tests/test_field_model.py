@@ -1,5 +1,5 @@
 import numpy as np
-from src.field_model import temperature
+from src.models.field_model import temperature
 
 
 def test_temperature_t0_is_start_kelvin(tiny_cfg):
@@ -25,7 +25,7 @@ def test_temperature_decreases_over_time(tiny_cfg):
     assert seq[0] > seq[1] > seq[2]   # 식어감
 
 
-from src.field_model import velocity
+from src.models.field_model import velocity
 
 
 def cfg_u_max(cfg):

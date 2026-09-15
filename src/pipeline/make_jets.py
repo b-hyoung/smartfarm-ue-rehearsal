@@ -9,7 +9,7 @@
 같은 스키마로 격자 보간 버전을 붙인다.
 
 출력  data/jets/jet_NN.csv   dir,k,step,x,y,z,T   (m, ℃)
-실행  py -m src.make_jets
+실행  py -m src.pipeline.make_jets
 """
 from __future__ import annotations
 
@@ -19,10 +19,10 @@ import os
 import numpy as np
 
 from src.config import load_config
-from src.make_traces import Field, load_frame
-from src.vane_mock import TIMES, temperature, velocity
+from src.pipeline.make_traces import Field, load_frame
+from src.models.vane_mock import TIMES, temperature, velocity
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(REPO, "data", "jets")
 FRAME_DIR = os.path.join(REPO, "data", "frames")
 KELVIN = 273.15

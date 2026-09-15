@@ -14,8 +14,8 @@
     찬 공기가 내려오고 더운 공기가 천장에 남는 **성층**이 보인다.
 
 실행
-    py -m src.make_slice            # 전 프레임
-    py -m src.make_slice 14
+    py -m src.pipeline.make_slice            # 전 프레임
+    py -m src.pipeline.make_slice 14
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ import sys
 
 import numpy as np
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 FRAME_DIR = os.path.join(REPO, "data", "frames")
 OUT_DIR = os.path.join(REPO, "data", "slices")
 

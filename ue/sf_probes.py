@@ -47,7 +47,7 @@ def load_probes():
     out = {}
     path = os.path.join(REPO, "data", "probes.csv")
     if not os.path.isfile(path):
-        raise RuntimeError("probes.csv 없음 — py -m src.make_probes 먼저")
+        raise RuntimeError("probes.csv 없음 — py -m src.pipeline.make_probes 먼저")
     with open(path, newline="", encoding="utf-8") as f:
         for r in csv.DictReader(f):
             p = out.setdefault(r["point"], {"xy": (float(r["ue_x"]),

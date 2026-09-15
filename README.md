@@ -15,26 +15,40 @@
 | `MOCK-live ...` | 임시 수식 예측 — 툴바 [SF 갱신]이 생성 (에어컨 이동용) | 작업본에만 |
 | (구) 수직취출 | 첫 CFD, 취출각이 실물과 달라 은퇴 | `data/archive/vert` |
 
-PINN(`src/pinn_*.py`)은 화면에 안 나간다 — vane25 를 정답지로 "센서 12점 복원"을
-채점한 검증 실험 (`docs/PINN-REHEARSAL.md`).
-
 ```bash
-py -m src.restore vane25      # [SF 갱신]으로 덮인 화면을 진짜 CFD 로 복원
+py -m src.pipeline.restore vane25      # [SF 갱신]으로 덮인 화면을 진짜 CFD 로 복원
 ```
+
+## 예측을 만들 수 있는 놈 3종 — 화면에 연결된 건 하나뿐
+
+| | 정체 | 화면 연결 | 위치 |
+|---|---|---|---|
+| **수식 모델** | 사람이 쓴 물리 흉내 공식. 상수는 vane25 에서 단순 피팅(신경망 아님) | ✅ [SF 갱신] | `src/models/` |
+| **PINN** | 신경망+물리 학습. 센서 12점 복원 리허설 1회 (0.62℃ vs 수식 1.57℃) | ❌ | `src/ml/` |
+| **PINO/대리모델** | CFD 통째 학습. 목데이터 학습 리허설만 | ❌ | `src/ml/` |
+
+실측(R1)이 오면 PINN 이 보정 → PINO 교체가 계획 (`docs/STRUCTURE.md` 루프).
 
 ## 폴더 지도
 
 ```
 geometry.json        모든 물리 상수의 단일 출처
-src/                 파이썬 파이프라인 (py -m src.<이름>)
-  make_*.py            frames -> 파생 CSV (slices/jets/traces/ribbons/arrows/probes)
-  make_web.py          -> out/web/index.html (자급자족 웹 미리보기)
-  make_video.py        -> out/smartfarm-flow.mp4 (구운 영상)
-  restore.py           보존 데이터셋 -> 작업본 복원 (위 참조)
-  predict_mock.py      [SF 갱신]의 몸체 — 임시 수식 예측 (교체 예정)
-  vane_mock.py         목데이터 생성 (수식 모델 상수 포함)
-  pinn_check.py / pinn_rehearsal.py   실측 판정 / PINN 리허설
-  make_dataset.py / train_surrogate.py  PINO 교재·학습 (리허설)
+src/                 파이썬 (py -m src.<패키지>.<이름>)
+  config.py geometry.py   공용 (설정 로더·D자 격자)
+  pipeline/            데이터 -> 화면 재료 (계산 없음, 변환만)
+    make_*.py            frames -> 파생 CSV (slices/jets/traces/ribbons/arrows/probes)
+    make_web.py          -> out/web/index.html (자급자족 웹 미리보기)
+    make_video.py        -> out/smartfarm-flow.mp4 (구운 영상)
+    restore.py           보존 데이터셋 -> 작업본 복원 (위 참조)
+    preview.py verify.py 눈검증 PNG · 파이프 자가검증
+  models/              수식 모델 (화면에 연결된 유일한 예측기)
+    predict_mock.py      [SF 갱신]의 몸체 — 즉석 수식 예측 (교체 예정)
+    vane_mock.py         수식 본체 + 상수 (시정수·UA 등, vane25 피팅값)
+    power_model.py room_model.py field_model.py generate_frames.py
+  ml/                  신경망 (전부 리허설, 미연결)
+    pinn_check.py        실측 판정 (격자 최소제곱)
+    pinn_rehearsal.py    DeepXDE PINN — 센서 12점 장 복원
+    make_dataset.py train_surrogate.py   PINO 교재·학습
 ue/                  언리얼 원격 스크립트 (py ue/ue_exec.py -f ue/<파일>)
   ue_exec.py           원격 실행기 — 프로젝트명(SF_Rehearsal)으로 에디터 선택
   sf_geom.py           메시·머티리얼 공용 (모든 sf_* 가 씀, 수정 시 reload 주의)
@@ -58,8 +72,8 @@ out/                 산출물 (git 미추적) — web/index.html, mp4, 캡처
 
 ```bash
 # 데이터 (리포 루트에서, python 대신 py)
-py -m src.restore vane25              # 진짜 CFD 복원 (웹 재생성 포함)
-py -m src.make_web                    # 웹 미리보기만 재생성
+py -m src.pipeline.restore vane25              # 진짜 CFD 복원 (웹 재생성 포함)
+py -m src.pipeline.make_web                    # 웹 미리보기만 재생성
 
 # 언리얼 (에디터 켠 상태, SF_Rehearsal 프로젝트만 잡는다)
 py ue/ue_exec.py -f ue/sf_sequencer2.py    # 시퀀스 재빌드 (data/_seq.json 의 배속)

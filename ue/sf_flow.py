@@ -3,7 +3,7 @@
 data/traces/trace_XX.csv 를 읽어 입자 경로를 폴리라인으로 그립니다.
 색 = 속력 (파랑 느림 → 노랑 빠름).
 
-궤적 계산은 src/make_traces.py 에서 이미 끝냈습니다 — UE 는 그리기만 합니다.
+궤적 계산은 src/pipeline/make_traces.py 에서 이미 끝냈습니다 — UE 는 그리기만 합니다.
 (UE 파이썬엔 numpy 가 없고 8만 점 적분은 에디터를 멈춥니다.)
 
 환경변수

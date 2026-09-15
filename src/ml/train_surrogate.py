@@ -5,7 +5,7 @@
 정식 PINO(neuraloperator, 물리 손실 포함)로 승격 — 지금은 가벼운
 조건→필드 디코더(MLP+Conv)로 자리만 잡는다.
 
-실행  py -m src.train_surrogate            (기본 300 에폭, ~2분/GPU)
+실행  py -m src.ml.train_surrogate            (기본 300 에폭, ~2분/GPU)
 출력  data/dataset/surrogate_v1.pt  (+ 검증 오차 출력)
 """
 from __future__ import annotations
@@ -17,7 +17,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DS = os.path.join(REPO, "data", "dataset")
 DEV = "cuda" if torch.cuda.is_available() else "cpu"
 NY, NX = 72, 101

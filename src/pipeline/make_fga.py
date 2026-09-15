@@ -15,8 +15,8 @@ FGA 포맷 (Epic 정의)
     좌표/속도는 UE 단위(cm) 기준으로 씁니다.
 
 실행
-    py -m src.make_fga            # 전 프레임
-    py -m src.make_fga 14         # 한 프레임
+    py -m src.pipeline.make_fga            # 전 프레임
+    py -m src.pipeline.make_fga 14         # 한 프레임
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ import sys
 
 import numpy as np
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 FRAME_DIR = os.path.join(REPO, "data", "frames")
 OUT_DIR = os.path.join(REPO, "data", "fga")
 

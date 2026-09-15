@@ -14,7 +14,7 @@
              한 화면에 색 척도가 둘인데 계열이 비슷하면 서로 오독한다.
 
 입력
-    data/arrows/arrow_<frame>.csv   (src/make_arrows.py 생성)
+    data/arrows/arrow_<frame>.csv   (src/pipeline/make_arrows.py 생성)
     data/_nia.json 의 "frame" (없으면 14)
 
     py ue/ue_exec.py -f ue/sf_arrows.py
@@ -149,7 +149,7 @@ def main():
 
     path = os.path.join(REPO, "data", "arrows", "arrow_%02d.csv" % frame)
     if not os.path.isfile(path):
-        raise RuntimeError("arrow 파일 없음: %s  (py -m src.make_arrows %d)"
+        raise RuntimeError("arrow 파일 없음: %s  (py -m src.pipeline.make_arrows %d)"
                            % (path, frame))
     rows = []
     with open(path, newline="", encoding="utf-8") as f:

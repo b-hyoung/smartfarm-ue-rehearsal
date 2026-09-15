@@ -13,8 +13,8 @@
         pid, x, y, z, T, speed        (좌표 cm — UE 단위 그대로, T 섭씨)
 
 실행
-    py -m src.make_ribbons            # 전 프레임
-    py -m src.make_ribbons 14         # 한 프레임만
+    py -m src.pipeline.make_ribbons            # 전 프레임
+    py -m src.pipeline.make_ribbons 14         # 한 프레임만
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ import sys
 
 import numpy as np
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 FRAME_DIR = os.path.join(REPO, "data", "frames")
 TRACE_DIR = os.path.join(REPO, "data", "traces")
 OUT_DIR = os.path.join(REPO, "data", "ribbons")

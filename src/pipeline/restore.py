@@ -1,7 +1,7 @@
 """보존 데이터셋을 작업본으로 복원 — 원커맨드.
 
-    py -m src.restore vane25     # 진짜 CFD (4방향 25° 측면취출) ← 기준
-    py -m src.restore vert       # 구버전 CFD (수직취출)
+    py -m src.pipeline.restore vane25     # 진짜 CFD (4방향 25° 측면취출) ← 기준
+    py -m src.pipeline.restore vert       # 구버전 CFD (수직취출)
 
 하는 일
     data/archive/<이름>/{frames,jets,slices,probes.csv} -> data/ 복사
@@ -20,7 +20,7 @@ import shutil
 import subprocess
 import sys
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ARCHIVE = os.path.join(REPO, "data", "archive")
 
 
@@ -52,7 +52,7 @@ def restore(name):
     print("복원 완료 — source: %s" % source)
 
     print("웹 재생성 중...")
-    subprocess.run([sys.executable, "-m", "src.make_web"], cwd=REPO, check=True)
+    subprocess.run([sys.executable, "-m", "src.pipeline.make_web"], cwd=REPO, check=True)
 
     print("\nUE 반영 (에디터 켠 상태에서):")
     print("  py ue/ue_exec.py -f ue/sf_sequencer2.py     # 30배속 (data/_seq.json 확인)")

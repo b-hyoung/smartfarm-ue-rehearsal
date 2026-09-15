@@ -10,7 +10,7 @@
     x,y,z,T(K),Ux,Uy,Uz,p,source · manifest {frame, time_s, points, file}
     시각 0,60,130,...,900초 15프레임 · probes.csv (A/B/C/D × 3높이 × 1.15초 간격)
 
-실행  py -m src.vane_mock
+실행  py -m src.models.vane_mock
 """
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ import numpy as np
 from src.config import load_config
 from src.geometry import make_grid
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(REPO, "data", "frames")
 KELVIN = 273.15
 
