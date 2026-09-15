@@ -1,0 +1,111 @@
+{
+  "source": "acRoom-vane25 (OpenFOAM v2512, 4Way 25deg side discharge)",
+  "solver": "buoyantPimpleFoam",
+  "room_m": {
+    "Lx": 8.0,
+    "Ly": 5.7,
+    "Lz": 2.7,
+    "shape": "D (semi-ellipse)"
+  },
+  "coord_note": "CFD x(-4..4) shifted by +4.0 to UE x(0..8)",
+  "ac": {
+    "type": "4Way ceiling cassette, vane 25deg",
+    "centre_ue_m": [
+      4.0,
+      2.0,
+      2.7
+    ]
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "time_s": 0.0,
+      "points": 84024,
+      "file": "frame_00.csv"
+    },
+    {
+      "frame": 1,
+      "time_s": 60.0,
+      "points": 84024,
+      "file": "frame_01.csv"
+    },
+    {
+      "frame": 2,
+      "time_s": 130.0,
+      "points": 84024,
+      "file": "frame_02.csv"
+    },
+    {
+      "frame": 3,
+      "time_s": 190.0,
+      "points": 84024,
+      "file": "frame_03.csv"
+    },
+    {
+      "frame": 4,
+      "time_s": 260.0,
+      "points": 84024,
+      "file": "frame_04.csv"
+    },
+    {
+      "frame": 5,
+      "time_s": 320.0,
+      "points": 84024,
+      "file": "frame_05.csv"
+    },
+    {
+      "frame": 6,
+      "time_s": 390.0,
+      "points": 84024,
+      "file": "frame_06.csv"
+    },
+    {
+      "frame": 7,
+      "time_s": 450.0,
+      "points": 84024,
+      "file": "frame_07.csv"
+    },
+    {
+      "frame": 8,
+      "time_s": 510.0,
+      "points": 84024,
+      "file": "frame_08.csv"
+    },
+    {
+      "frame": 9,
+      "time_s": 580.0,
+      "points": 84024,
+      "file": "frame_09.csv"
+    },
+    {
+      "frame": 10,
+      "time_s": 640.0,
+      "points": 84024,
+      "file": "frame_10.csv"
+    },
+    {
+      "frame": 11,
+      "time_s": 710.0,
+      "points": 84024,
+      "file": "frame_11.csv"
+    },
+    {
+      "frame": 12,
+      "time_s": 770.0,
+      "points": 84024,
+      "file": "frame_12.csv"
+    },
+    {
+      "frame": 13,
+      "time_s": 840.0,
+      "points": 84024,
+      "file": "frame_13.csv"
+    },
+    {
+      "frame": 14,
+      "time_s": 900.0,
+      "points": 84024,
+      "file": "frame_14.csv"
+    }
+  ]
+}
