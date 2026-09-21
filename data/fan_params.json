@@ -1,0 +1,249 @@
+{
+  "note": "언리얼 배치에서 만든 CFD 경계조건 초안. 팬은 벽면 패치가 아니라 유동 영역 안의 운동량 소스로 둔다. 이 값으로 topoSetDict·fvOptions 를 만들고 OpenFOAM 을 다시 풀어야 캐노피 풍속이 나온다.",
+  "coord_note": "CFD x = UE x - 4.0, y·z 동일",
+  "layout": "pushpull",
+  "fan_spec": {
+    "diam_m": 0.2,
+    "depth_m": 0.08,
+    "area_m2": 0.03142,
+    "per_fan_CMM": 6.0,
+    "per_fan_m3s": 0.1,
+    "outlet_m_s": 3.183,
+    "rho_kg_m3": 1.17,
+    "watt_each": 25.0,
+    "tilt_deg": 15.0
+  },
+  "fan_zones": [
+    {
+      "id": "FAN_T0_S0",
+      "tier": 0,
+      "role": "supply",
+      "cellZone_box_cfd_m": {
+        "min": [
+          -1.34,
+          1.9,
+          0.63
+        ],
+        "max": [
+          -1.26,
+          2.1,
+          0.83
+        ]
+      },
+      "centre_cfd_m": [
+        -1.3,
+        2.0,
+        0.73
+      ],
+      "dir_unit": [
+        0.9659,
+        0.0,
+        -0.259
+      ],
+      "flow_m3s": 0.1,
+      "outlet_m_s": 3.183,
+      "zone_volume_m3": 0.0032,
+      "thrust_N": 0.3724,
+      "momentum_source_N_m3": 116.4
+    },
+    {
+      "id": "FAN_T0_R0",
+      "tier": 0,
+      "role": "return",
+      "cellZone_box_cfd_m": {
+        "min": [
+          1.26,
+          1.9,
+          0.63
+        ],
+        "max": [
+          1.34,
+          2.1,
+          0.83
+        ]
+      },
+      "centre_cfd_m": [
+        1.3,
+        2.0,
+        0.73
+      ],
+      "dir_unit": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "flow_m3s": 0.1,
+      "outlet_m_s": 3.183,
+      "zone_volume_m3": 0.0032,
+      "thrust_N": 0.3724,
+      "momentum_source_N_m3": 116.4
+    },
+    {
+      "id": "FAN_T1_S0",
+      "tier": 1,
+      "role": "supply",
+      "cellZone_box_cfd_m": {
+        "min": [
+          -1.34,
+          1.9,
+          1.43
+        ],
+        "max": [
+          -1.26,
+          2.1,
+          1.63
+        ]
+      },
+      "centre_cfd_m": [
+        -1.3,
+        2.0,
+        1.53
+      ],
+      "dir_unit": [
+        0.9659,
+        0.0,
+        -0.259
+      ],
+      "flow_m3s": 0.1,
+      "outlet_m_s": 3.183,
+      "zone_volume_m3": 0.0032,
+      "thrust_N": 0.3724,
+      "momentum_source_N_m3": 116.4
+    },
+    {
+      "id": "FAN_T1_R0",
+      "tier": 1,
+      "role": "return",
+      "cellZone_box_cfd_m": {
+        "min": [
+          1.26,
+          1.9,
+          1.43
+        ],
+        "max": [
+          1.34,
+          2.1,
+          1.63
+        ]
+      },
+      "centre_cfd_m": [
+        1.3,
+        2.0,
+        1.53
+      ],
+      "dir_unit": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "flow_m3s": 0.1,
+      "outlet_m_s": 3.183,
+      "zone_volume_m3": 0.0032,
+      "thrust_N": 0.3724,
+      "momentum_source_N_m3": 116.4
+    }
+  ],
+  "rack_blockage": [
+    {
+      "name": "bed0",
+      "box_cfd_m": {
+        "min": [
+          -1.2,
+          1.6,
+          0.5
+        ],
+        "max": [
+          1.2,
+          2.4,
+          0.55
+        ]
+      }
+    },
+    {
+      "name": "bed1",
+      "box_cfd_m": {
+        "min": [
+          -1.2,
+          1.6,
+          1.3
+        ],
+        "max": [
+          1.2,
+          2.4,
+          1.35
+        ]
+      }
+    },
+    {
+      "name": "post_mm",
+      "box_cfd_m": {
+        "min": [
+          -1.2,
+          1.6,
+          0.0
+        ],
+        "max": [
+          -1.14,
+          1.66,
+          1.5
+        ]
+      }
+    },
+    {
+      "name": "post_mp",
+      "box_cfd_m": {
+        "min": [
+          -1.2,
+          2.34,
+          0.0
+        ],
+        "max": [
+          -1.14,
+          2.4,
+          1.5
+        ]
+      }
+    },
+    {
+      "name": "post_pm",
+      "box_cfd_m": {
+        "min": [
+          1.14,
+          1.6,
+          0.0
+        ],
+        "max": [
+          1.2,
+          1.66,
+          1.5
+        ]
+      }
+    },
+    {
+      "name": "post_pp",
+      "box_cfd_m": {
+        "min": [
+          1.14,
+          2.34,
+          0.0
+        ],
+        "max": [
+          1.2,
+          2.4,
+          1.5
+        ]
+      }
+    }
+  ],
+  "expected": {
+    "canopy_section_m2": 0.2,
+    "canopy_mean_m_s_est": 0.5,
+    "judge": "캐노피 평균 0.3 m/s 이상, 정체(0.1 m/s 미만) 비율과 상대표준편차로 판정. 상추는 0.8 m/s 까지 생육이 좋아졌다는 보고가 있다."
+  },
+  "openfoam_hint": {
+    "topoSetDict": "각 fan_zones[].cellZone_box_cfd_m 을 boxToCell 로 잡아 cellZone 생성",
+    "fvOptions": "vectorSemiImplicitSource 로 zone 마다 dir_unit × thrust_N 적용 (또는 meanVelocityForce 로 Ubar = dir_unit × outlet_m_s)",
+    "blockage": "rack_blockage 는 snappyHexMesh 의 searchableBox 또는 topoSet 후 cellSet 제거로 넣는다. 지금 해석은 빈 방이라 반드시 추가해야 한다.",
+    "unchanged": "에어컨 취출·리턴 경계(ac_params.json)와 시각표·반출 규격은 그대로 둔다"
+  }
+}
