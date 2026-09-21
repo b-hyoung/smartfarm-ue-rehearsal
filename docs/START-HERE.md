@@ -292,6 +292,63 @@ fanflux_fan_t0_s0
 
 ---
 
+## 5-2. 맥에서 같이 돌릴 때
+
+두 대로 나눠 돌리면 시간이 반으로 준다. 케이스 번호만 겹치지 않게 나누면 된다.
+결과는 저장소 밖(`~/smartfarm-cfd`)에 쌓이므로 서로 부딪히지 않는다.
+
+```
+윈도우:  1 ~ 10
+맥:     11 ~ 20
+먼저 끝난 쪽이 21 ~ 30
+```
+
+### 먼저 확인할 것 — 애플 실리콘이면 크게 느리다
+
+```bash
+uname -m        # arm64 면 애플 실리콘
+```
+
+`opencfd/openfoam-default:2512` 는 **amd64 이미지뿐**이다. M1·M2·M3·M4 에서는
+Rosetta/QEMU 에뮬레이션으로 돌아 **몇 배 느려진다.** 실행기가 자동으로
+`--platform linux/amd64` 를 붙이고 경고를 찍지만, 느린 것 자체는 못 고친다.
+
+- **인텔 맥**이면 문제없다. 윈도우와 비슷한 속도가 나온다.
+- **애플 실리콘**이면 팬 켠 케이스 한 판에 하루가 넘을 수 있다. 차라리
+  **팬을 끄는 가벼운 케이스(1·2·30 번)**나 **정상상태 스크리닝**을 맡기는 게 낫다.
+  돌려 보고 `times.csv` 로 실제 속도를 재서 정한다.
+
+### Docker Desktop 자원 상한을 올린다
+
+맥 Docker Desktop 은 **기본으로 CPU·메모리를 적게 준다**(설정 → Resources).
+그 상한이 실행기의 `--cpus` 보다 낮으면 그쪽이 이긴다.
+
+| 항목 | 최소 |
+|---|---|
+| CPU | 물리 코어의 80 % 이상 |
+| 메모리 | **8 GB 이상** (18 분할 기준) |
+| 디스크 | 케이스당 약 0.5 GB |
+
+### 나머지는 그대로다
+
+- `--user "$(id -u):$(id -g)"` 가 먹으므로 **mpirun root 문제는 안 난다**(함정 ③).
+- 경로 변환도 필요 없다(함정 덤). 실행기가 알아서 갈라 쓴다.
+- `nproc` 이 없어 `sysctl -n hw.ncpu` 로 받는다. 이미 실행기에 들어 있다.
+- **템플릿 케이스는 저장소에 없다.** 맥에도 따로 옮겨야 한다(2 절).
+  윈도우에서 통째로 압축해 보내면 된다.
+
+```bash
+# 맥에서
+git clone -b feat/rack-fans <저장소> && cd smartfarm-ue-rehearsal
+docker pull --platform linux/amd64 opencfd/openfoam-default:2512
+# 템플릿을 ~/smartfarm-cfd/cases/acRoom-vane25 로 옮긴 뒤
+
+python3 src/make_foam_cases.py --cases 11-20 --end 600 --np 18         --template ~/smartfarm-cfd/cases/acRoom-vane25         --out ~/smartfarm-cfd/cases/fan-study
+SF_REPO=$PWD bash src/run_foam_cases.sh 11 20
+```
+
+---
+
 ## 6. 깨지면 볼 곳
 
 | 증상 | 원인 | 조치 |

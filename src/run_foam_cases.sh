@@ -10,7 +10,8 @@ set -uo pipefail
 
 LO=${1:-1}; HI=${2:-10}
 # 코어는 기계에 맞춘다 - 기본 80 %. 나머지는 사람이 쓸 몫으로 남긴다.
-CORES=$(nproc 2>/dev/null || echo 8)
+# 맥에는 nproc 이 없다. sysctl 로 받는다.
+CORES=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 8)
 CPUS=${CPUS:-$(( CORES * 8 / 10 ))}
 
 # 윈도우(Git Bash)에서는 도커가 POSIX 경로를 못 받는다. 윈도우 경로로 바꾸고
@@ -23,6 +24,13 @@ case "$(uname -s)" in
         MOUNT=$(cygpath -w "$PROJECT")
         export MSYS_NO_PATHCONV=1
         EXTRA=(-e OMPI_ALLOW_RUN_AS_ROOT=1 -e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1)
+        ;;
+    Darwin)
+        # 애플 실리콘이면 이미지가 amd64 라 에뮬레이션으로 돈다. 몇 배 느리다.
+        if [ "$(uname -m)" = "arm64" ]; then
+            EXTRA+=(--platform linux/amd64)
+            echo "경고: 애플 실리콘 - amd64 이미지를 에뮬레이션한다. 크게 느려진다." >&2
+        fi
         ;;
 esac
 IMG=${FOAM_IMAGE:-opencfd/openfoam-default:2512}
