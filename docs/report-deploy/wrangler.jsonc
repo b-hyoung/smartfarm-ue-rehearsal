@@ -1,0 +1,11 @@
+{
+  // 스마트팜 트윈 리허설 설명서 — 정적 배포 (Cloudflare Workers static assets)
+  // 재배포: cd docs/report-deploy && npx wrangler deploy
+  "name": "smartfarm-twin-report",
+  "compatibility_date": "2026-09-11",
+  "assets": {
+    "directory": "../report_2026-09-14",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}
