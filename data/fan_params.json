@@ -3,6 +3,7 @@
   "coord_note": "CFD x = UE x - 4.0, y·z 동일",
   "ac_note": "에어컨은 어느 케이스에서도 끄지 않는다. 위치만 옮기며, 취출·리턴 상자는 기록된 형상을 그대로 평행이동한다.",
   "rack_note": "재배단 위치는 전 케이스 고정이다. 막힘 상자와 판정면도 하나로 쓴다.",
+  "numbering": "cases[].no 가 1~30 통번호, cases[].run_id 가 실행 폴더 이름이다 (예: 01_R0). 결과 파일도 같은 이름으로 모으면 대조가 쉽다.",
   "lighting": {
     "included": false,
     "note": "이번 계산은 조명 발열을 뺀다. 풍속 기준을 먼저 잡고 조명은 스펙시트가 오면 넣는다."
@@ -235,7 +236,9 @@
   },
   "cases": [
     {
+      "no": 1,
       "case": "R0",
+      "run_id": "01_R0",
       "group": "G0 기준선",
       "layout": "none",
       "rack": false,
@@ -336,7 +339,9 @@
       "fan_zones": []
     },
     {
+      "no": 2,
       "case": "R1",
+      "run_id": "02_R1",
       "group": "G0 기준선",
       "layout": "pushpull",
       "rack": true,
@@ -444,7 +449,9 @@
       "fan_zones": []
     },
     {
+      "no": 3,
       "case": "F1",
+      "run_id": "03_F1",
       "group": "G1 풍량",
       "layout": "pushpull",
       "rack": true,
@@ -673,7 +680,9 @@
       ]
     },
     {
+      "no": 4,
       "case": "F2",
+      "run_id": "04_F2",
       "group": "G1 풍량",
       "layout": "pushpull",
       "rack": true,
@@ -902,7 +911,9 @@
       ]
     },
     {
+      "no": 5,
       "case": "F3",
+      "run_id": "05_F3",
       "group": "G1 풍량",
       "layout": "pushpull",
       "rack": true,
@@ -1131,7 +1142,9 @@
       ]
     },
     {
+      "no": 6,
       "case": "F4",
+      "run_id": "06_F4",
       "group": "G1 풍량",
       "layout": "pushpull",
       "rack": true,
@@ -1360,7 +1373,9 @@
       ]
     },
     {
+      "no": 7,
       "case": "F5",
+      "run_id": "07_F5",
       "group": "G1 풍량",
       "layout": "pushpull",
       "rack": true,
@@ -1589,7 +1604,9 @@
       ]
     },
     {
+      "no": 8,
       "case": "F6",
+      "run_id": "08_F6",
       "group": "G1 풍량",
       "layout": "pushpull",
       "rack": true,
@@ -1818,7 +1835,9 @@
       ]
     },
     {
+      "no": 9,
       "case": "S1",
+      "run_id": "09_S1",
       "group": "G2 켜고 끄기",
       "layout": "pushpull",
       "rack": true,
@@ -1990,7 +2009,9 @@
       ]
     },
     {
+      "no": 10,
       "case": "S2",
+      "run_id": "10_S2",
       "group": "G2 켜고 끄기",
       "layout": "pushpull",
       "rack": true,
@@ -2162,7 +2183,9 @@
       ]
     },
     {
+      "no": 11,
       "case": "S3",
+      "run_id": "11_S3",
       "group": "G2 켜고 끄기",
       "layout": "pushpull",
       "rack": true,
@@ -2334,7 +2357,9 @@
       ]
     },
     {
+      "no": 12,
       "case": "S4",
+      "run_id": "12_S4",
       "group": "G2 켜고 끄기",
       "layout": "pushpull",
       "rack": true,
@@ -2506,7 +2531,9 @@
       ]
     },
     {
+      "no": 13,
       "case": "S5",
+      "run_id": "13_S5",
       "group": "G2 켜고 끄기",
       "layout": "pushpull",
       "rack": true,
@@ -2678,7 +2705,9 @@
       ]
     },
     {
+      "no": 14,
       "case": "S6",
+      "run_id": "14_S6",
       "group": "G2 켜고 끄기",
       "layout": "pushpull",
       "rack": true,
@@ -2850,7 +2879,9 @@
       ]
     },
     {
+      "no": 15,
       "case": "L1",
+      "run_id": "15_L1",
       "group": "G3 배치",
       "layout": "ends",
       "rack": true,
@@ -3079,7 +3110,9 @@
       ]
     },
     {
+      "no": 16,
       "case": "L2",
+      "run_id": "16_L2",
       "group": "G3 배치",
       "layout": "top",
       "rack": true,
@@ -3308,7 +3341,9 @@
       ]
     },
     {
+      "no": 17,
       "case": "L3",
+      "run_id": "17_L3",
       "group": "G3 배치",
       "layout": "top",
       "rack": true,
@@ -3657,7 +3692,9 @@
       ]
     },
     {
+      "no": 18,
       "case": "T1",
+      "run_id": "18_T1",
       "group": "G4 각도",
       "layout": "pushpull",
       "rack": true,
@@ -3886,7 +3923,9 @@
       ]
     },
     {
+      "no": 19,
       "case": "T2",
+      "run_id": "19_T2",
       "group": "G4 각도",
       "layout": "pushpull",
       "rack": true,
@@ -4115,7 +4154,9 @@
       ]
     },
     {
+      "no": 20,
       "case": "T3",
+      "run_id": "20_T3",
       "group": "G4 각도",
       "layout": "pushpull",
       "rack": true,
@@ -4344,7 +4385,9 @@
       ]
     },
     {
+      "no": 21,
       "case": "N1",
+      "run_id": "21_N1",
       "group": "G5 대수",
       "layout": "pushpull",
       "rack": true,
@@ -4693,7 +4736,9 @@
       ]
     },
     {
+      "no": 22,
       "case": "N2",
+      "run_id": "22_N2",
       "group": "G5 대수",
       "layout": "pushpull",
       "rack": true,
@@ -5162,7 +5207,9 @@
       ]
     },
     {
+      "no": 23,
       "case": "H1",
+      "run_id": "23_H1",
       "group": "G6 높이",
       "layout": "pushpull",
       "rack": true,
@@ -5391,7 +5438,9 @@
       ]
     },
     {
+      "no": 24,
       "case": "H2",
+      "run_id": "24_H2",
       "group": "G6 높이",
       "layout": "pushpull",
       "rack": true,
@@ -5620,7 +5669,9 @@
       ]
     },
     {
+      "no": 25,
       "case": "A1",
+      "run_id": "25_A1",
       "group": "G7 에어컨",
       "layout": "pushpull",
       "rack": true,
@@ -5849,7 +5900,9 @@
       ]
     },
     {
+      "no": 26,
       "case": "A2",
+      "run_id": "26_A2",
       "group": "G7 에어컨",
       "layout": "pushpull",
       "rack": true,
@@ -6078,7 +6131,9 @@
       ]
     },
     {
+      "no": 27,
       "case": "A3",
+      "run_id": "27_A3",
       "group": "G7 에어컨",
       "layout": "pushpull",
       "rack": true,
@@ -6307,7 +6362,9 @@
       ]
     },
     {
+      "no": 28,
       "case": "A4",
+      "run_id": "28_A4",
       "group": "G7 에어컨",
       "layout": "pushpull",
       "rack": true,
@@ -6536,7 +6593,9 @@
       ]
     },
     {
+      "no": 29,
       "case": "A5",
+      "run_id": "29_A5",
       "group": "G7 에어컨",
       "layout": "pushpull",
       "rack": true,
@@ -6765,7 +6824,9 @@
       ]
     },
     {
+      "no": 30,
       "case": "A6",
+      "run_id": "30_A6",
       "group": "G7 에어컨",
       "layout": "pushpull",
       "rack": true,

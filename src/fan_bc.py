@@ -267,10 +267,12 @@ def main():
                          "volumetric_W_m3": round(LED_W_EACH / led_vol, 0)})
 
     cases = []
-    for (name, grp, layout, cmm, tilt, n, rack_on, on, above, rack_alt, ac_pos, why) in CASE_DEFS:
+    for idx, (name, grp, layout, cmm, tilt, n, rack_on, on, above,
+              rack_alt, ac_pos, why) in enumerate(CASE_DEFS, start=1):
         rack = tuple(rack_alt) if rack_alt else rack0
         entry = {
-            "case": name, "group": grp, "layout": layout, "rack": rack_on,
+            "no": idx, "case": name, "run_id": "%02d_%s" % (idx, name),
+            "group": grp, "layout": layout, "rack": rack_on,
             "rack_centre_ue_m": list(rack) if rack_on else None,
             "ac": ac_for(ac_pos, acp),
             "per_fan_CMM": cmm, "tilt_deg": tilt, "n_per_side": n,
@@ -303,6 +305,8 @@ def main():
         "ac_note": "에어컨은 어느 케이스에서도 끄지 않는다. 위치만 옮기며, 취출·리턴 상자는 "
                    "기록된 형상을 그대로 평행이동한다.",
         "rack_note": "재배단 위치는 전 케이스 고정이다. 막힘 상자와 판정면도 하나로 쓴다.",
+        "numbering": "cases[].no 가 1~%d 통번호, cases[].run_id 가 실행 폴더 이름이다 "
+                     "(예: 01_R0). 결과 파일도 같은 이름으로 모으면 대조가 쉽다." % len(CASE_DEFS),
         "lighting": {"included": LED_ON,
                      "note": "이번 계산은 조명 발열을 뺀다. 풍속 기준을 먼저 잡고 "
                              "조명은 스펙시트가 오면 넣는다."},
@@ -372,10 +376,10 @@ def main():
         if c["group"] != grp:
             grp = c["group"]
             print("  [%s]" % grp)
-        print("    %-3s %-9s 팬 켬%2d 끔%2d  %5.1f CMM  기울기%4.0f°  에어컨(%.1f, %.1f)  %s"
-              % (c["case"], c["layout"], c.get("fans_on", 0), len(c.get("fans_off", [])),
-                 c["per_fan_CMM"], c["tilt_deg"],
-                 c["ac"]["centre_ue_m"][0], c["ac"]["centre_ue_m"][1], c["purpose"][:30]))
+        print("    %2d %-3s %-9s 팬 켬%2d 끔%2d  %5.1f CMM  기울기%4.0f°  에어컨(%.1f, %.1f)  %s"
+              % (c["no"], c["case"], c["layout"], c.get("fans_on", 0),
+                 len(c.get("fans_off", [])), c["per_fan_CMM"], c["tilt_deg"],
+                 c["ac"]["centre_ue_m"][0], c["ac"]["centre_ue_m"][1], c["purpose"][:28]))
     print("  -> data/fan_params.json")
 
 
