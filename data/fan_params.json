@@ -567,6 +567,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -585,7 +597,8 @@
           "flow_m3s": 0.06,
           "outlet_m_s": 1.91,
           "thrust_N": 0.1341,
-          "momentum_source_N_m3": 41.9
+          "momentum_source_N_m3": 41.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -597,6 +610,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -615,7 +640,8 @@
           "flow_m3s": 0.06,
           "outlet_m_s": 1.91,
           "thrust_N": 0.1341,
-          "momentum_source_N_m3": 41.9
+          "momentum_source_N_m3": 41.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -626,6 +652,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -645,7 +683,8 @@
           "flow_m3s": 0.06,
           "outlet_m_s": 1.91,
           "thrust_N": 0.1341,
-          "momentum_source_N_m3": 41.9
+          "momentum_source_N_m3": 41.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -656,6 +695,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -675,7 +726,8 @@
           "flow_m3s": 0.06,
           "outlet_m_s": 1.91,
           "thrust_N": 0.1341,
-          "momentum_source_N_m3": 41.9
+          "momentum_source_N_m3": 41.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -798,6 +850,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -816,7 +880,8 @@
           "flow_m3s": 0.08,
           "outlet_m_s": 2.546,
           "thrust_N": 0.2384,
-          "momentum_source_N_m3": 74.5
+          "momentum_source_N_m3": 74.5,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -828,6 +893,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -846,7 +923,8 @@
           "flow_m3s": 0.08,
           "outlet_m_s": 2.546,
           "thrust_N": 0.2384,
-          "momentum_source_N_m3": 74.5
+          "momentum_source_N_m3": 74.5,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -857,6 +935,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -876,7 +966,8 @@
           "flow_m3s": 0.08,
           "outlet_m_s": 2.546,
           "thrust_N": 0.2384,
-          "momentum_source_N_m3": 74.5
+          "momentum_source_N_m3": 74.5,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -887,6 +978,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -906,7 +1009,8 @@
           "flow_m3s": 0.08,
           "outlet_m_s": 2.546,
           "thrust_N": 0.2384,
-          "momentum_source_N_m3": 74.5
+          "momentum_source_N_m3": 74.5,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -1029,6 +1133,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -1047,7 +1163,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -1059,6 +1176,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -1077,7 +1206,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -1088,6 +1218,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -1107,7 +1249,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -1118,6 +1261,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -1137,7 +1292,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -1260,6 +1416,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -1278,7 +1446,8 @@
           "flow_m3s": 0.12,
           "outlet_m_s": 3.82,
           "thrust_N": 0.5363,
-          "momentum_source_N_m3": 167.6
+          "momentum_source_N_m3": 167.6,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -1290,6 +1459,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -1308,7 +1489,8 @@
           "flow_m3s": 0.12,
           "outlet_m_s": 3.82,
           "thrust_N": 0.5363,
-          "momentum_source_N_m3": 167.6
+          "momentum_source_N_m3": 167.6,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -1319,6 +1501,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -1338,7 +1532,8 @@
           "flow_m3s": 0.12,
           "outlet_m_s": 3.82,
           "thrust_N": 0.5363,
-          "momentum_source_N_m3": 167.6
+          "momentum_source_N_m3": 167.6,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -1349,6 +1544,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -1368,7 +1575,8 @@
           "flow_m3s": 0.12,
           "outlet_m_s": 3.82,
           "thrust_N": 0.5363,
-          "momentum_source_N_m3": 167.6
+          "momentum_source_N_m3": 167.6,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -1491,6 +1699,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -1509,7 +1729,8 @@
           "flow_m3s": 0.16,
           "outlet_m_s": 5.093,
           "thrust_N": 0.9534,
-          "momentum_source_N_m3": 297.9
+          "momentum_source_N_m3": 297.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -1521,6 +1742,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -1539,7 +1772,8 @@
           "flow_m3s": 0.16,
           "outlet_m_s": 5.093,
           "thrust_N": 0.9534,
-          "momentum_source_N_m3": 297.9
+          "momentum_source_N_m3": 297.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -1550,6 +1784,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -1569,7 +1815,8 @@
           "flow_m3s": 0.16,
           "outlet_m_s": 5.093,
           "thrust_N": 0.9534,
-          "momentum_source_N_m3": 297.9
+          "momentum_source_N_m3": 297.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -1580,6 +1827,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -1599,7 +1858,8 @@
           "flow_m3s": 0.16,
           "outlet_m_s": 5.093,
           "thrust_N": 0.9534,
-          "momentum_source_N_m3": 297.9
+          "momentum_source_N_m3": 297.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -1722,6 +1982,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -1740,7 +2012,8 @@
           "flow_m3s": 0.2,
           "outlet_m_s": 6.366,
           "thrust_N": 1.4897,
-          "momentum_source_N_m3": 465.5
+          "momentum_source_N_m3": 465.5,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -1752,6 +2025,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -1770,7 +2055,8 @@
           "flow_m3s": 0.2,
           "outlet_m_s": 6.366,
           "thrust_N": 1.4897,
-          "momentum_source_N_m3": 465.5
+          "momentum_source_N_m3": 465.5,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -1781,6 +2067,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -1800,7 +2098,8 @@
           "flow_m3s": 0.2,
           "outlet_m_s": 6.366,
           "thrust_N": 1.4897,
-          "momentum_source_N_m3": 465.5
+          "momentum_source_N_m3": 465.5,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -1811,6 +2110,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -1830,7 +2141,8 @@
           "flow_m3s": 0.2,
           "outlet_m_s": 6.366,
           "thrust_N": 1.4897,
-          "momentum_source_N_m3": 465.5
+          "momentum_source_N_m3": 465.5,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -1956,6 +2268,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -1974,7 +2298,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -1985,6 +2310,18 @@
             0.73
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -2004,7 +2341,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -2130,6 +2468,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               1.43
@@ -2148,7 +2498,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -2159,6 +2510,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -2178,7 +2541,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -2304,6 +2668,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -2322,7 +2698,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -2333,6 +2710,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -2352,7 +2741,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -2478,6 +2868,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -2496,7 +2898,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -2507,6 +2910,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -2526,7 +2941,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -2652,6 +3068,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -2670,7 +3098,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -2681,6 +3110,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -2700,7 +3141,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -2826,6 +3268,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -2844,7 +3298,8 @@
           "flow_m3s": 0.2,
           "outlet_m_s": 6.366,
           "thrust_N": 1.4897,
-          "momentum_source_N_m3": 465.5
+          "momentum_source_N_m3": 465.5,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -2855,6 +3310,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -2874,7 +3341,8 @@
           "flow_m3s": 0.2,
           "outlet_m_s": 6.366,
           "thrust_N": 1.4897,
-          "momentum_source_N_m3": 465.5
+          "momentum_source_N_m3": 465.5,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -2997,6 +3465,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -3015,7 +3495,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -3027,6 +3508,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -3045,7 +3538,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -3056,6 +3550,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -3075,7 +3581,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -3086,6 +3593,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -3105,7 +3624,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -3230,6 +3750,18 @@
             "min": [
               -0.7,
               1.9,
+              1.04
+            ],
+            "max": [
+              -0.5,
+              2.1,
+              1.16
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
+              -0.7,
+              1.9,
               1.06
             ],
             "max": [
@@ -3246,7 +3778,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_D1",
@@ -3257,6 +3790,18 @@
             1.1
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              0.5,
+              1.9,
+              1.04
+            ],
+            "max": [
+              0.7,
+              2.1,
+              1.16
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               0.5,
               1.9,
@@ -3276,7 +3821,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_D0",
@@ -3287,6 +3833,18 @@
             1.9
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -0.7,
+              1.9,
+              1.84
+            ],
+            "max": [
+              -0.5,
+              2.1,
+              1.96
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -0.7,
               1.9,
@@ -3306,7 +3864,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_D1",
@@ -3317,6 +3876,18 @@
             1.9
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              0.5,
+              1.9,
+              1.84
+            ],
+            "max": [
+              0.7,
+              2.1,
+              1.96
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               0.5,
               1.9,
@@ -3336,7 +3907,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -3461,6 +4033,18 @@
             "min": [
               -1.0,
               1.9,
+              1.04
+            ],
+            "max": [
+              -0.8,
+              2.1,
+              1.16
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
+              -1.0,
+              1.9,
               1.06
             ],
             "max": [
@@ -3477,7 +4061,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_D1",
@@ -3488,6 +4073,18 @@
             1.1
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -0.4,
+              1.9,
+              1.04
+            ],
+            "max": [
+              -0.2,
+              2.1,
+              1.16
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -0.4,
               1.9,
@@ -3507,7 +4104,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_D2",
@@ -3518,6 +4116,18 @@
             1.1
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              0.2,
+              1.9,
+              1.04
+            ],
+            "max": [
+              0.4,
+              2.1,
+              1.16
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               0.2,
               1.9,
@@ -3537,7 +4147,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_D3",
@@ -3548,6 +4159,18 @@
             1.1
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              0.8,
+              1.9,
+              1.04
+            ],
+            "max": [
+              1.0,
+              2.1,
+              1.16
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               0.8,
               1.9,
@@ -3567,7 +4190,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_D0",
@@ -3578,6 +4202,18 @@
             1.9
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.0,
+              1.9,
+              1.84
+            ],
+            "max": [
+              -0.8,
+              2.1,
+              1.96
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.0,
               1.9,
@@ -3597,7 +4233,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_D1",
@@ -3608,6 +4245,18 @@
             1.9
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -0.4,
+              1.9,
+              1.84
+            ],
+            "max": [
+              -0.2,
+              2.1,
+              1.96
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -0.4,
               1.9,
@@ -3627,7 +4276,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_D2",
@@ -3638,6 +4288,18 @@
             1.9
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              0.2,
+              1.9,
+              1.84
+            ],
+            "max": [
+              0.4,
+              2.1,
+              1.96
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               0.2,
               1.9,
@@ -3657,7 +4319,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_D3",
@@ -3668,6 +4331,18 @@
             1.9
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              0.8,
+              1.9,
+              1.84
+            ],
+            "max": [
+              1.0,
+              2.1,
+              1.96
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               0.8,
               1.9,
@@ -3687,7 +4362,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -3810,6 +4486,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -3828,7 +4516,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -3840,6 +4529,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -3858,7 +4559,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -3869,6 +4571,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -3888,7 +4602,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -3899,6 +4614,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -3918,7 +4645,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -4041,6 +4769,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -4059,7 +4799,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -4071,6 +4812,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -4089,7 +4842,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -4100,6 +4854,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -4119,7 +4885,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -4130,6 +4897,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -4149,7 +4928,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -4272,6 +5052,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -4290,7 +5082,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -4302,6 +5095,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -4320,7 +5125,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -4331,6 +5137,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -4350,7 +5168,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -4361,6 +5180,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -4380,7 +5211,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -4503,6 +5335,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.7,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              1.9,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.7,
               0.63
@@ -4521,7 +5365,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -4533,6 +5378,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.7,
+              0.63
+            ],
+            "max": [
+              1.36,
+              1.9,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.7,
               0.63
@@ -4551,7 +5408,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_S1",
@@ -4563,6 +5421,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              2.1,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.3,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               2.1,
               0.63
@@ -4581,7 +5451,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R1",
@@ -4593,6 +5464,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              2.1,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.3,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               2.1,
               0.63
@@ -4611,7 +5494,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -4623,6 +5507,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.7,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              1.9,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.7,
               1.43
@@ -4641,7 +5537,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -4653,6 +5550,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.7,
+              1.43
+            ],
+            "max": [
+              1.36,
+              1.9,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.7,
               1.43
@@ -4671,7 +5580,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S1",
@@ -4682,6 +5592,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              2.1,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.3,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               2.1,
@@ -4701,7 +5623,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R1",
@@ -4712,6 +5635,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              2.1,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.3,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               2.1,
@@ -4731,7 +5666,8 @@
           "flow_m3s": 0.05,
           "outlet_m_s": 1.592,
           "thrust_N": 0.0931,
-          "momentum_source_N_m3": 29.1
+          "momentum_source_N_m3": 29.1,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -4854,6 +5790,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.6333,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              1.8333,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.6333,
               0.63
@@ -4872,7 +5820,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -4884,6 +5833,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.6333,
+              0.63
+            ],
+            "max": [
+              1.36,
+              1.8333,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.6333,
               0.63
@@ -4902,7 +5863,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_S1",
@@ -4914,6 +5876,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -4932,7 +5906,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R1",
@@ -4944,6 +5919,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -4962,7 +5949,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_S2",
@@ -4974,6 +5962,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              2.1667,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.3667,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               2.1667,
               0.63
@@ -4992,7 +5992,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R2",
@@ -5004,6 +6005,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              2.1667,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.3667,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               2.1667,
               0.63
@@ -5022,7 +6035,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -5034,6 +6048,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.6333,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              1.8333,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.6333,
               1.43
@@ -5052,7 +6078,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -5064,6 +6091,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.6333,
+              1.43
+            ],
+            "max": [
+              1.36,
+              1.8333,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.6333,
               1.43
@@ -5082,7 +6121,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S1",
@@ -5094,6 +6134,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               1.43
@@ -5112,7 +6164,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R1",
@@ -5124,6 +6177,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               1.43
@@ -5142,7 +6207,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S2",
@@ -5153,6 +6219,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              2.1667,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.3667,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               2.1667,
@@ -5172,7 +6250,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R2",
@@ -5183,6 +6262,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              2.1667,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.3667,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               2.1667,
@@ -5202,7 +6293,8 @@
           "flow_m3s": 0.03333,
           "outlet_m_s": 1.061,
           "thrust_N": 0.0414,
-          "momentum_source_N_m3": 12.9
+          "momentum_source_N_m3": 12.9,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -5325,6 +6417,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.55
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.75
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.55
@@ -5343,7 +6447,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -5355,6 +6460,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.55
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.75
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.55
@@ -5373,7 +6490,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -5384,6 +6502,18 @@
             1.45
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.35
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.55
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -5403,7 +6533,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -5414,6 +6545,18 @@
             1.45
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.35
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.55
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -5433,7 +6576,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -5556,6 +6700,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.75
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.95
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.75
@@ -5574,7 +6730,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -5586,6 +6743,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.75
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.95
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.75
@@ -5604,7 +6773,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -5615,6 +6785,18 @@
             1.65
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.55
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.75
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -5634,7 +6816,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -5645,6 +6828,18 @@
             1.65
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.55
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.75
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -5664,7 +6859,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -5787,6 +6983,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -5805,7 +7013,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -5817,6 +7026,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -5835,7 +7056,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -5846,6 +7068,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -5865,7 +7099,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -5876,6 +7111,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -5895,7 +7142,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -6018,6 +7266,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -6036,7 +7296,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -6048,6 +7309,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -6066,7 +7339,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -6077,6 +7351,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -6096,7 +7382,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -6107,6 +7394,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -6126,7 +7425,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -6249,6 +7549,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -6267,7 +7579,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -6279,6 +7592,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -6297,7 +7622,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -6308,6 +7634,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -6327,7 +7665,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -6338,6 +7677,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -6357,7 +7708,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -6480,6 +7832,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -6498,7 +7862,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -6510,6 +7875,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -6528,7 +7905,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -6539,6 +7917,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -6558,7 +7948,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -6569,6 +7960,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -6588,7 +7991,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },
@@ -6711,6 +8115,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              -1.36,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               -1.34,
               1.9,
               0.63
@@ -6729,7 +8145,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T0_R0",
@@ -6741,6 +8158,18 @@
           ],
           "cellZone_box_cfd_m": {
             "min": [
+              1.24,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.36,
+              2.1,
+              0.83
+            ]
+          },
+          "fan_box_cfd_m": {
+            "min": [
               1.26,
               1.9,
               0.63
@@ -6759,7 +8188,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_S0",
@@ -6770,6 +8200,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              -1.36,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.24,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               -1.34,
               1.9,
@@ -6789,7 +8231,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         },
         {
           "id": "FAN_T1_R0",
@@ -6800,6 +8243,18 @@
             1.53
           ],
           "cellZone_box_cfd_m": {
+            "min": [
+              1.24,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.36,
+              2.1,
+              1.63
+            ]
+          },
+          "fan_box_cfd_m": {
             "min": [
               1.26,
               1.9,
@@ -6819,7 +8274,8 @@
           "flow_m3s": 0.1,
           "outlet_m_s": 3.183,
           "thrust_N": 0.3724,
-          "momentum_source_N_m3": 116.4
+          "momentum_source_N_m3": 116.4,
+          "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 맞춰 키운 것이다. 총 추력은 같다."
         }
       ]
     },

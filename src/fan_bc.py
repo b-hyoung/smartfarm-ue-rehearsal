@@ -38,10 +38,24 @@ LED_W_EACH = 240.0
 LED_BAR = (BED_W * 0.92, 0.05, 0.035)
 
 
+MESH_CELL = 0.10         # blockMesh 균일 격자 한 변(m). 상자를 여기에 맞춘다.
+
+
 def box(centre, size):
     """중심·크기(m) -> topoSet boxToCell 용 min/max."""
     return {"min": [round(centre[i] - size[i] / 2.0, 4) for i in range(3)],
             "max": [round(centre[i] + size[i] / 2.0, 4) for i in range(3)]}
+
+
+def zone_box(centre, size, cell=MESH_CELL):
+    """셀 영역용 상자. 격자보다 얇으면 셀 중심을 하나도 못 잡으므로 최소 한 셀은 덮게 키운다.
+
+    boxToCell 은 셀 중심이 상자 안에 있는 셀만 고른다. 균일 격자에서 한 변보다
+    짧은 상자는 정렬에 따라 0개가 잡힌다. 한 변의 1.2배까지 키우면 어디에 놓든
+    축마다 최소 한 줄은 들어온다. 운동량 소스는 volumeMode absolute 라
+    상자가 커져도 팬이 내는 총 추력(N)은 그대로다.
+    """
+    return box(centre, [max(size[i], cell * 1.2) for i in range(3)])
 
 
 def slots(layout, tilt, n, rack, tiers, above_bed=ABOVE_BED):
@@ -104,12 +118,15 @@ def zones_for(layout, tilt, cmm, n, dia, depth, rack, tiers, on=None, above_bed=
             "id": "FAN_" + tag.upper(),
             "role": role,
             "centre_cfd_m": [round(cx - X_SHIFT, 4), round(cy, 4), round(cz, 4)],
-            "cellZone_box_cfd_m": box([cx - X_SHIFT, cy, cz], size),
+            "cellZone_box_cfd_m": zone_box([cx - X_SHIFT, cy, cz], size),
+            "fan_box_cfd_m": box([cx - X_SHIFT, cy, cz], size),
             "dir_unit": [round(v, 4) for v in d],
             "flow_m3s": round(q, 5),
             "outlet_m_s": round(u, 3),
             "thrust_N": round(thrust, 4),
             "momentum_source_N_m3": round(thrust / vol, 1) if vol else 0.0,
+            "box_note": "fan_box 는 실제 팬 치수, cellZone_box 는 격자(0.10 m)에 "
+                        "맞춰 키운 것이다. 총 추력은 같다.",
         })
     return zs, round(u, 3), round(thrust, 4), off
 

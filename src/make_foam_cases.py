@@ -118,7 +118,7 @@ def control_dict(end_s, write_s, planes):
         }""" % (p["name"], (p["y_range_m"][0] + p["y_range_m"][1]) / 2.0, p["z_cfd_m"]))
     return (head("dictionary", "controlDict") +
             """application     buoyantPimpleFoam;
-startFrom       startTime;
+startFrom       latestTime;   // 중단돼도 마지막 저장 시점부터 이어간다
 startTime       0;
 stopAt          endTime;
 endTime         %g;
@@ -162,18 +162,32 @@ runApp subsetMesh keep -patch rackWalls -overwrite
 """ if with_rack else "\n"
     return """#!/bin/bash
 # 케이스 하나를 끝까지 돌린다. 컨테이너 안에서 실행된다.
+# 이미 돌던 케이스면 격자·분할을 건너뛰고 마지막 저장 시점부터 이어간다.
 cd "${0%%/*}" || exit 1
 set -e
 runApp(){ echo "--- $* ---"; "$@" > log."$1" 2>&1 || { tail -20 log."$1"; exit 1; }; }
 
-runApp blockMesh
-runApp topoSet -dict system/topoSetDict.ac
-runApp createPatch -overwrite
+resume=no
+if [ -d processor0 ] && [ -n "$(ls -d processor0/[1-9]* 2>/dev/null | head -1)" ]; then
+    resume=yes
+    echo "--- 이어서 시작 (마지막 저장 시점부터) ---"
+fi
+
+if [ "$resume" = no ]; then
+    runApp blockMesh
+    runApp topoSet -dict system/topoSetDict.ac
+    runApp createPatch -overwrite
 %s
-runApp topoSet -dict system/topoSetDict.fans
-rm -rf 0 && cp -r 0.orig 0
-runApp decomposePar -force
-mpirun --use-hwthread-cpus -np %d buoyantPimpleFoam -parallel > log.run 2>&1
+    runApp topoSet -dict system/topoSetDict.fans
+    if grep -q 'cellZoneSet .* now size 0' log.topoSet; then
+        echo '팬 셀 영역이 비었다. 상자가 격자(0.10 m)보다 얇다. fan_bc.py 의 zone_box 를 볼 것.'
+        exit 1
+    fi
+    rm -rf 0 && cp -r 0.orig 0
+    runApp decomposePar -force
+fi
+
+mpirun --use-hwthread-cpus -np %d buoyantPimpleFoam -parallel >> log.run 2>&1
 runApp reconstructPar -latestTime
 echo DONE
 """ % (rack, np_)
