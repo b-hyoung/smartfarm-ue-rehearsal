@@ -26,32 +26,36 @@
 | 도커 데몬 | **떠 있어야 한다.** 이미지 `opencfd/openfoam-default:2512` | `docker version` |
 | 파이썬 3 | 표준 라이브러리만 쓴다 | `python3 -V` |
 | 이 저장소 | `feat/rack-fans` 브랜치 | `git log --oneline -1` |
-| **템플릿 케이스** | 저장소에 없다. 따로 옮겨야 한다 (2 절) | |
+| 템플릿 케이스 | **저장소 안에 있다** (`cfd/template/`). 옮길 것 없다 | |
 | 디스크 | 케이스당 약 0.5 GB → 30 개면 **15 GB** | |
 | 코어 | 많을수록 좋다. 실행기가 기본으로 80 % 를 쓴다 | `nproc` |
 
 ---
 
-## 2. 템플릿 케이스 — 이것부터 없으면 시작이 안 된다
+## 2. 템플릿 케이스 — 이제 저장소 안에 있다
 
-생성기는 팬·재배단·캐노피·판정면만 만든다. **방 형상과 에어컨은 기존 케이스에서
-복사**한다. 옮길 것은 이 여섯 가지뿐이고, 결과 시간 폴더는 필요 없다.
+생성기는 팬·재배단·캐노피·판정면만 만든다. 방 형상과 에어컨은 **템플릿에서 복사**한다.
+그 템플릿이 `cfd/template/acRoom-vane25/` 에 들어 있다. **따로 옮길 것이 없다.**
 
 ```
-~/smartfarm-cfd/cases/acRoom-vane25/
-  0.orig/                    U T p p_rgh k epsilon nut alphat
+cfd/template/acRoom-vane25/
+  0.orig/                     U T p p_rgh k epsilon nut alphat (+ 안 쓰는 PMV·PPD·DR)
   constant/g
   constant/thermophysicalProperties
-  system/blockMeshDict       반타원 O-그리드 4 블록, 0.10 m 균일, 84,024 셀
-  system/topoSetDict         에어컨 취출 4 개 + 리턴
+  system/blockMeshDict        반타원 O-그리드 4 블록, 0.10 m 균일, 84,024 셀
+  system/topoSetDict          에어컨 취출 4 개 + 리턴
   system/createPatchDict
   system/fvSchemes  fvSolution
 ```
 
-`constant/turbulenceProperties` 는 **옮기지 않아도 된다.** 생성기가 새로 쓴다.
+전부 텍스트 딕셔너리라 **124 KB** 뿐이다. 격자(`constant/polyMesh`)는 없다 —
+`blockMesh` 가 매번 다시 만든다.
 
-**템플릿이 없는 컴퓨터라면** `origin/feat/real-cfd-case` 브랜치의 `cfd/case/` 에
-위 파일이 대부분 들어 있다. 거기서 꺼내 위 구조로 놓으면 된다.
+`--template` 을 주지 않으면 이것을 쓴다. 다른 템플릿을 쓰려면 `--template` 이나
+환경변수 `SF_TEMPLATE` 으로 덮어쓴다.
+
+`constant/turbulenceProperties` 는 템플릿에 있어도 쓰지 않는다. 생성기가
+`--turbulence` 에 맞춰 새로 쓴다.
 
 ---
 
@@ -338,15 +342,12 @@ docker image inspect opencfd/openfoam-default:2512 --format '{{.Architecture}}'
 - `--user "$(id -u):$(id -g)"` 가 먹으므로 **mpirun root 문제는 안 난다**(함정 ③).
 - 경로 변환도 필요 없다(함정 덤). 실행기가 알아서 갈라 쓴다.
 - `nproc` 이 없어 `sysctl -n hw.ncpu` 로 받는다. 이미 실행기에 들어 있다.
-- **템플릿 케이스는 저장소에 없다.** 맥에도 따로 옮겨야 한다(2 절).
-  윈도우에서 통째로 압축해 보내면 된다.
+- **템플릿은 저장소 안에 있다.** 클론만 하면 끝이다.
 
 ```bash
 # 맥에서
 git clone -b feat/rack-fans <저장소> && cd smartfarm-ue-rehearsal
 docker pull opencfd/openfoam-default:2512
-# 템플릿을 ~/smartfarm-cfd/cases/acRoom-vane25 로 옮긴 뒤
-
 python3 src/make_foam_cases.py --cases 11-20 --end 600 --np 18         --template ~/smartfarm-cfd/cases/acRoom-vane25         --out ~/smartfarm-cfd/cases/fan-study
 SF_REPO=$PWD bash src/run_foam_cases.sh 11 20
 ```

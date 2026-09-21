@@ -1,0 +1,72 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    walls
+    {
+        type            noSlip;
+    }
+
+    inletXp
+    {
+        // 유량 지정: 격자 해상도와 무관하게 슬롯당 25/4 CMM 을 정확히 공급
+        // (실제 패치 면적으로 OpenFOAM 이 속도를 자동 계산. 방향 = 패치 법선 = 아래)
+        type            flowRateInletVelocity;
+        volumetricFlowRate constant 0.104167;   // m3/s  (= 6.25 CMM)
+        value           uniform (0 0 -3.47);
+    }
+
+    inletXm
+    {
+        // 유량 지정: 격자 해상도와 무관하게 슬롯당 25/4 CMM 을 정확히 공급
+        // (실제 패치 면적으로 OpenFOAM 이 속도를 자동 계산. 방향 = 패치 법선 = 아래)
+        type            flowRateInletVelocity;
+        volumetricFlowRate constant 0.104167;   // m3/s  (= 6.25 CMM)
+        value           uniform (0 0 -3.47);
+    }
+
+    inletYp
+    {
+        // 유량 지정: 격자 해상도와 무관하게 슬롯당 25/4 CMM 을 정확히 공급
+        // (실제 패치 면적으로 OpenFOAM 이 속도를 자동 계산. 방향 = 패치 법선 = 아래)
+        type            flowRateInletVelocity;
+        volumetricFlowRate constant 0.104167;   // m3/s  (= 6.25 CMM)
+        value           uniform (0 0 -3.47);
+    }
+
+    inletYm
+    {
+        // 유량 지정: 격자 해상도와 무관하게 슬롯당 25/4 CMM 을 정확히 공급
+        // (실제 패치 면적으로 OpenFOAM 이 속도를 자동 계산. 방향 = 패치 법선 = 아래)
+        type            flowRateInletVelocity;
+        volumetricFlowRate constant 0.104167;   // m3/s  (= 6.25 CMM)
+        value           uniform (0 0 -3.47);
+    }
+
+    return
+    {
+        type            pressureInletOutletVelocity;
+        value           $internalField;
+    }
+}
+
+
+// ************************************************************************* //

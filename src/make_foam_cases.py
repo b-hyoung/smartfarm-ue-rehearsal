@@ -26,8 +26,14 @@ import shutil
 # 경로는 인자나 환경변수로 바꾼다. 기본값은 이 파일이 있는 저장소와 ~/smartfarm-cfd 다.
 REPO_DEFAULT = os.environ.get(
     "SF_REPO", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# 템플릿은 저장소 안에 있다(cfd/template). 전부 텍스트 딕셔너리라 124 KB 뿐이고,
+# 이것만 있으면 새 컴퓨터에서 파일을 따로 옮길 일이 없다. 바깥 경로를 쓰고 싶으면
+# --template 이나 SF_TEMPLATE 으로 덮어쓴다.
+_IN_REPO = os.path.join(REPO_DEFAULT, "cfd", "template", "acRoom-vane25")
 TEMPLATE_DEFAULT = os.environ.get(
-    "SF_TEMPLATE", os.path.expanduser("~/smartfarm-cfd/cases/acRoom-vane25"))
+    "SF_TEMPLATE",
+    _IN_REPO if os.path.isdir(_IN_REPO)
+    else os.path.expanduser("~/smartfarm-cfd/cases/acRoom-vane25"))
 OUT_DEFAULT = os.environ.get(
     "SF_OUT", os.path.expanduser("~/smartfarm-cfd/cases/fan-study"))
 FIELDS = ["U", "T", "p", "p_rgh", "k", "epsilon", "nut", "alphat"]
