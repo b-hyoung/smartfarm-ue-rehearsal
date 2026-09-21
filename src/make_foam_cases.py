@@ -69,8 +69,20 @@ def topo_rack(blockage):
     return head("dictionary", "topoSetDict") + "actions\n(\n" + "\n".join(acts) + "\n);\n"
 
 
-def topo_fans(zones):
-    """팬 셀존 — fvOptions 가 여기에 힘을 준다."""
+BOX_ACT = ("    {" + chr(10) + "        name    %s;" + chr(10) +
+           "        type    cellSet;" + chr(10) + "        action  new;" + chr(10) +
+           "        source  boxToCell;" + chr(10) +
+           "        box     (%g %g %g) (%g %g %g);" + chr(10) + "    }")
+ZONE_ACT = ("    {" + chr(10) + "        name    %s;" + chr(10) +
+            "        type    cellZoneSet;" + chr(10) + "        action  new;" + chr(10) +
+            "        source  setToCellZone;" + chr(10) + "        set     %s;" + chr(10) + "    }")
+
+
+def topo_fans(zones, canopy=()):
+    """팬 셀존과 캐노피 다공체 셀존 — fvOptions 가 힘과 저항을 준다.
+
+    refineMesh 뒤에 돌아야 한다. 세분이 셀 번호를 다시 매기기 때문이다.
+    """
     acts = []
     for z in zones:
         mn, mx = z["cellZone_box_cfd_m"]["min"], z["cellZone_box_cfd_m"]["max"]
@@ -82,6 +94,11 @@ def topo_fans(zones):
         acts.append("    {\n        name    %s;\n        type    cellZoneSet;\n"
                     "        action  new;\n        source  setToCellZone;\n"
                     "        set     %s;\n    }" % (nm, nm))
+    for z in canopy:
+        mn, mx = z["box_cfd_m"]["min"], z["box_cfd_m"]["max"]
+        nm = z["id"].lower()
+        acts.append(BOX_ACT % (nm, mn[0], mn[1], mn[2], mx[0], mx[1], mx[2]))
+        acts.append(ZONE_ACT % (nm, nm))
     if not acts:
         acts.append("    {\n        name    dummy;\n        type    cellSet;\n"
                     "        action  new;\n        source  boxToCell;\n"
@@ -133,8 +150,32 @@ writeMesh       false;
 """
 
 
-def fv_options(zones):
-    """온도 제한(템플릿 유지) + 팬 추력."""
+POROUS = """%s
+{
+    type            explicitPorositySource;
+    selectionMode   cellZone;
+    cellZone        %s;
+
+    explicitPorositySourceCoeffs
+    {
+        type            DarcyForchheimer;
+        d               (%g %g %g);   // 점성저항 1/alpha (1/m2)
+        f               (%g %g %g);   // 관성저항 C2 (1/m)
+
+        coordinateSystem
+        {
+            origin  (0 0 0);
+            e1      (1 0 0);
+            e2      (0 1 0);
+        }
+    }
+}
+
+"""
+
+
+def fv_options(zones, canopy=()):
+    """온도 제한(템플릿 유지) + 팬 추력 + 캐노피 다공체 저항."""
     s = head("dictionary", "fvOptions")
     s += ("limitTAir\n{\n    type       limitTemperature;\n    min        280;\n"
           "    max        310;\n    selectionMode all;\n}\n\n")
@@ -147,6 +188,10 @@ def fv_options(zones):
               "    volumeMode      absolute;   // Su 가 N 단위\n"
               "    sources\n    {\n        U  ((%.5f %.5f %.5f) 0);   // 추력 %.4f N\n"
               "    }\n}\n\n" % (nm, nm, d[0] * f, d[1] * f, d[2] * f, f))
+    for z in canopy:
+        nm = z["id"].lower()
+        s += POROUS % (nm, nm, z["d_1_m2"], z["d_1_m2"], z["d_1_m2"],
+                       z["f_1_m"], z["f_1_m"], z["f_1_m"])
     return s
 
 
@@ -345,6 +390,8 @@ def main():
     ap.add_argument("--repo", default=REPO_DEFAULT, help="fan_params.json 이 있는 저장소")
     ap.add_argument("--template", default=TEMPLATE_DEFAULT, help="복사해 올 기존 OpenFOAM 케이스")
     ap.add_argument("--out", default=OUT_DEFAULT, help="케이스를 펼칠 폴더")
+    ap.add_argument("--canopy", default="on", choices=("on", "off"),
+                    help="작물층을 다공체로 둘지. off 는 빈 공간 — 순위 비교용")
     ap.add_argument("--turbulence", default="standard", choices=sorted(TURBULENCE),
                     help="난류 모델. 기본은 기준선(kEpsilon). 민감도 확인용으로만 바꾼다")
     a = ap.parse_args()
@@ -363,8 +410,9 @@ def main():
     for c in spec["cases"]:
         if not (lo <= c["no"] <= hi):
             continue
-        rid = c["run_id"] + ("" if a.turbulence == "standard"
-                             else "_" + a.turbulence)
+        rid = (c["run_id"]
+               + ("" if a.turbulence == "standard" else "_" + a.turbulence)
+               + ("" if a.canopy == "on" else "_nocanopy"))
         d = os.path.join(a.out, rid)
         if os.path.isdir(d):
             shutil.rmtree(d)
@@ -391,14 +439,15 @@ def main():
                 topo_rack(spec["rack_blockage"]))
 
         zones = c.get("fan_zones", [])
+        canopy = (spec["canopy"]["zones"] if a.canopy == "on" else [])
         open(os.path.join(d, "system", "topoSetDict.refine"), "w", encoding="utf-8").write(
             topo_refine(spec["refine"]))
         open(os.path.join(d, "system", "refineMeshDict"), "w", encoding="utf-8").write(
             refine_mesh_dict())
         open(os.path.join(d, "system", "topoSetDict.fans"), "w", encoding="utf-8").write(
-            topo_fans(zones))
+            topo_fans(zones, canopy))
         open(os.path.join(d, "system", "fvOptions"), "w", encoding="utf-8").write(
-            fv_options(zones))
+            fv_options(zones, canopy))
         open(os.path.join(d, "system", "controlDict"), "w", encoding="utf-8").write(
             control_dict(a.end, a.write, spec["judge_planes"], zones))
         open(os.path.join(d, "system", "decomposeParDict"), "w", encoding="utf-8").write(
@@ -414,6 +463,7 @@ def main():
                 "fans_on": c.get("fans_on", 0), "fans_off": c.get("fans_off", []),
                 "rack": with_rack, "endTime_s": a.end, "np": a.np,
                 "run_id": rid,
+                "canopy_porous": a.canopy == "on",
                 "turbulence": TURBULENCE[a.turbulence][0],
                 "turbulence_why": TURBULENCE[a.turbulence][1]}
         json.dump(meta, open(os.path.join(d, "case.json"), "w", encoding="utf-8"),

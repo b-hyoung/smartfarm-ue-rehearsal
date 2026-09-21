@@ -42,6 +42,9 @@ MESH_CELL = 0.10         # blockMesh 균일 격자 한 변(m)
 REFINE_LEVELS = 1        # 재배단·팬 상자만 refineMesh 로 쪼갠 횟수
 REFINED_CELL = MESH_CELL / (2 ** REFINE_LEVELS)   # 그 안의 격자 한 변(m)
 REFINE_BUFFER = 0.40     # 세분 상자를 팬·캐노피보다 이만큼 넓게 잡는다(m)
+CANOPY_H = 0.25          # 작물층 두께(m). 선반면 위로 이만큼이 캐노피다.
+CANOPY_D = 25.0          # 다공체 점성저항 1/alpha (1/m2) — Zhang 외(2025) 상추
+CANOPY_F = 1.3           # 다공체 관성저항 C2 (1/m)     — Zhang 외(2025) 상추
 
 
 def box(centre, size):
@@ -139,7 +142,40 @@ def zones_for(layout, tilt, cmm, n, dia, depth, rack, tiers, on=None, above_bed=
     return zs, round(u, 3), round(thrust, 4), off
 
 
-def refine_box(cases, blockage, rack, tiers, canopy_h=0.25,
+def canopy_zones(rack, tiers, h=CANOPY_H, d=CANOPY_D, f=CANOPY_F):
+    """작물층을 다공체로 둔다 — 잎을 그리지 않고 저항만 준다.
+
+    빈 공간으로 두면 바람이 캐노피를 뚫고 지나간다. 실제로는 잎이 막아 돌아간다.
+    그 차이는 팬 높이(H1·H2)와 각도(T1~T3) 케이스에서 순위를 뒤집을 수 있다.
+    저항 없이 비교하면 "캐노피에 꽂는 안"이 무조건 이기기 때문이다.
+
+    계수는 Zhang 외(2025) Agronomy 15:2326 의 상추 다공체 값이다. 재배 베드에
+    덕트를 통합한 식물공장 연구로 우리 구성과 가장 가깝다. 잎이 어디에 얼마나
+    몰려 있는지는 실측이 없으므로 **일정하게** 준다. 모르는 것을 불균일하게
+    두면 그 불균일이 결과를 만든다.
+
+    셀은 늘지 않는다. 격자 세분과 달리 계산 시간이 거의 늘지 않으므로,
+    저항을 넣은 경우와 뺀 경우를 나란히 돌려 순위가 바뀌는지 볼 수 있다.
+    """
+    out = []
+    for ti, bz in enumerate(tiers):
+        out.append({
+            "id": "CANOPY_T%d" % ti,
+            "tier": ti,
+            "box_cfd_m": {
+                "min": [round(rack[0] - X_SHIFT - BED_W / 2.0, 4),
+                        round(rack[1] - BED_D / 2.0, 4), round(bz, 4)],
+                "max": [round(rack[0] - X_SHIFT + BED_W / 2.0, 4),
+                        round(rack[1] + BED_D / 2.0, 4), round(bz + h, 4)],
+            },
+            "thickness_m": h,
+            "d_1_m2": d,
+            "f_1_m": f,
+        })
+    return out
+
+
+def refine_box(cases, blockage, rack, tiers, canopy_h=CANOPY_H,
                buffer_m=REFINE_BUFFER, snap=MESH_CELL):
     """세분 상자 하나 — 30 케이스에 같은 좌표로 쓴다.
 
@@ -403,6 +439,24 @@ def main():
         "rack_default": {"centre_ue_m": list(rack0), "bed_size_m": [BED_W, BED_D],
                          "tier_bed_z_m": tiers},
         "mesh_cell_m": MESH_CELL,
+        "canopy": {
+            "included": True,
+            "zones": canopy_zones(rack0, tiers),
+            "model": "DarcyForchheimer 다공체. 잎을 그리지 않고 저항만 준다.",
+            "source": "Zhang 외(2025) Agronomy 15:2326 — 상추를 다공체로 두고 "
+                      "점성저항 25, 관성저항 1.3 을 썼다. 재배 베드에 덕트를 통합한 "
+                      "식물공장 연구로 우리 구성과 가장 가깝다.",
+            "uniform_why": "잎 분포 실측이 없다. 불균일하게 둘 근거가 없으므로 "
+                           "가정이 가장 적은 균일을 쓴다.",
+            "caution": "저항을 넣으면 판정면 풍속이 잎 사이 실제 속도가 아니라 "
+                       "겉보기 속도가 된다. 합격 기준 0.3~1.0 m/s 는 실측 캐노피 "
+                       "풍속에서 온 값이라 잣대가 어긋날 수 있다. 윗면(+0.25 m)은 "
+                       "영향이 적고 중간면(+0.125 m)은 크게 달라진다.",
+            "alt_estimate": "잎면적 쪽으로 풀면 F = C_d·a·rho·U^2 이고 Yu 외(2023)의 "
+                            "C_d 0.32, LAI 3 을 0.25 m 에 펴면 U 0.5 m/s 에서 약 "
+                            "1.1 N/m3 다. Zhang 계수로는 약 0.19 N/m3 로 여섯 배쯤 "
+                            "작다. 어느 쪽이 맞는지는 실측 전에는 못 정한다.",
+        },
         "refine": refine_box(cases, blockage0, rack0, tiers),
         "rack_blockage": blockage0,
         "heat_sources": heat,
