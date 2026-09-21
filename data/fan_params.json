@@ -235,72 +235,154 @@
       }
     }
   ],
-  "heat_sources": [
+  "heat_sources": [],
+  "lighting": {
+    "included": false,
+    "note": "이번 계산은 조명 발열을 뺀다. 풍속 기준을 먼저 잡고 조명은 스펙시트가 오면 넣는다."
+  },
+  "judge_planes": [
     {
-      "name": "led0",
-      "box_cfd_m": {
-        "min": [
-          -1.104,
-          1.975,
-          1.2625
-        ],
-        "max": [
-          1.104,
-          2.025,
-          1.2975
-        ]
-      },
-      "watt": 240.0,
-      "volumetric_W_m3": 62112.0,
-      "note": "소비전력 전량을 현열로 가정. 실제로는 일부가 복사로 작물에 흡수된다"
+      "name": "tier0_canopy_mid",
+      "z_cfd_m": 0.675,
+      "x_range_cfd_m": [
+        -1.2,
+        1.2
+      ],
+      "y_range_m": [
+        1.6,
+        2.4
+      ],
+      "sample_grid": [
+        121,
+        41
+      ],
+      "n_points": 4961
     },
     {
-      "name": "led1",
-      "box_cfd_m": {
-        "min": [
-          -1.104,
-          1.975,
-          1.5825
-        ],
-        "max": [
-          1.104,
-          2.025,
-          1.6175
-        ]
-      },
-      "watt": 240.0,
-      "volumetric_W_m3": 62112.0,
-      "note": "소비전력 전량을 현열로 가정. 실제로는 일부가 복사로 작물에 흡수된다"
+      "name": "tier0_canopy_top",
+      "z_cfd_m": 0.8,
+      "x_range_cfd_m": [
+        -1.2,
+        1.2
+      ],
+      "y_range_m": [
+        1.6,
+        2.4
+      ],
+      "sample_grid": [
+        121,
+        41
+      ],
+      "n_points": 4961
+    },
+    {
+      "name": "tier1_canopy_mid",
+      "z_cfd_m": 1.475,
+      "x_range_cfd_m": [
+        -1.2,
+        1.2
+      ],
+      "y_range_m": [
+        1.6,
+        2.4
+      ],
+      "sample_grid": [
+        121,
+        41
+      ],
+      "n_points": 4961
+    },
+    {
+      "name": "tier1_canopy_top",
+      "z_cfd_m": 1.6,
+      "x_range_cfd_m": [
+        -1.2,
+        1.2
+      ],
+      "y_range_m": [
+        1.6,
+        2.4
+      ],
+      "sample_grid": [
+        121,
+        41
+      ],
+      "n_points": 4961
     }
   ],
-  "judge": {
-    "primary": "온도. 단별 캐노피 평균 온도, 층간 차이, 표준편차, 목표 구간 체적비를 본다",
-    "temperature": [
-      "단별 캐노피(선반면 위 0.25 m) 평균 온도",
-      "위 단과 아래 단의 차이 — 조명 발열이 위로 쌓이면 여기서 드러난다",
-      "캐노피 온도 표준편차와 상대표준편차",
-      "목표 구간(설정온도 ±0.5 ℃) 체적비",
-      "조명 바로 아래 국소 고온점의 최고 온도"
+  "airflow_criteria": {
+    "where": "각 단 판정면 두 장 — 캐노피 중간(선반면 +0.125 m)과 윗면(+0.25 m). 방 전체 평균이 아니라 이 면에서만 잰다.",
+    "band_m_s": [
+      0.3,
+      1.0
     ],
-    "airflow_secondary": [
-      "캐노피 평균 풍속 (목표 0.3 m/s 이상)",
-      "정체 구역(0.1 m/s 미만) 비율"
+    "band_basis": "Kitaya 외(2003)는 0.01 -> 0.3 m/s 에서 증산·광합성이 두 배가 되고 0.3~1.0 m/s 에서 거의 일정하다고 보고했다. Zhang & Kacira(2016)는 0.3 미만과 1.0 초과를 피할 구간으로 두고 판정했다.",
+    "metrics": [
+      {
+        "name": "적정구간 비율",
+        "how": "판정면 점 중 0.3~1.0 m/s 인 비율",
+        "target": "높을수록 좋음",
+        "ref": "Zhang & Kacira(2016) 최적안 64%"
+      },
+      {
+        "name": "정체 비율",
+        "how": "0.1 m/s 미만 점 비율",
+        "target": "낮을수록 좋음",
+        "ref": "Gu & Goto(2024) 유입 풍속을 올려 62.4% -> 7.2%"
+      },
+      {
+        "name": "상대표준편차",
+        "how": "판정면 풍속 표준편차 / 평균",
+        "target": "낮을수록 좋음",
+        "ref": "Zhang & Kacira(2016) 44%, Sohn 외(2023) 33%, 배기구 추가 시 10%"
+      },
+      {
+        "name": "평균 풍속",
+        "how": "판정면 풍속 평균",
+        "target": "0.3 m/s 이상, 상추는 0.8 m/s 까지 유리",
+        "ref": "문승미 외(2015) 목표 0.3~0.5, 왕 외(2025) 0.8 m/s 에서 생육 최고"
+      },
+      {
+        "name": "층간 차이",
+        "how": "위 단과 아래 단 평균 풍속의 차",
+        "target": "작을수록 좋음",
+        "ref": "다단 구조의 흔한 실패 지점"
+      }
     ],
-    "reference": "이정민 외(2024)는 유동팬 설치로 재배실 온도 표준편차가 3 ℃에서 1.7 ℃로 줄었다. 왕 외(2025)는 캐노피 0.8 m/s 에서 캐노피 온도가 1.3 ℃ 내려갔다.",
-    "canopy_section_m2": 0.2,
-    "canopy_mean_m_s_est": 0.5
+    "caution": "팬 토출 풍속(약 3.2 m/s)과 캐노피 풍속(약 0.5 m/s)은 다른 값이다. 기준은 캐노피 쪽이다."
   },
   "cases_suggested": [
-    "기준: 재배단 + 조명 발열 있음, 팬 꺼짐 (비교 기준)",
-    "팬 0.3 m/s 상당 (대당 3.6 CMM)",
-    "팬 0.5 m/s 상당 (대당 6.0 CMM)",
-    "팬 0.8 m/s 상당 (대당 9.6 CMM)"
+    {
+      "case": "base",
+      "fan": "꺼짐",
+      "per_fan_CMM": 0.0,
+      "purpose": "재배단만 있을 때의 캐노피 풍속 — 비교 기준"
+    },
+    {
+      "case": "A",
+      "fan": "약",
+      "per_fan_CMM": 3.6,
+      "canopy_target_m_s": 0.3
+    },
+    {
+      "case": "B",
+      "fan": "표준",
+      "per_fan_CMM": 6.0,
+      "canopy_target_m_s": 0.5
+    },
+    {
+      "case": "C",
+      "fan": "강",
+      "per_fan_CMM": 9.6,
+      "canopy_target_m_s": 0.8
+    }
   ],
   "openfoam_hint": {
     "topoSetDict": "각 fan_zones[].cellZone_box_cfd_m 을 boxToCell 로 잡아 cellZone 생성",
     "fvOptions": "vectorSemiImplicitSource 로 zone 마다 dir_unit × thrust_N 적용 (또는 meanVelocityForce 로 Ubar = dir_unit × outlet_m_s)",
     "blockage": "rack_blockage 는 snappyHexMesh 의 searchableBox 또는 topoSet 후 cellSet 제거로 넣는다. 지금 해석은 빈 방이라 반드시 추가해야 한다.",
-    "heat": "heat_sources 는 cellZone 으로 잡아 fvOptions 의 scalarSemiImplicitSource (에너지) 로 volumetric_W_m3 를 준다. 온도를 볼 거면 필수다.",
+    "heat": "heat_sources 는 이번에 비어 있다. 조명을 넣을 때 cellZone + scalarSemiImplicitSource(에너지)로 volumetric_W_m3 를 준다.",
+    "sampling": "judge_planes 를 sample(surfaces, plane)로 뽑아 magU 를 저장하면 적정구간 비율·정체 비율·상대표준편차를 그대로 계산할 수 있다.",
     "unchanged": "에어컨 취출·리턴 경계(ac_params.json)와 시각표·반출 규격은 그대로 둔다"
   }
 }

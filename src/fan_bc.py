@@ -25,9 +25,12 @@ RHO = 1.17               # 공기 밀도 kg/m³ (약 25 ℃)
 BED_W, BED_D = 2.40, 0.80
 BED_T, POST = 0.05, 0.06
 TOP_MARGIN = 0.15
+LED_ON = False           # 이번 계산은 조명 발열을 뺀다 (풍속 기준부터 잡는 단계)
 LED_Z = [1.28, 1.60]     # 각 단 조명 바 높이 (재배단 배치와 동일)
 LED_W_EACH = 240.0       # 조명 1바 소비전력 가정 — 스펙시트 오면 교체
 LED_BAR = (BED_W * 0.92, 0.05, 0.035)   # 조명 바 크기
+CANOPY_H = 0.25          # 작물 높이 가정
+SAMPLE = 0.02            # 판정면 샘플 간격 m
 
 
 def load_layout():
@@ -99,17 +102,34 @@ def main():
                                   rack[1] + sy * (BED_D / 2 - POST / 2), ph / 2],
                                  [POST, POST, ph])})
 
-    # 조명 발열 — 온도를 보려면 이게 없으면 의미가 없다
+    # 조명 발열 — 이번 계산에서는 뺀다
     heat = []
     led_vol = LED_BAR[0] * LED_BAR[1] * LED_BAR[2]
-    for i, lz in enumerate(LED_Z[:len(tiers)]):
-        heat.append({
-            "name": "led%d" % i,
-            "box_cfd_m": box([rack[0] - X_SHIFT, rack[1], lz], list(LED_BAR)),
-            "watt": LED_W_EACH,
-            "volumetric_W_m3": round(LED_W_EACH / led_vol, 0),
-            "note": "소비전력 전량을 현열로 가정. 실제로는 일부가 복사로 작물에 흡수된다",
-        })
+    if LED_ON:
+        for i, lz in enumerate(LED_Z[:len(tiers)]):
+            heat.append({
+                "name": "led%d" % i,
+                "box_cfd_m": box([rack[0] - X_SHIFT, rack[1], lz], list(LED_BAR)),
+                "watt": LED_W_EACH,
+                "volumetric_W_m3": round(LED_W_EACH / led_vol, 0),
+                "note": "소비전력 전량을 현열로 가정",
+            })
+
+    # 판정면 — 어디서 재는지부터 고정한다
+    nx = int(round(BED_W / SAMPLE)) + 1
+    ny = int(round(BED_D / SAMPLE)) + 1
+    planes = []
+    for i, bz in enumerate(tiers):
+        for label, dz in (("mid", CANOPY_H / 2.0), ("top", CANOPY_H)):
+            planes.append({
+                "name": "tier%d_canopy_%s" % (i, label),
+                "z_cfd_m": round(bz + dz, 3),
+                "x_range_cfd_m": [round(rack[0] - X_SHIFT - BED_W / 2, 3),
+                                  round(rack[0] - X_SHIFT + BED_W / 2, 3)],
+                "y_range_m": [round(rack[1] - BED_D / 2, 3), round(rack[1] + BED_D / 2, 3)],
+                "sample_grid": [nx, ny],
+                "n_points": nx * ny,
+            })
 
     per_tier = lay["per_tier"]
     out = {
@@ -125,29 +145,40 @@ def main():
         "fan_zones": zones,
         "rack_blockage": blockage,
         "heat_sources": heat,
-        "judge": {
-            "primary": "온도. 단별 캐노피 평균 온도, 층간 차이, 표준편차, 목표 구간 체적비를 본다",
-            "temperature": [
-                "단별 캐노피(선반면 위 0.25 m) 평균 온도",
-                "위 단과 아래 단의 차이 — 조명 발열이 위로 쌓이면 여기서 드러난다",
-                "캐노피 온도 표준편차와 상대표준편차",
-                "목표 구간(설정온도 ±0.5 ℃) 체적비",
-                "조명 바로 아래 국소 고온점의 최고 온도",
+        "lighting": {"included": LED_ON,
+                     "note": "이번 계산은 조명 발열을 뺀다. 풍속 기준을 먼저 잡고 "
+                             "조명은 스펙시트가 오면 넣는다."},
+        "judge_planes": planes,
+        "airflow_criteria": {
+            "where": "각 단 판정면 두 장 — 캐노피 중간(선반면 +0.125 m)과 윗면(+0.25 m). "
+                     "방 전체 평균이 아니라 이 면에서만 잰다.",
+            "band_m_s": [0.3, 1.0],
+            "band_basis": "Kitaya 외(2003)는 0.01 -> 0.3 m/s 에서 증산·광합성이 두 배가 되고 "
+                          "0.3~1.0 m/s 에서 거의 일정하다고 보고했다. Zhang & Kacira(2016)는 "
+                          "0.3 미만과 1.0 초과를 피할 구간으로 두고 판정했다.",
+            "metrics": [
+                {"name": "적정구간 비율", "how": "판정면 점 중 0.3~1.0 m/s 인 비율",
+                 "target": "높을수록 좋음", "ref": "Zhang & Kacira(2016) 최적안 64%"},
+                {"name": "정체 비율", "how": "0.1 m/s 미만 점 비율", "target": "낮을수록 좋음",
+                 "ref": "Gu & Goto(2024) 유입 풍속을 올려 62.4% -> 7.2%"},
+                {"name": "상대표준편차", "how": "판정면 풍속 표준편차 / 평균",
+                 "target": "낮을수록 좋음",
+                 "ref": "Zhang & Kacira(2016) 44%, Sohn 외(2023) 33%, 배기구 추가 시 10%"},
+                {"name": "평균 풍속", "how": "판정면 풍속 평균",
+                 "target": "0.3 m/s 이상, 상추는 0.8 m/s 까지 유리",
+                 "ref": "문승미 외(2015) 목표 0.3~0.5, 왕 외(2025) 0.8 m/s 에서 생육 최고"},
+                {"name": "층간 차이", "how": "위 단과 아래 단 평균 풍속의 차",
+                 "target": "작을수록 좋음", "ref": "다단 구조의 흔한 실패 지점"},
             ],
-            "airflow_secondary": [
-                "캐노피 평균 풍속 (목표 0.3 m/s 이상)",
-                "정체 구역(0.1 m/s 미만) 비율",
-            ],
-            "reference": "이정민 외(2024)는 유동팬 설치로 재배실 온도 표준편차가 3 ℃에서 1.7 ℃로 "
-                         "줄었다. 왕 외(2025)는 캐노피 0.8 m/s 에서 캐노피 온도가 1.3 ℃ 내려갔다.",
-            "canopy_section_m2": per_tier["canopy_section_m2"],
-            "canopy_mean_m_s_est": per_tier["canopy_mean_m_s_est"],
+            "caution": "팬 토출 풍속(약 3.2 m/s)과 캐노피 풍속(약 0.5 m/s)은 다른 값이다. "
+                       "기준은 캐노피 쪽이다.",
         },
         "cases_suggested": [
-            "기준: 재배단 + 조명 발열 있음, 팬 꺼짐 (비교 기준)",
-            "팬 0.3 m/s 상당 (대당 3.6 CMM)",
-            "팬 0.5 m/s 상당 (대당 6.0 CMM)",
-            "팬 0.8 m/s 상당 (대당 9.6 CMM)",
+            {"case": "base", "fan": "꺼짐", "per_fan_CMM": 0.0,
+             "purpose": "재배단만 있을 때의 캐노피 풍속 — 비교 기준"},
+            {"case": "A", "fan": "약", "per_fan_CMM": 3.6, "canopy_target_m_s": 0.3},
+            {"case": "B", "fan": "표준", "per_fan_CMM": 6.0, "canopy_target_m_s": 0.5},
+            {"case": "C", "fan": "강", "per_fan_CMM": 9.6, "canopy_target_m_s": 0.8},
         ],
         "openfoam_hint": {
             "topoSetDict": "각 fan_zones[].cellZone_box_cfd_m 을 boxToCell 로 잡아 cellZone 생성",
@@ -155,8 +186,10 @@ def main():
                          "(또는 meanVelocityForce 로 Ubar = dir_unit × outlet_m_s)",
             "blockage": "rack_blockage 는 snappyHexMesh 의 searchableBox 또는 topoSet 후 "
                         "cellSet 제거로 넣는다. 지금 해석은 빈 방이라 반드시 추가해야 한다.",
-            "heat": "heat_sources 는 cellZone 으로 잡아 fvOptions 의 scalarSemiImplicitSource "
-                    "(에너지) 로 volumetric_W_m3 를 준다. 온도를 볼 거면 필수다.",
+            "heat": "heat_sources 는 이번에 비어 있다. 조명을 넣을 때 cellZone + "
+                    "scalarSemiImplicitSource(에너지)로 volumetric_W_m3 를 준다.",
+            "sampling": "judge_planes 를 sample(surfaces, plane)로 뽑아 magU 를 저장하면 "
+                        "적정구간 비율·정체 비율·상대표준편차를 그대로 계산할 수 있다.",
             "unchanged": "에어컨 취출·리턴 경계(ac_params.json)와 시각표·반출 규격은 그대로 둔다",
         },
     }
@@ -168,10 +201,10 @@ def main():
           % (spec["layout"], len(zones), spec["per_fan_CMM"], u,
              zones[0]["thrust_N"], zones[0]["momentum_source_N_m3"]))
     print("  재배단 막힘 상자 %d개 (선반 %d, 기둥 4)" % (len(blockage), len(tiers)))
-    print("  조명 발열 %d개 · 각 %.0f W (%.0f W/m³)"
-          % (len(heat), LED_W_EACH, heat[0]["volumetric_W_m3"] if heat else 0))
-    print("  판정 1순위 = 온도 (층간 차이·표준편차), 기류는 보조 %.2f m/s"
-          % per_tier["canopy_mean_m_s_est"])
+    print("  조명 발열: %s" % ("포함" if LED_ON else "제외 (이번 계산)"))
+    print("  판정면 %d장 (단별 캐노피 중간·윗면) · 면당 %d점"
+          % (len(planes), planes[0]["n_points"]))
+    print("  풍속 기준 0.3~1.0 m/s · 적정구간 비율·정체(<0.1)·상대표준편차·층간 차이")
     print("  -> data/fan_params.json")
 
 
