@@ -182,7 +182,7 @@ echo DONE
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cases", default="1-10")
-    ap.add_argument("--end", type=float, default=180.0, help="물리 시간 (초)")
+    ap.add_argument("--end", type=float, default=600.0, help="물리 시간 (초)")
     ap.add_argument("--write", type=float, default=30.0)
     ap.add_argument("--np", type=int, default=12)
     ap.add_argument("--repo", default=REPO_DEFAULT, help="fan_params.json 이 있는 저장소")
