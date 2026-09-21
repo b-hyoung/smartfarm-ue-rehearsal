@@ -1,0 +1,109 @@
+{
+  "note": "언리얼에서 잡은 유동팬 배치 — 풍량·풍속은 가정값(카탈로그 범위). 실물 팬 확정 시 per_fan_CMM·diam_m·watt_each 교체. 캐노피 실제 분포는 CFD 필요.",
+  "rack_centre_ue_m": [
+    4.0,
+    2.0
+  ],
+  "bed_size_m": [
+    2.4,
+    0.8
+  ],
+  "tier_bed_z_m": [
+    0.55,
+    1.35
+  ],
+  "spec": {
+    "type": "소형 축류 유동팬 (HAF)",
+    "diam_m": 0.2,
+    "per_fan_CMM": 8.0,
+    "per_fan_m3s": 0.13333,
+    "outlet_area_m2": 0.03142,
+    "watt_each": 25.0,
+    "direction": "inward",
+    "on": true,
+    "outlet_m_s": 4.24
+  },
+  "fans": [
+    {
+      "id": "FAN_T0_M0",
+      "tier": 0,
+      "side": "y-",
+      "centre_ue_m": [
+        4.0,
+        1.54,
+        0.73
+      ],
+      "dir_unit": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "CMM": 8.0,
+      "outlet_m_s": 4.24
+    },
+    {
+      "id": "FAN_T0_P0",
+      "tier": 0,
+      "side": "y+",
+      "centre_ue_m": [
+        4.0,
+        2.46,
+        0.73
+      ],
+      "dir_unit": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "CMM": 8.0,
+      "outlet_m_s": 4.24
+    },
+    {
+      "id": "FAN_T1_M0",
+      "tier": 1,
+      "side": "y-",
+      "centre_ue_m": [
+        4.0,
+        1.54,
+        1.53
+      ],
+      "dir_unit": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "CMM": 8.0,
+      "outlet_m_s": 4.24
+    },
+    {
+      "id": "FAN_T1_P0",
+      "tier": 1,
+      "side": "y+",
+      "centre_ue_m": [
+        4.0,
+        2.46,
+        1.53
+      ],
+      "dir_unit": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "CMM": 8.0,
+      "outlet_m_s": 4.24
+    }
+  ],
+  "per_tier": {
+    "fans_per_tier": 2,
+    "per_side_CMM": 8.0,
+    "tier_total_CMM": 16.0,
+    "canopy_section_m2": 0.6,
+    "canopy_mean_m_s_est": 0.22,
+    "note": "평균 통과 풍속 = 한쪽 풍량 / (선반 가로 x 작물 높이 0.25 m). 실제 분포는 CFD 결과로 대체할 추정치다."
+  },
+  "total": {
+    "fans": 4,
+    "CMM": 32.0,
+    "watt": 100.0
+  }
+}
