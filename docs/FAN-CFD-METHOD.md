@@ -220,3 +220,74 @@ py -m src.fan_bc          # fan_layout.json + ac_params.json -> fan_params.json 
 | 팬 사양 가정 | 풍량·전력이 카탈로그 범위 가정값이다 | 실물 팬 선정 후 교체 |
 | 격자 재생성 필요 | 재배단이 들어가 기존 결과와 직접 비교가 안 된다 | R0 를 같은 격자로 함께 돌려 기준 삼기 |
 | 팬 몸체 막힘 무시 | 꺼진 팬의 몸체를 형상으로 넣지 않았다 | 필요하면 막힘 상자에 추가 |
+
+---
+
+## 10. 다른 컴퓨터에서 돌리기
+
+### 준비물
+
+| 것 | 내용 |
+|---|---|
+| 리눅스 환경 | WSL2 우분투 또는 리눅스·맥. 윈도우 네이티브로는 못 돌린다 |
+| 도커 | 데몬이 떠 있어야 한다. 이미지 `opencfd/openfoam-default:2512` |
+| 파이썬 3 | 케이스 생성기 실행용. 표준 라이브러리만 쓴다 |
+| 이 저장소 | `data/fan_params.json`, `src/make_foam_cases.py`, `src/fan_study_batch.sh` |
+| **기존 케이스 한 벌** | 격자·에어컨 경계·물성이 든 템플릿. 저장소에 없다 (아래 설명) |
+| 디스크 | 케이스당 약 0.5 GB. 10개면 5 GB 정도 |
+| 코어 | 12분할 기준 12코어 이상 권장 |
+
+### 템플릿 케이스가 왜 필요한가
+
+생성기는 팬·재배단·판정면만 만든다. 방 형상(blockMeshDict), 에어컨 취출·리턴 패치
+(topoSetDict·createPatchDict), 공기 물성(thermophysicalProperties), 초기·경계값(0.orig),
+수치 설정(fvSchemes·fvSolution)은 **기존 acRoom 케이스에서 복사**한다. 이 템플릿은 용량
+때문에 저장소에 넣지 않았으므로 따로 옮겨야 한다.
+
+옮길 것은 케이스 폴더에서 다음 다섯 가지뿐이다. 결과 시간 폴더는 필요 없다.
+
+```
+acRoom-vane25/0.orig/          U T p p_rgh k epsilon nut alphat 등
+acRoom-vane25/constant/        g thermophysicalProperties turbulenceProperties
+acRoom-vane25/system/blockMeshDict
+acRoom-vane25/system/topoSetDict        (에어컨 취출·리턴 면)
+acRoom-vane25/system/createPatchDict
+acRoom-vane25/system/fvSchemes  fvSolution
+```
+
+### 순서
+
+```bash
+# 1. 이미지 받기 (한 번)
+docker pull opencfd/openfoam-default:2512
+
+# 2. 템플릿을 ~/smartfarm-cfd/cases/acRoom-vane25 로 복사
+
+# 3. 케이스 펼치기 — 경로는 인자로 바꿀 수 있다
+python3 src/make_foam_cases.py --cases 1-10 --end 180 --np 12         --template ~/smartfarm-cfd/cases/acRoom-vane25         --out ~/smartfarm-cfd/cases/fan-study
+
+# 4. 배치 스크립트를 프로젝트에 두고 분리 컨테이너로 실행
+cp src/fan_study_batch.sh ~/smartfarm-cfd/scripts/
+docker run -d --name fanstudy --cpus=12 --user "$(id -u):$(id -g)"   -e HOME=/data -v $HOME/smartfarm-cfd:/data -w /data   opencfd/openfoam-default:2512   bash -lc 'source /usr/lib/openfoam/openfoam*/etc/bashrc; bash /data/scripts/fan_study_batch.sh 1 10'
+
+# 5. 진행 보기
+docker logs -f fanstudy
+cat ~/smartfarm-cfd/cases/fan-study/times.csv
+```
+
+### 함정
+
+- **CPU 상한**은 컨테이너 `--cpus` 로 건다. 16코어에서 `--cpus=12` 면 75 % 다.
+- **MPI 슬롯**: 물리 코어보다 많은 분할을 쓰면 `There are not enough slots` 로 죽는다.
+  `mpirun --use-hwthread-cpus` 를 붙여 두었다.
+- **세션이 끊기면 죽는다**: WSL 안에서 `nohup` 으로 띄우면 창을 닫을 때 같이 죽는다.
+  분리 컨테이너로 띄우면 도커 데몬이 붙잡고 있어 끝까지 간다.
+- **쓰기 권한**: 이미지 엔트리포인트가 작업 디렉터리를 되돌린다. `--user "$(id -u):$(id -g)"`
+  와 컨테이너 안 `cd` 가 둘 다 필요하다.
+- **판정면 출력 간격**: `controlDict` 안쪽 함수의 `writeInterval` 은 바깥 것과 별개다.
+  해석 시간을 줄일 때 둘 다 줄이지 않으면 샘플이 한 장도 안 나온다.
+
+### 측정된 속도
+
+84,024셀, 12분할, CPU 상한 12코어에서 **물리 1초당 벽시계 약 15초**다.
+물리 180초 케이스 하나가 약 45분, 10개면 7~9시간이다.
