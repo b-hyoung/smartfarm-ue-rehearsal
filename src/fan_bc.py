@@ -10,6 +10,7 @@
    장치이고, 힘만 주면 미는 쪽과 빨리는 쪽이 함께 풀려 질량 보존이 깨지지 않기 때문이다.
 
 에어컨은 어느 케이스에서도 끄지 않는다. 위치만 옮긴다.
+재배단 위치는 전 케이스 고정이다.
 
 좌표 규약은 기존 계약을 따른다. CFD x = UE x − 4.0, y·z 는 그대로.
 
@@ -163,8 +164,6 @@ def ac_for(ac_pos, tmpl):
             "supply": tmpl["supply"], "on": True}
 
 
-RACK_ALT1 = (2.5, 3.5)
-RACK_ALT2 = (5.5, 2.5)
 ALL_ON = {"tiers": [0, 1], "roles": ["supply", "return", "booster"]}
 
 # (이름, 묶음, 배치, 대당 CMM, 기울기, 한쪽 대수, 재배단 유무, 켤 팬, 팬 높이, 재배단 위치, 에어컨 위치, 목적)
@@ -243,11 +242,6 @@ CASE_DEFS = [
      "평벽 쪽 우측 — 재배단 대각선"),
     ("A6", "G7 에어컨", "pushpull", 0.0, 15.0, 1, True, ALL_ON, ABOVE_BED, None, (4.0, 3.5),
      "A3 과 같은 에어컨 위치에 팬만 끔 — 에어컨 위치 효과만 떼어 보기"),
-    # ── G8 재배단 위치 ──────────────────────────────────────────
-    ("P1", "G8 재배단", "pushpull", 6.0, 15.0, 1, True, ALL_ON, ABOVE_BED, RACK_ALT1, (4.0, 2.0),
-     "재배단을 반원 안쪽으로 — 정체 구역에 놓였을 때"),
-    ("P2", "G8 재배단", "pushpull", 6.0, 15.0, 1, True, ALL_ON, ABOVE_BED, RACK_ALT2, (4.0, 2.0),
-     "재배단을 우측으로 — 에어컨과 어긋났을 때"),
 ]
 
 
@@ -308,6 +302,7 @@ def main():
         "coord_note": "CFD x = UE x - 4.0, y·z 동일",
         "ac_note": "에어컨은 어느 케이스에서도 끄지 않는다. 위치만 옮기며, 취출·리턴 상자는 "
                    "기록된 형상을 그대로 평행이동한다.",
+        "rack_note": "재배단 위치는 전 케이스 고정이다. 막힘 상자와 판정면도 하나로 쓴다.",
         "lighting": {"included": LED_ON,
                      "note": "이번 계산은 조명 발열을 뺀다. 풍속 기준을 먼저 잡고 "
                              "조명은 스펙시트가 오면 넣는다."},
@@ -348,8 +343,7 @@ def main():
             "2_onoff": "정해진 풍량으로 S1~S6 을 돌려 켤 팬을 고른다",
             "3_layout": "L1~L3, T1~T3, N1·N2, H1·H2 로 배치·각도·대수·높이를 정한다",
             "4_ac": "A1~A6 으로 에어컨 위치를 비교한다. 에어컨은 끄지 않는다",
-            "5_rack": "P1·P2 로 재배단 위치가 바뀌어도 기준을 만족하는지 본다",
-            "6_transient": "최종 조합만 900초 과도해석으로 돌려 기존 규격대로 반출한다",
+            "5_transient": "최종 조합만 900초 과도해석으로 돌려 기존 규격대로 반출한다",
         },
         "openfoam_hint": {
             "topoSetDict": "각 fan_zones[].cellZone_box_cfd_m 을 boxToCell 로 잡아 cellZone 생성",
@@ -358,13 +352,11 @@ def main():
             "ac": "cases[].ac.topoSet_boxes_cfd_m 으로 취출 4개와 리턴을 다시 잡는다. "
                   "풍량·급기온도는 supply 항목 그대로 쓴다",
             "blockage": "rack_blockage 는 snappyHexMesh 의 searchableBox 로 넣는다. "
-                        "R0 만 빼고 모든 케이스에 들어간다. 재배단을 옮긴 케이스는 "
-                        "rack_blockage_override 를 쓴다",
+                        "R0 만 빼고 모든 케이스에 같은 좌표로 들어간다",
             "heat": "heat_sources 는 이번에 비어 있다. 조명을 넣을 때 cellZone + "
                     "scalarSemiImplicitSource(에너지)로 준다.",
             "sampling": "judge_planes 를 sample(surfaces, plane)로 뽑아 magU 를 저장하면 "
-                        "적정구간 비율·정체 비율·상대표준편차를 그대로 계산할 수 있다. "
-                        "재배단을 옮긴 케이스는 judge_planes_override 를 쓴다",
+                        "적정구간 비율·정체 비율·상대표준편차를 그대로 계산할 수 있다",
             "unchanged": "시각표와 반출 규격은 그대로 둔다",
         },
     }
