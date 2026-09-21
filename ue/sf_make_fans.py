@@ -10,7 +10,11 @@
    카탈로그 범위를 근거로 한 가정값이며, 실물 팬이 정해지면 그 값으로 교체한다.
 
 배치 방식 (layout) — 문헌 근거
-    "ends"  베드 양 끝(짧은 변)에서 길이 방향 송풍 + 반대쪽 흡입, 기본 15도 하방.
+    "ends"  베드 양 끝(짧은 변)에 팬 2대를 **같은 방향**으로 놓는다. 앞 팬이 캐노피로
+            밀어 넣고, 끝의 팬이 그 공기를 받아 다시 밀어 방을 한 바퀴 돌린다(HAF 방식).
+            온실 환기 지침은 모든 팬을 같은 방향으로 돌려 순환 고리를 만들고 기류를
+            0.25~0.5 m/s 로 유지하라고 한다. 기본 15도 하방.
+    "pushpull"  한쪽 송풍 + 반대쪽 흡입. 선반 옆이 막혀 있을 때(스커트·덕트) 유리하다.
             이정민 외(2024)는 컨테이너형 수직농장에서 베드 양 끝에 유동팬을 달았고,
             Fang 외(2020)는 층 길이 방향 급기가 평균 0.65 m/s·CV 33%로 가장 나았다.
     "top"   각 단 상부에서 캐노피로 하방 급기. 문승미 외(2015)는 재배베드 상부
@@ -129,13 +133,17 @@ def _slots(bz):
     """배치 방식별 (팬 중심, 흐름 방향, 역할, 태그)."""
     zc = bz + cfg["above_bed_m"]
     out = []
-    if LAYOUT == "ends":
+    if LAYOUT in ("ends", "pushpull"):
         ex = BED_W / 2.0 + 0.10
+        down = -math.tan(math.radians(tilt))
         ys = [rack[1] + BED_D * ((i + 0.5) / n - 0.5) for i in range(n)]
         for i, fy in enumerate(ys):
-            out.append(((rack[0] - ex, fy, zc),
-                        (1.0, 0.0, -math.tan(math.radians(tilt))), "supply", "s%d" % i))
-            out.append(((rack[0] + ex, fy, zc), (1.0, 0.0, 0.0), "return", "r%d" % i))
+            out.append(((rack[0] - ex, fy, zc), (1.0, 0.0, down), "supply", "s%d" % i))
+            if LAYOUT == "ends":
+                # 끝의 팬도 같은 방향 — 지나온 공기를 받아 다시 민다 (이어달리기)
+                out.append(((rack[0] + ex, fy, zc), (1.0, 0.0, down), "booster", "b%d" % i))
+            else:
+                out.append(((rack[0] + ex, fy, zc), (1.0, 0.0, 0.0), "return", "r%d" % i))
     elif LAYOUT == "top":
         zt = bz + 0.55
         m = max(2, n * 2)
@@ -171,7 +179,7 @@ for ti, bz in enumerate(tiers):
         rb, rc = _rot(d)
         _spawn(cyl, (cx, cy, cz), (cfg["diam_m"], cfg["diam_m"], cfg["depth_m"]),
                rb, "SF_Fan_%s" % tag,
-               (0.22, 0.24, 0.26) if role == "supply" else (0.32, 0.24, 0.20))
+               (0.32, 0.24, 0.20) if role == "return" else (0.22, 0.24, 0.26))
         if cz - bz > 0.03:
             _spawn(box_m, (cx, cy, (bz + cz) / 2.0), (0.035, 0.035, cz - bz),
                    unreal.Rotator(0.0, 0.0, 0.0), "SF_Fan_%s_post" % tag,
@@ -179,20 +187,21 @@ for ti, bz in enumerate(tiers):
         _spawn(cone, (cx + d[0] * 0.13, cy + d[1] * 0.13, cz + d[2] * 0.13),
                (cfg["diam_m"] * 0.6, cfg["diam_m"] * 0.6, 0.10), rc,
                "SF_Fan_%s_dir" % tag,
-               (0.10, 0.65, 0.90) if role == "supply" else (0.90, 0.55, 0.20))
+               (0.90, 0.55, 0.20) if role == "return" else (0.10, 0.65, 0.90))
         layout["fans"].append({
             "id": "FAN_%s" % tag.upper(),
             "tier": ti,
             "role": role,
             "centre_ue_m": [round(cx, 3), round(cy, 3), round(cz, 3)],
             "dir_unit": [round(v, 3) for v in d],
-            "CMM": cfg["per_fan_CMM"] if role == "supply" else 0.0,
-            "outlet_m_s": round(u_out, 2) if role == "supply" else 0.0,
+            "CMM": 0.0 if role == "return" else cfg["per_fan_CMM"],
+            "outlet_m_s": 0.0 if role == "return" else round(u_out, 2),
         })
 
 # ── 단별 급기량과 캐노피 평균 통과 풍속(추정) ─────────────────────
-per_tier_CMM = sum(f["CMM"] for f in layout["fans"]) / max(1, len(tiers))
-if LAYOUT == "ends":
+stream = [f for f in layout["fans"] if f["role"] == "supply"]
+per_tier_CMM = sum(f["CMM"] for f in stream) / max(1, len(tiers))
+if LAYOUT in ("ends", "pushpull"):
     canopy_area = BED_D * CANOPY_H          # 길이 방향으로 지나가는 단면
 elif LAYOUT == "top":
     canopy_area = BED_W * BED_D             # 위에서 내리꽂는 면적
@@ -201,19 +210,22 @@ else:
 mean_ms = (per_tier_CMM / 60.0) / canopy_area
 layout["per_tier"] = {
     "fans_per_tier": len(layout["fans"]) // max(1, len(tiers)),
-    "supply_CMM": round(per_tier_CMM, 2),
+    "stream_CMM": round(per_tier_CMM, 2),
     "canopy_section_m2": round(canopy_area, 3),
     "canopy_mean_m_s_est": round(mean_ms, 2),
-    "note": "평균 통과 풍속 = 단별 급기 풍량 / 통과 단면. ends 는 선반 깊이 x 작물 높이, "
+    "note": "평균 통과 풍속 = 캐노피를 지나는 한 줄기 풍량 / 통과 단면. "
+            "ends 의 끝 팬은 같은 공기를 이어 미는 것이라 풍량을 더하지 않는다. "
+            "ends·pushpull 은 선반 깊이 x 작물 높이, "
             "top 은 선반 면적, side 는 선반 가로 x 작물 높이를 쓴다. "
             "실제 분포는 CFD 결과로 대체할 추정치다.",
 }
 layout["total"] = {
     "fans": len(layout["fans"]),
-    "supply_CMM": round(sum(f["CMM"] for f in layout["fans"]), 2),
+    "installed_CMM": round(sum(f["CMM"] for f in layout["fans"]), 2),
     "watt": round(len(layout["fans"]) * cfg["watt_each"], 1),
 }
 layout["reference"] = [
+    "UMass Extension / Farm Energy — HAF 지침: 모든 팬을 같은 방향으로 돌려 순환 고리를 만들고 기류 0.25~0.5 m/s(50~100 fpm) 유지, 팬 간격 12~15 m",
     "이정민 외(2024) 한국콘텐츠학회논문지 24(12) — 컨테이너형 수직농장, 베드 양 끝 유동팬, 베드 내 평균 0.12 m/s, 온도편차 ±3 -> ±1.7 ℃",
     "Fang 외(2020) Biosystems Engineering 200:1-12 — 층 길이 방향 급기가 평균 0.65 m/s·CV 33%, 유공 덕트로 캐노피 위 수평 기류",
     "문승미 외(2015) 인터넷정보학회논문지 16(1):57-66 — 순환팬 배치 12개 비교, 재배베드 상부 2대가 최적(0.51 m/s), 토출 2.9 m/s에서 에너지 효율 최적",
@@ -233,7 +245,7 @@ tc.set_editor_property("horizontal_alignment", unreal.HorizTextAligment.EHTA_CEN
 tc.set_text("유동팬 %d대 [%s] · 급기 %.1f CMM/대, 토출 %.1f m/s · 합 %.0f CMM / %.0f W\n"
             "캐노피 평균 통과 %.2f m/s (추정)"
             % (layout["total"]["fans"], LAYOUT, cfg["per_fan_CMM"], u_out,
-               layout["total"]["supply_CMM"], layout["total"]["watt"], mean_ms))
+               layout["total"]["installed_CMM"], layout["total"]["watt"], mean_ms))
 
 out = os.path.join(REPO, "data", "fan_layout.json")
 with open(out, "w", encoding="utf-8") as fh:
@@ -243,6 +255,6 @@ les.save_current_level()
 msg = ("SF_FANS[%s]: %d대 · 급기 %.1f CMM/대(%.1f m/s) · 합 %.0f CMM %.0f W · "
        "캐노피 평균 %.2f m/s(추정) · 이전 %d개 제거"
        % (LAYOUT, layout["total"]["fans"], cfg["per_fan_CMM"], u_out,
-          layout["total"]["supply_CMM"], layout["total"]["watt"], mean_ms, removed))
+          layout["total"]["installed_CMM"], layout["total"]["watt"], mean_ms, removed))
 unreal.log(msg)
 print(msg)
