@@ -1,148 +1,18 @@
 {
-  "note": "언리얼 배치에서 만든 CFD 경계조건 초안. 팬은 벽면 패치가 아니라 유동 영역 안의 운동량 소스로 둔다. 이 값으로 topoSetDict·fvOptions 를 만들고 OpenFOAM 을 다시 풀어야 캐노피 풍속이 나온다.",
+  "note": "언리얼 배치에서 만든 CFD 경계조건 초안과 케이스 목록. 팬은 유동 영역 안의 운동량 소스로 둔다. 이 값으로 topoSetDict·fvOptions 를 만들고 OpenFOAM 을 다시 풀어야 캐노피 풍속이 나온다.",
   "coord_note": "CFD x = UE x - 4.0, y·z 동일",
-  "layout": "pushpull",
+  "lighting": {
+    "included": false,
+    "note": "이번 계산은 조명 발열을 뺀다. 풍속 기준을 먼저 잡고 조명은 스펙시트가 오면 넣는다."
+  },
   "fan_spec": {
     "diam_m": 0.2,
     "depth_m": 0.08,
     "area_m2": 0.03142,
-    "per_fan_CMM": 6.0,
-    "per_fan_m3s": 0.1,
-    "outlet_m_s": 3.183,
     "rho_kg_m3": 1.17,
     "watt_each": 25.0,
-    "tilt_deg": 15.0
+    "above_bed_m": 0.18
   },
-  "fan_zones": [
-    {
-      "id": "FAN_T0_S0",
-      "tier": 0,
-      "role": "supply",
-      "cellZone_box_cfd_m": {
-        "min": [
-          -1.34,
-          1.9,
-          0.63
-        ],
-        "max": [
-          -1.26,
-          2.1,
-          0.83
-        ]
-      },
-      "centre_cfd_m": [
-        -1.3,
-        2.0,
-        0.73
-      ],
-      "dir_unit": [
-        0.9659,
-        0.0,
-        -0.259
-      ],
-      "flow_m3s": 0.1,
-      "outlet_m_s": 3.183,
-      "zone_volume_m3": 0.0032,
-      "thrust_N": 0.3724,
-      "momentum_source_N_m3": 116.4
-    },
-    {
-      "id": "FAN_T0_R0",
-      "tier": 0,
-      "role": "return",
-      "cellZone_box_cfd_m": {
-        "min": [
-          1.26,
-          1.9,
-          0.63
-        ],
-        "max": [
-          1.34,
-          2.1,
-          0.83
-        ]
-      },
-      "centre_cfd_m": [
-        1.3,
-        2.0,
-        0.73
-      ],
-      "dir_unit": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "flow_m3s": 0.1,
-      "outlet_m_s": 3.183,
-      "zone_volume_m3": 0.0032,
-      "thrust_N": 0.3724,
-      "momentum_source_N_m3": 116.4
-    },
-    {
-      "id": "FAN_T1_S0",
-      "tier": 1,
-      "role": "supply",
-      "cellZone_box_cfd_m": {
-        "min": [
-          -1.34,
-          1.9,
-          1.43
-        ],
-        "max": [
-          -1.26,
-          2.1,
-          1.63
-        ]
-      },
-      "centre_cfd_m": [
-        -1.3,
-        2.0,
-        1.53
-      ],
-      "dir_unit": [
-        0.9659,
-        0.0,
-        -0.259
-      ],
-      "flow_m3s": 0.1,
-      "outlet_m_s": 3.183,
-      "zone_volume_m3": 0.0032,
-      "thrust_N": 0.3724,
-      "momentum_source_N_m3": 116.4
-    },
-    {
-      "id": "FAN_T1_R0",
-      "tier": 1,
-      "role": "return",
-      "cellZone_box_cfd_m": {
-        "min": [
-          1.26,
-          1.9,
-          1.43
-        ],
-        "max": [
-          1.34,
-          2.1,
-          1.63
-        ]
-      },
-      "centre_cfd_m": [
-        1.3,
-        2.0,
-        1.53
-      ],
-      "dir_unit": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "flow_m3s": 0.1,
-      "outlet_m_s": 3.183,
-      "zone_volume_m3": 0.0032,
-      "thrust_N": 0.3724,
-      "momentum_source_N_m3": 116.4
-    }
-  ],
   "rack_blockage": [
     {
       "name": "bed0",
@@ -236,10 +106,6 @@
     }
   ],
   "heat_sources": [],
-  "lighting": {
-    "included": false,
-    "note": "이번 계산은 조명 발열을 뺀다. 풍속 기준을 먼저 잡고 조명은 스펙시트가 오면 넣는다."
-  },
   "judge_planes": [
     {
       "name": "tier0_canopy_mid",
@@ -349,60 +215,1537 @@
         "ref": "다단 구조의 흔한 실패 지점"
       }
     ],
-    "caution": "팬 토출 풍속(약 3.2 m/s)과 캐노피 풍속(약 0.5 m/s)은 다른 값이다. 기준은 캐노피 쪽이다."
+    "caution": "팬 토출 풍속과 캐노피 풍속은 다른 값이다. 기준은 캐노피 쪽이다."
   },
-  "cases_suggested": [
+  "cases": [
     {
-      "case": "base",
-      "fan": "꺼짐",
+      "case": "R0",
+      "group": "G0 기준선",
+      "layout": "none",
+      "rack": false,
+      "fans": 0,
       "per_fan_CMM": 0.0,
-      "per_fan_m3s": 0.0,
+      "purpose": "빈 방 — 재배단도 팬도 없다. 기존 해석과 같은 조건이라 재배단 효과를 떼어 볼 수 있다"
+    },
+    {
+      "case": "R1",
+      "group": "G0 기준선",
+      "layout": "pushpull",
+      "rack": true,
+      "tilt_deg": 15.0,
+      "n_per_side": 1,
+      "fans": 4,
+      "per_fan_CMM": 0.0,
       "outlet_m_s": 0.0,
       "thrust_N": 0.0,
       "momentum_source_N_m3": 0.0,
-      "canopy_target_m_s": 0.0,
-      "purpose": "재배단만 있을 때의 캐노피 풍속 — 비교 기준"
+      "stream_CMM_per_tier": 0.0,
+      "purpose": "재배단만, 팬 꺼짐 — 팬 효과를 재는 기준",
+      "fan_zones": []
     },
     {
-      "case": "A",
-      "fan": "약",
+      "case": "F1",
+      "group": "G1 풍량",
+      "layout": "pushpull",
+      "rack": true,
+      "tilt_deg": 15.0,
+      "n_per_side": 1,
+      "fans": 4,
       "per_fan_CMM": 3.6,
-      "per_fan_m3s": 0.06,
       "outlet_m_s": 1.91,
       "thrust_N": 0.1341,
       "momentum_source_N_m3": 41.9,
-      "canopy_target_m_s": 0.3,
-      "purpose": "캐노피 0.3 m/s 를 노린 조건"
+      "stream_CMM_per_tier": 3.6,
+      "purpose": "캐노피 0.3 m/s 를 노린 풍량",
+      "fan_zones": [
+        {
+          "id": "FAN_T0_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.06,
+          "outlet_m_s": 1.91,
+          "thrust_N": 0.1341,
+          "momentum_source_N_m3": 41.9
+        },
+        {
+          "id": "FAN_T0_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.34,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.06,
+          "outlet_m_s": 1.91,
+          "thrust_N": 0.1341,
+          "momentum_source_N_m3": 41.9
+        },
+        {
+          "id": "FAN_T1_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.06,
+          "outlet_m_s": 1.91,
+          "thrust_N": 0.1341,
+          "momentum_source_N_m3": 41.9
+        },
+        {
+          "id": "FAN_T1_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.34,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.06,
+          "outlet_m_s": 1.91,
+          "thrust_N": 0.1341,
+          "momentum_source_N_m3": 41.9
+        }
+      ]
     },
     {
-      "case": "B",
-      "fan": "표준",
+      "case": "F2",
+      "group": "G1 풍량",
+      "layout": "pushpull",
+      "rack": true,
+      "tilt_deg": 15.0,
+      "n_per_side": 1,
+      "fans": 4,
       "per_fan_CMM": 6.0,
-      "per_fan_m3s": 0.1,
-      "outlet_m_s": 3.18,
+      "outlet_m_s": 3.183,
       "thrust_N": 0.3724,
       "momentum_source_N_m3": 116.4,
-      "canopy_target_m_s": 0.5,
-      "purpose": "캐노피 0.5 m/s 를 노린 조건"
+      "stream_CMM_per_tier": 6.0,
+      "purpose": "캐노피 0.5 m/s — 표준안",
+      "fan_zones": [
+        {
+          "id": "FAN_T0_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T0_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.34,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.34,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        }
+      ]
     },
     {
-      "case": "C",
-      "fan": "강",
+      "case": "F3",
+      "group": "G1 풍량",
+      "layout": "pushpull",
+      "rack": true,
+      "tilt_deg": 15.0,
+      "n_per_side": 1,
+      "fans": 4,
       "per_fan_CMM": 9.6,
-      "per_fan_m3s": 0.16,
-      "outlet_m_s": 5.09,
+      "outlet_m_s": 5.093,
       "thrust_N": 0.9534,
       "momentum_source_N_m3": 297.9,
-      "canopy_target_m_s": 0.8,
-      "purpose": "캐노피 0.8 m/s 를 노린 조건"
+      "stream_CMM_per_tier": 9.6,
+      "purpose": "캐노피 0.8 m/s — 상추 생육 최적 보고값",
+      "fan_zones": [
+        {
+          "id": "FAN_T0_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.16,
+          "outlet_m_s": 5.093,
+          "thrust_N": 0.9534,
+          "momentum_source_N_m3": 297.9
+        },
+        {
+          "id": "FAN_T0_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.34,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.16,
+          "outlet_m_s": 5.093,
+          "thrust_N": 0.9534,
+          "momentum_source_N_m3": 297.9
+        },
+        {
+          "id": "FAN_T1_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.16,
+          "outlet_m_s": 5.093,
+          "thrust_N": 0.9534,
+          "momentum_source_N_m3": 297.9
+        },
+        {
+          "id": "FAN_T1_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.34,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.16,
+          "outlet_m_s": 5.093,
+          "thrust_N": 0.9534,
+          "momentum_source_N_m3": 297.9
+        }
+      ]
+    },
+    {
+      "case": "F4",
+      "group": "G1 풍량",
+      "layout": "pushpull",
+      "rack": true,
+      "tilt_deg": 15.0,
+      "n_per_side": 1,
+      "fans": 4,
+      "per_fan_CMM": 12.0,
+      "outlet_m_s": 6.366,
+      "thrust_N": 1.4897,
+      "momentum_source_N_m3": 465.5,
+      "stream_CMM_per_tier": 12.0,
+      "purpose": "캐노피 1.0 m/s — 상한, 과하면 여기서 드러난다",
+      "fan_zones": [
+        {
+          "id": "FAN_T0_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.2,
+          "outlet_m_s": 6.366,
+          "thrust_N": 1.4897,
+          "momentum_source_N_m3": 465.5
+        },
+        {
+          "id": "FAN_T0_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.34,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.2,
+          "outlet_m_s": 6.366,
+          "thrust_N": 1.4897,
+          "momentum_source_N_m3": 465.5
+        },
+        {
+          "id": "FAN_T1_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.2,
+          "outlet_m_s": 6.366,
+          "thrust_N": 1.4897,
+          "momentum_source_N_m3": 465.5
+        },
+        {
+          "id": "FAN_T1_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.34,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.2,
+          "outlet_m_s": 6.366,
+          "thrust_N": 1.4897,
+          "momentum_source_N_m3": 465.5
+        }
+      ]
+    },
+    {
+      "case": "L1",
+      "group": "G2 배치",
+      "layout": "side",
+      "rack": true,
+      "tilt_deg": 0.0,
+      "n_per_side": 1,
+      "fans": 4,
+      "per_fan_CMM": 6.0,
+      "outlet_m_s": 3.183,
+      "thrust_N": 0.3724,
+      "momentum_source_N_m3": 116.4,
+      "stream_CMM_per_tier": 12.0,
+      "purpose": "긴 변 양쪽에서 마주보게 — 중앙 충돌 확인",
+      "fan_zones": [
+        {
+          "id": "FAN_T0_M0",
+          "role": "supply",
+          "centre_cfd_m": [
+            0.0,
+            1.54,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -0.1,
+              1.5,
+              0.63
+            ],
+            "max": [
+              0.1,
+              1.58,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T0_P0",
+          "role": "supply",
+          "centre_cfd_m": [
+            0.0,
+            2.46,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -0.1,
+              2.42,
+              0.63
+            ],
+            "max": [
+              0.1,
+              2.5,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_M0",
+          "role": "supply",
+          "centre_cfd_m": [
+            0.0,
+            1.54,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -0.1,
+              1.5,
+              1.43
+            ],
+            "max": [
+              0.1,
+              1.58,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_P0",
+          "role": "supply",
+          "centre_cfd_m": [
+            0.0,
+            2.46,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -0.1,
+              2.42,
+              1.43
+            ],
+            "max": [
+              0.1,
+              2.5,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        }
+      ]
+    },
+    {
+      "case": "L2",
+      "group": "G2 배치",
+      "layout": "ends",
+      "rack": true,
+      "tilt_deg": 15.0,
+      "n_per_side": 1,
+      "fans": 4,
+      "per_fan_CMM": 6.0,
+      "outlet_m_s": 3.183,
+      "thrust_N": 0.3724,
+      "momentum_source_N_m3": 116.4,
+      "stream_CMM_per_tier": 6.0,
+      "purpose": "양 끝 팬을 같은 방향으로 — 방 전체 순환형",
+      "fan_zones": [
+        {
+          "id": "FAN_T0_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T0_R0",
+          "role": "booster",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.34,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_R0",
+          "role": "booster",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.34,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        }
+      ]
+    },
+    {
+      "case": "L3",
+      "group": "G2 배치",
+      "layout": "top",
+      "rack": true,
+      "tilt_deg": 0.0,
+      "n_per_side": 1,
+      "fans": 4,
+      "per_fan_CMM": 6.0,
+      "outlet_m_s": 3.183,
+      "thrust_N": 0.3724,
+      "momentum_source_N_m3": 116.4,
+      "stream_CMM_per_tier": 12.0,
+      "purpose": "각 단 상부에서 캐노피로 하방",
+      "fan_zones": [
+        {
+          "id": "FAN_T0_D0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -0.6,
+            2.0,
+            1.1
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -0.7,
+              1.9,
+              1.06
+            ],
+            "max": [
+              -0.5,
+              2.1,
+              1.14
+            ]
+          },
+          "dir_unit": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T0_D1",
+          "role": "supply",
+          "centre_cfd_m": [
+            0.6,
+            2.0,
+            1.1
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              0.5,
+              1.9,
+              1.06
+            ],
+            "max": [
+              0.7,
+              2.1,
+              1.14
+            ]
+          },
+          "dir_unit": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_D0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -0.6,
+            2.0,
+            1.9
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -0.7,
+              1.9,
+              1.86
+            ],
+            "max": [
+              -0.5,
+              2.1,
+              1.94
+            ]
+          },
+          "dir_unit": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_D1",
+          "role": "supply",
+          "centre_cfd_m": [
+            0.6,
+            2.0,
+            1.9
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              0.5,
+              1.9,
+              1.86
+            ],
+            "max": [
+              0.7,
+              2.1,
+              1.94
+            ]
+          },
+          "dir_unit": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        }
+      ]
+    },
+    {
+      "case": "T1",
+      "group": "G3 각도",
+      "layout": "pushpull",
+      "rack": true,
+      "tilt_deg": 0.0,
+      "n_per_side": 1,
+      "fans": 4,
+      "per_fan_CMM": 6.0,
+      "outlet_m_s": 3.183,
+      "thrust_N": 0.3724,
+      "momentum_source_N_m3": 116.4,
+      "stream_CMM_per_tier": 6.0,
+      "purpose": "수평 취출 — 기울임이 필요한지 판단",
+      "fan_zones": [
+        {
+          "id": "FAN_T0_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T0_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.34,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            -0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.34,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        }
+      ]
+    },
+    {
+      "case": "T2",
+      "group": "G3 각도",
+      "layout": "pushpull",
+      "rack": true,
+      "tilt_deg": 30.0,
+      "n_per_side": 1,
+      "fans": 4,
+      "per_fan_CMM": 6.0,
+      "outlet_m_s": 3.183,
+      "thrust_N": 0.3724,
+      "momentum_source_N_m3": 116.4,
+      "stream_CMM_per_tier": 6.0,
+      "purpose": "30도 하방 — 과하면 바닥으로 빠진다",
+      "fan_zones": [
+        {
+          "id": "FAN_T0_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              0.63
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            0.866,
+            0.0,
+            -0.5
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T0_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              0.63
+            ],
+            "max": [
+              1.34,
+              2.1,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.9,
+              1.43
+            ],
+            "max": [
+              -1.26,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            0.866,
+            0.0,
+            -0.5
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        },
+        {
+          "id": "FAN_T1_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.0,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.9,
+              1.43
+            ],
+            "max": [
+              1.34,
+              2.1,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.1,
+          "outlet_m_s": 3.183,
+          "thrust_N": 0.3724,
+          "momentum_source_N_m3": 116.4
+        }
+      ]
+    },
+    {
+      "case": "N1",
+      "group": "G4 대수",
+      "layout": "pushpull",
+      "rack": true,
+      "tilt_deg": 15.0,
+      "n_per_side": 2,
+      "fans": 8,
+      "per_fan_CMM": 3.0,
+      "outlet_m_s": 1.592,
+      "thrust_N": 0.0931,
+      "momentum_source_N_m3": 29.1,
+      "stream_CMM_per_tier": 6.0,
+      "purpose": "한쪽에 2대로 나눠 달기. 합계 풍량은 F2 와 같다 — 길이 방향 균일도 비교",
+      "fan_zones": [
+        {
+          "id": "FAN_T0_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            1.8,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.7,
+              0.63
+            ],
+            "max": [
+              -1.26,
+              1.9,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.05,
+          "outlet_m_s": 1.592,
+          "thrust_N": 0.0931,
+          "momentum_source_N_m3": 29.1
+        },
+        {
+          "id": "FAN_T0_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            1.8,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.7,
+              0.63
+            ],
+            "max": [
+              1.34,
+              1.9,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.05,
+          "outlet_m_s": 1.592,
+          "thrust_N": 0.0931,
+          "momentum_source_N_m3": 29.1
+        },
+        {
+          "id": "FAN_T0_S1",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.2,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              2.1,
+              0.63
+            ],
+            "max": [
+              -1.26,
+              2.3,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.05,
+          "outlet_m_s": 1.592,
+          "thrust_N": 0.0931,
+          "momentum_source_N_m3": 29.1
+        },
+        {
+          "id": "FAN_T0_R1",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.2,
+            0.73
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              2.1,
+              0.63
+            ],
+            "max": [
+              1.34,
+              2.3,
+              0.83
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.05,
+          "outlet_m_s": 1.592,
+          "thrust_N": 0.0931,
+          "momentum_source_N_m3": 29.1
+        },
+        {
+          "id": "FAN_T1_S0",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            1.8,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              1.7,
+              1.43
+            ],
+            "max": [
+              -1.26,
+              1.9,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.05,
+          "outlet_m_s": 1.592,
+          "thrust_N": 0.0931,
+          "momentum_source_N_m3": 29.1
+        },
+        {
+          "id": "FAN_T1_R0",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            1.8,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              1.7,
+              1.43
+            ],
+            "max": [
+              1.34,
+              1.9,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.05,
+          "outlet_m_s": 1.592,
+          "thrust_N": 0.0931,
+          "momentum_source_N_m3": 29.1
+        },
+        {
+          "id": "FAN_T1_S1",
+          "role": "supply",
+          "centre_cfd_m": [
+            -1.3,
+            2.2,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              -1.34,
+              2.1,
+              1.43
+            ],
+            "max": [
+              -1.26,
+              2.3,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            0.9659,
+            0.0,
+            -0.2588
+          ],
+          "flow_m3s": 0.05,
+          "outlet_m_s": 1.592,
+          "thrust_N": 0.0931,
+          "momentum_source_N_m3": 29.1
+        },
+        {
+          "id": "FAN_T1_R1",
+          "role": "return",
+          "centre_cfd_m": [
+            1.3,
+            2.2,
+            1.53
+          ],
+          "cellZone_box_cfd_m": {
+            "min": [
+              1.26,
+              2.1,
+              1.43
+            ],
+            "max": [
+              1.34,
+              2.3,
+              1.63
+            ]
+          },
+          "dir_unit": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "flow_m3s": 0.05,
+          "outlet_m_s": 1.592,
+          "thrust_N": 0.0931,
+          "momentum_source_N_m3": 29.1
+        }
+      ]
     }
   ],
+  "run_order": {
+    "1_screening": "R0·R1·F1~F4 를 정상상태로 먼저 돌려 풍량 곡선을 잡는다",
+    "2_layout": "풍량이 정해지면 그 값으로 L1~L3 을 돌려 배치를 고른다",
+    "3_tuning": "고른 배치에서 T1·T2·N1 으로 각도와 대수를 다듬는다",
+    "4_transient": "최종 조합만 900초 과도해석으로 돌려 기존 규격대로 반출한다"
+  },
   "openfoam_hint": {
     "topoSetDict": "각 fan_zones[].cellZone_box_cfd_m 을 boxToCell 로 잡아 cellZone 생성",
     "fvOptions": "vectorSemiImplicitSource 로 zone 마다 dir_unit × thrust_N 적용 (또는 meanVelocityForce 로 Ubar = dir_unit × outlet_m_s)",
-    "blockage": "rack_blockage 는 snappyHexMesh 의 searchableBox 또는 topoSet 후 cellSet 제거로 넣는다. 지금 해석은 빈 방이라 반드시 추가해야 한다.",
-    "heat": "heat_sources 는 이번에 비어 있다. 조명을 넣을 때 cellZone + scalarSemiImplicitSource(에너지)로 volumetric_W_m3 를 준다.",
+    "blockage": "rack_blockage 는 snappyHexMesh 의 searchableBox 로 넣는다. R0 만 빼고 모든 케이스에 들어간다.",
+    "heat": "heat_sources 는 이번에 비어 있다. 조명을 넣을 때 cellZone + scalarSemiImplicitSource(에너지)로 준다.",
     "sampling": "judge_planes 를 sample(surfaces, plane)로 뽑아 magU 를 저장하면 적정구간 비율·정체 비율·상대표준편차를 그대로 계산할 수 있다.",
-    "unchanged": "에어컨 취출·리턴 경계(ac_params.json)와 시각표·반출 규격은 그대로 둔다"
+    "unchanged": "에어컨 취출·리턴 경계와 시각표·반출 규격은 그대로 둔다"
   }
 }
