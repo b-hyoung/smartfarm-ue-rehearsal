@@ -303,20 +303,24 @@ fanflux_fan_t0_s0
 먼저 끝난 쪽이 21 ~ 30
 ```
 
-### 먼저 확인할 것 — 애플 실리콘이면 크게 느리다
+### 애플 실리콘도 네이티브로 돈다
 
-```bash
-uname -m        # arm64 면 애플 실리콘
+`opencfd/openfoam-default:2512` 는 **linux/amd64 와 linux/arm64 를 둘 다 낸다.**
+확인한 매니페스트는 이렇다.
+
+```
+linux  amd64  sha256:1cf4efd92bfc8
+linux  arm64  sha256:6e6b5b5d1762a
 ```
 
-`opencfd/openfoam-default:2512` 는 **amd64 이미지뿐**이다. M1·M2·M3·M4 에서는
-Rosetta/QEMU 에뮬레이션으로 돌아 **몇 배 느려진다.** 실행기가 자동으로
-`--platform linux/amd64` 를 붙이고 경고를 찍지만, 느린 것 자체는 못 고친다.
+곧 M1~M4 에서 **에뮬레이션 없이 그대로 돈다.** `--platform` 을 손으로 붙이면
+오히려 amd64 로 끌려가 몇 배 느려지므로 **붙이지 않는다.** 실행기도 붙이지 않는다.
 
-- **인텔 맥**이면 문제없다. 윈도우와 비슷한 속도가 나온다.
-- **애플 실리콘**이면 팬 켠 케이스 한 판에 하루가 넘을 수 있다. 차라리
-  **팬을 끄는 가벼운 케이스(1·2·30 번)**나 **정상상태 스크리닝**을 맡기는 게 낫다.
-  돌려 보고 `times.csv` 로 실제 속도를 재서 정한다.
+```bash
+docker pull opencfd/openfoam-default:2512      # --platform 쓰지 말 것
+docker image inspect opencfd/openfoam-default:2512 --format '{{.Architecture}}'
+#   arm64 가 나와야 정상
+```
 
 ### Docker Desktop 자원 상한을 올린다
 
@@ -340,7 +344,7 @@ Rosetta/QEMU 에뮬레이션으로 돌아 **몇 배 느려진다.** 실행기가
 ```bash
 # 맥에서
 git clone -b feat/rack-fans <저장소> && cd smartfarm-ue-rehearsal
-docker pull --platform linux/amd64 opencfd/openfoam-default:2512
+docker pull opencfd/openfoam-default:2512
 # 템플릿을 ~/smartfarm-cfd/cases/acRoom-vane25 로 옮긴 뒤
 
 python3 src/make_foam_cases.py --cases 11-20 --end 600 --np 18         --template ~/smartfarm-cfd/cases/acRoom-vane25         --out ~/smartfarm-cfd/cases/fan-study

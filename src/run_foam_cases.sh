@@ -26,11 +26,8 @@ case "$(uname -s)" in
         EXTRA=(-e OMPI_ALLOW_RUN_AS_ROOT=1 -e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1)
         ;;
     Darwin)
-        # 애플 실리콘이면 이미지가 amd64 라 에뮬레이션으로 돈다. 몇 배 느리다.
-        if [ "$(uname -m)" = "arm64" ]; then
-            EXTRA+=(--platform linux/amd64)
-            echo "경고: 애플 실리콘 - amd64 이미지를 에뮬레이션한다. 크게 느려진다." >&2
-        fi
+        # opencfd 이미지는 linux/arm64 도 낸다. 애플 실리콘에서 네이티브로 돈다.
+        # --platform 을 강제하면 오히려 에뮬레이션으로 끌려가므로 붙이지 않는다.
         ;;
 esac
 IMG=${FOAM_IMAGE:-opencfd/openfoam-default:2512}
