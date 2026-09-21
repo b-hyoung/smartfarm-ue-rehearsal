@@ -43,6 +43,16 @@ import json
 import math
 import os
 
+import sys
+
+# 윈도우 콘솔이 cp949 라 한글 대시(—) 같은 글자에서 죽는다.
+# 배치 스크립트 안에서 돌 때 이것 때문에 통째로 실패한 적이 있다.
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BAND = (0.3, 1.0)          # 적정 구간 — Kitaya 2003 하한, Zhang & Kacira 2016 상한
 STAGNANT = 0.1             # 정체로 보는 선
