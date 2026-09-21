@@ -34,6 +34,16 @@ FIELDS = ["U", "T", "p", "p_rgh", "k", "epsilon", "nut", "alphat"]
 ROOM_BOX = ((-4.05, -0.05, -0.05), (4.05, 5.75, 2.75))   # CFD 좌표 전체를 덮는 상자
 
 
+def wopen(path):
+    """생성 파일은 항상 LF 로 쓴다.
+
+    윈도우에서 만들면 줄바꿈이 CRLF 로 바뀌어 리눅스 컨테이너가 Allrun 의
+    shebang 을 못 읽는다("cannot execute: required file not found").
+    OpenFOAM 딕셔너리도 같은 이유로 통일해 둔다.
+    """
+    return open(path, "w", encoding="utf-8", newline=chr(10))
+
+
 def head(cls, obj):
     return ("FoamFile\n{\n    version     2.0;\n    format      ascii;\n"
             "    class       %s;\n    object      %s;\n}\n\n" % (cls, obj))
@@ -153,12 +163,15 @@ writeMesh       false;
 POROUS = """%s
 {
     type            explicitPorositySource;
-    selectionMode   cellZone;
-    cellZone        %s;
+    active          yes;
 
     explicitPorositySourceCoeffs
     {
+        selectionMode   cellZone;
+        cellZone        %s;
+
         type            DarcyForchheimer;
+
         d               (%g %g %g);   // 점성저항 1/alpha (1/m2)
         f               (%g %g %g);   // 관성저항 C2 (1/m)
 
@@ -247,6 +260,7 @@ def fan_flux(zones, planes, write_s, probe_m=0.30, halfw=0.35):
         writeInterval   %g;
         writeFields     false;
         regionType      sampledSurface;
+        name            %s;
         sampledSurfaceDict
         {
             type        plane;
@@ -257,7 +271,8 @@ def fan_flux(zones, planes, write_s, probe_m=0.30, halfw=0.35):
         }
         operation       areaNormalIntegrate;
         fields          (U);
-    }""" % (z["id"].lower(), write_s, p[0], p[1], p[2], d[0], d[1], d[2],
+    }""" % (z["id"].lower(), write_s, "fanflux_" + z["id"].lower(),
+            p[0], p[1], p[2], d[0], d[1], d[2],
             p[0] - halfw, p[1] - halfw, p[2] - halfw,
             p[0] + halfw, p[1] + halfw, p[2] + halfw))
 
@@ -271,6 +286,7 @@ def fan_flux(zones, planes, write_s, probe_m=0.30, halfw=0.35):
         writeInterval   %g;
         writeFields     false;
         regionType      sampledSurface;
+        name            %s;
         sampledSurfaceDict
         {
             type        plane;
@@ -280,7 +296,8 @@ def fan_flux(zones, planes, write_s, probe_m=0.30, halfw=0.35):
         }
         operation       areaNormalIntegrate;
         fields          (U);
-    }""" % (pl["name"], write_s, (y0 + y1) / 2.0, pl["z_cfd_m"]))
+    }""" % (pl["name"], write_s, "canopyflux_" + pl["name"],
+            (y0 + y1) / 2.0, pl["z_cfd_m"]))
     return "\n".join(out)
 
 
@@ -339,6 +356,10 @@ def allrun(np_, with_rack):
     rack = """
 runApp topoSet -dict system/topoSetDict.rack
 runApp subsetMesh keep -patch rackWalls -overwrite
+# subsetMesh 가 만든 노출면 패치는 v2512 에서 type empty 로 나온다. 면이 4천 장 넘게
+# 있는데 empty 면 0/ 의 fixedValue 와 어긋나 솔버가 첫 스텝에 죽는다. wall 로 바꾼다.
+foamDictionary constant/polyMesh/boundary -entry entry0/rackWalls/type -set wall > log.fixpatch 2>&1
+foamDictionary constant/polyMesh/boundary -entry entry0/rackWalls/inGroups -set '1(wall)' >> log.fixpatch 2>&1
 """ if with_rack else "\n"
     return """#!/bin/bash
 # 케이스 하나를 끝까지 돌린다. 컨테이너 안에서 실행된다.
@@ -419,11 +440,16 @@ def main():
         os.makedirs(os.path.join(d, "system"))
         # 템플릿 복사
         shutil.copytree(os.path.join(a.template, "0.orig"), os.path.join(d, "0.orig"))
+        # 사람 쾌적도 필드(PMV·PPD·DR)는 쓰지 않는다. 작물에는 의미가 없고,
+        # rackWalls 패치를 넣어 주지 않아 오히려 읽다가 죽는 원인이 된다.
+        for f in ("PMV", "PPD", "DR"):
+            fp = os.path.join(d, "0.orig", f)
+            if os.path.exists(fp):
+                os.remove(fp)
         os.makedirs(os.path.join(d, "constant"))
         for f in ("g", "thermophysicalProperties"):
             shutil.copy2(os.path.join(a.template, "constant", f), os.path.join(d, "constant", f))
-        open(os.path.join(d, "constant", "turbulenceProperties"), "w",
-             encoding="utf-8").write(turbulence(a.turbulence))
+        wopen(os.path.join(d, "constant", "turbulenceProperties")).write(turbulence(a.turbulence))
         for f in ("fvSchemes", "fvSolution", "blockMeshDict", "createPatchDict"):
             shutil.copy2(os.path.join(a.template, "system", f), os.path.join(d, "system", f))
         shutil.copy2(os.path.join(a.template, "system", "topoSetDict"),
@@ -435,27 +461,27 @@ def main():
                 p = os.path.join(d, "0.orig", f)
                 if os.path.isfile(p):
                     add_rack_patch(p)
-            open(os.path.join(d, "system", "topoSetDict.rack"), "w", encoding="utf-8").write(
+            wopen(os.path.join(d, "system", "topoSetDict.rack")).write(
                 topo_rack(spec["rack_blockage"]))
 
         zones = c.get("fan_zones", [])
         canopy = (spec["canopy"]["zones"] if a.canopy == "on" else [])
-        open(os.path.join(d, "system", "topoSetDict.refine"), "w", encoding="utf-8").write(
+        wopen(os.path.join(d, "system", "topoSetDict.refine")).write(
             topo_refine(spec["refine"]))
-        open(os.path.join(d, "system", "refineMeshDict"), "w", encoding="utf-8").write(
+        wopen(os.path.join(d, "system", "refineMeshDict")).write(
             refine_mesh_dict())
-        open(os.path.join(d, "system", "topoSetDict.fans"), "w", encoding="utf-8").write(
+        wopen(os.path.join(d, "system", "topoSetDict.fans")).write(
             topo_fans(zones, canopy))
-        open(os.path.join(d, "system", "fvOptions"), "w", encoding="utf-8").write(
+        wopen(os.path.join(d, "system", "fvOptions")).write(
             fv_options(zones, canopy))
-        open(os.path.join(d, "system", "controlDict"), "w", encoding="utf-8").write(
+        wopen(os.path.join(d, "system", "controlDict")).write(
             control_dict(a.end, a.write, spec["judge_planes"], zones))
-        open(os.path.join(d, "system", "decomposeParDict"), "w", encoding="utf-8").write(
+        wopen(os.path.join(d, "system", "decomposeParDict")).write(
             head("dictionary", "decomposeParDict") +
             "numberOfSubdomains  %d;\nmethod          hierarchical;\n"
             "coeffs\n{\n    n           (%d 2 1);\n}\n" % (a.np, a.np // 2))
         ar = os.path.join(d, "Allrun")
-        open(ar, "w", encoding="utf-8").write(allrun(a.np, with_rack))
+        wopen(ar).write(allrun(a.np, with_rack))
         os.chmod(ar, 0o755)
 
         meta = {"no": c["no"], "case": c["case"], "group": c["group"],

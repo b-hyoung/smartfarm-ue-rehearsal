@@ -2,15 +2,29 @@
 # fan-study 케이스를 차례로 돌린다. (WSL 에서 실행)
 #
 #   bash src/run_foam_cases.sh 1 10          1~10번 케이스
-#   NP=12 CPUS=12 bash src/run_foam_cases.sh 1 2
+#   CPUS=19 bash src/run_foam_cases.sh 1 10      (기본은 코어의 80 %)
 #
 # CPU 상한은 --cpus 로 건다. 16코어 머신에서 12 면 75 % 다.
 # 케이스마다 벽시계 시간을 times.csv 에 적는다.
 set -uo pipefail
 
 LO=${1:-1}; HI=${2:-10}
-NP=${NP:-12}
-CPUS=${CPUS:-12}
+# 코어는 기계에 맞춘다 - 기본 80 %. 나머지는 사람이 쓸 몫으로 남긴다.
+CORES=$(nproc 2>/dev/null || echo 8)
+CPUS=${CPUS:-$(( CORES * 8 / 10 ))}
+
+# 윈도우(Git Bash)에서는 도커가 POSIX 경로를 못 받는다. 윈도우 경로로 바꾸고
+# MSYS 의 경로 변환을 끈다. 바인드 마운트에 uid 매핑이 없어 --user 도 못 쓰는데,
+# 그러면 컨테이너가 root 로 돌아 mpirun 이 거부한다. 환경변수로 풀어 준다.
+MOUNT="$PROJECT"
+EXTRA=(--user "$(id -u):$(id -g)")
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*)
+        MOUNT=$(cygpath -w "$PROJECT")
+        export MSYS_NO_PATHCONV=1
+        EXTRA=(-e OMPI_ALLOW_RUN_AS_ROOT=1 -e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1)
+        ;;
+esac
 IMG=${FOAM_IMAGE:-opencfd/openfoam-default:2512}
 PROJECT=${FOAM_PROJECT:-$HOME/smartfarm-cfd}
 ROOT="$PROJECT/cases/fan-study"
@@ -24,11 +38,11 @@ for d in "$ROOT"/*/; do
     [ "$no" -ge "$LO" ] && [ "$no" -le "$HI" ] || continue
     if [ -f "$d/DONE" ]; then echo "[$rid] 이미 끝남, 건너뜀"; continue; fi
 
-    echo "=== [$rid] 시작 $(date '+%H:%M:%S') · ${NP}분할 · CPU 상한 ${CPUS} ==="
+    echo "=== [$rid] 시작 $(date '+%H:%M:%S') · CPU 상한 ${CPUS}/${CORES} ==="
     t0=$(date +%s)
-    docker run --rm --user "$(id -u):$(id -g)" --cpus="$CPUS" \
+    docker run --rm "${EXTRA[@]}" --cpus="$CPUS" \
         -e HOME=/data -e FOAM_WORKDIR="/data/cases/fan-study/$rid" \
-        -v "$PROJECT:/data" -w "/data/cases/fan-study/$rid" "$IMG" \
+        -v "$MOUNT:/data" "$IMG" \
         bash -lc 'cd "$FOAM_WORKDIR" || exit 1; source /usr/lib/openfoam/openfoam*/etc/bashrc; ./Allrun' \
         > "$d/log.allrun" 2>&1
     rc=$?
@@ -47,4 +61,4 @@ for d in "$ROOT"/*/; do
     [ $rc -eq 0 ] || { echo "--- 실패 꼬리 ---"; tail -25 "$d/log.allrun"; }
 done
 
-echo "--- 요약 ---"; column -s, -t "$CSV"
+echo "--- 요약 ---"; column -s, -t "$CSV" 2>/dev/null || cat "$CSV"

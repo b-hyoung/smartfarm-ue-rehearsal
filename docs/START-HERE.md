@@ -11,9 +11,10 @@
 ## 0. 한 줄 상태
 
 케이스 생성·격자 세분·캐노피 다공체·검산·채점까지 **코드는 다 됐다.**
-**아직 한 번도 돌리지 않았다.** 새로 넣은 OpenFOAM 설정 셋(`refineMesh`,
-`explicitPorositySource`, `surfaceFieldValue`)이 v2512 에서 실제로 먹는지는
-미검증이다. 그래서 **5 번 케이스 하나부터** 돌린다.
+2026-09-21 에 5 번 케이스로 첫 판을 돌려 **`refineMesh`·`explicitPorositySource`·
+`surfaceFieldValue` 가 v2512 에서 도는 것까지 확인했다.** 가는 길에 환경 문제 다섯을
+밟았고 전부 고쳐 코드에 넣었다(5-1 절). 600 초 완주와 30 케이스 배치는 아직이다.
+새 컴퓨터에서도 **5 번 하나부터** 돌려 확인하고 나머지로 간다.
 
 ---
 
@@ -27,7 +28,7 @@
 | 이 저장소 | `feat/rack-fans` 브랜치 | `git log --oneline -1` |
 | **템플릿 케이스** | 저장소에 없다. 따로 옮겨야 한다 (2 절) | |
 | 디스크 | 케이스당 약 0.5 GB → 30 개면 **15 GB** | |
-| 코어 | 12 분할 기준 12 코어 이상 | `nproc` |
+| 코어 | 많을수록 좋다. 실행기가 기본으로 80 % 를 쓴다 | `nproc` |
 
 ---
 
@@ -106,7 +107,7 @@
 | 물리 시간 | **600 초** |
 | 저장 간격 | **30 초** |
 | 시간 간격 | 자동 (`maxCo 1.0`, `maxDeltaT 0.5`) |
-| 분할 | **12** (`--np 12`, `--cpus 12`) |
+| 분할 | **코어의 80 %** — 24 코어면 `--np 18`, `--cpus 19` |
 
 ### 판정
 
@@ -127,12 +128,12 @@
 docker pull opencfd/openfoam-default:2512
 
 # 1) 케이스 펼치기 — 먼저 5 번 하나만
-python3 src/make_foam_cases.py --cases 5-5 --end 600 --np 12 \
+python3 src/make_foam_cases.py --cases 5-5 --end 600 --np 18 \
         --template ~/smartfarm-cfd/cases/acRoom-vane25 \
         --out ~/smartfarm-cfd/cases/fan-study
 
 # 2) 돌리기
-SF_REPO=$PWD bash src/run_foam_cases.sh 5 5
+SF_REPO=$PWD bash src/run_foam_cases.sh 5 5      # 코어는 알아서 80 %
 
 # 3) 검산 — 팬이 실제로 들어갔나
 python3 -m src.check_fan --run ~/smartfarm-cfd/cases/fan-study/05_F3
@@ -144,14 +145,15 @@ python3 -m src.judge --runs ~/smartfarm-cfd/cases/fan-study
 **여기까지 통과하면** 나머지를 돌린다.
 
 ```bash
-python3 src/make_foam_cases.py --cases 1-30 --end 600 --np 12 \
+python3 src/make_foam_cases.py --cases 1-30 --end 600 --np 18 \
         --template ~/smartfarm-cfd/cases/acRoom-vane25 \
         --out ~/smartfarm-cfd/cases/fan-study
 SF_REPO=$PWD bash src/run_foam_cases.sh 1 30
 python3 -m src.judge --runs ~/smartfarm-cfd/cases/fan-study --cdf
 ```
 
-케이스당 **약 40 분**(11 코어 기준 추정), 30 개면 **약 30 시간**이다.
+케이스당 시간은 첫 판에서 실측한다. 옛 기록(0.10 m · 11 코어)에서 환산하면
+세분 뒤 셀이 2.2 배, 시간 간격이 절반이라 **약 4.3 배**다.
 세션이 끊겨도 살아 있게 하려면 METHOD 11 절의 분리 컨테이너 방식을 쓴다.
 
 ---
@@ -167,6 +169,126 @@ python3 -m src.judge --runs ~/smartfarm-cfd/cases/fan-study --cdf
 | `log.topoSet` | `cellZoneSet fan_* now size` 가 **8 이상**. 미만이면 Allrun 이 스스로 멈춘다 |
 | `log.run` | `explicitPorositySource` 를 읽고 죽지 않았나 |
 | `check_fan.txt` | 셀 수 · 힘 밀도 · 희석 배수 |
+
+---
+
+## 5-1. 실제로 밟은 함정 다섯 (2026-09-21, 윈도우 + Docker Desktop)
+
+이미 고쳐서 코드에 들어가 있다. **새로 만든 케이스에는 안 나온다.** 다만 손으로
+케이스를 만들거나 옛 케이스를 되살릴 때 같은 자리에서 걸리므로 기록해 둔다.
+다섯 다 격자나 물리 문제가 아니라 **환경·문법 문제**였고, 하나씩 순서대로 나타났다.
+앞 단계를 고쳐야 다음 오류가 드러나는 구조라 순차적으로 깰 수밖에 없었다.
+격자 쪽은 첫 판부터 깨끗했다 — 178,000 셀, 비직교성 최대 54.2, 팬 셀존 32 셀씩.
+
+### ① Allrun 이 CRLF 로 저장돼 컨테이너가 못 읽음
+
+```
+bash: line 1: ./Allrun: cannot execute: required file not found
+```
+
+윈도우 파이썬이 줄바꿈을 LF 가 아니라 CRLF 로 써서, shebang 줄 끝에 캐리지리턴이
+붙는다. 리눅스는 그런 이름의 인터프리터를 못 찾는다. 파일은 멀쩡해 보이고 오류
+문구도 엉뚱해서 찾기 어렵다.
+
+**고침** — `make_foam_cases.py` 의 `wopen()` 이 생성 파일을 전부 LF 로 쓴다
+(`newline=chr(10)`). 확인은 `file Allrun` 이 `CRLF` 를 말하지 않으면 된다.
+
+### ② subsetMesh 가 만든 rackWalls 패치가 `type empty`
+
+```
+--> FOAM FATAL IO ERROR: inconsistent patch and patchField types for
+    patch type empty and patchField type fixedValue
+    file: 0/T/boundaryField/rackWalls
+```
+
+`subsetMesh -patch rackWalls` 가 노출면 4,512 장짜리 패치를 만들면서 타입을
+`empty` 로 준다(v2512). `0/` 쪽은 `walls` 를 복사해 `fixedValue` 라 어긋난다.
+면이 0 장이면 몰라도 4 천 장이 `empty` 인 것은 명백한 오류인데 메시 단계에서는
+아무 말이 없고 **솔버 첫 스텝에서야 죽는다.**
+
+**고침** — Allrun 이 subsetMesh 바로 뒤에서 고친다.
+
+```bash
+foamDictionary constant/polyMesh/boundary -entry entry0/rackWalls/type -set wall
+foamDictionary constant/polyMesh/boundary -entry entry0/rackWalls/inGroups -set '1(wall)'
+```
+
+같은 이유로 사람 쾌적도 필드(`PMV`·`PPD`·`DR`)는 아예 지운다. 작물에 의미가 없고
+`rackWalls` 항목이 없어 읽다가 죽는 원인만 된다.
+
+### ③ mpirun 이 root 실행을 거부
+
+```
+mpirun has detected an attempt to run as root.
+```
+
+윈도우 바인드 마운트에는 uid 매핑이 없어 `--user "$(id -u):$(id -g)"` 를 쓸 수 없고,
+그러면 컨테이너가 root 로 돈다. OpenMPI 가 이를 막는다.
+
+**고침** — `run_foam_cases.sh` 가 윈도우를 감지해 환경변수로 푼다.
+
+```bash
+-e OMPI_ALLOW_RUN_AS_ROOT=1 -e OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+```
+
+리눅스·맥에서는 `--user` 를 그대로 쓴다. 이 변수는 윈도우에서만 붙는다.
+
+### ④ explicitPorositySource 딕셔너리 구조
+
+```
+Entry 'selectionMode' not found in dictionary
+    "canopy_t0/explicitPorositySourceCoeffs"
+```
+
+`selectionMode` 와 `cellZone` 을 항목 맨 위에 두면 안 된다. **`explicitPorositySourceCoeffs`
+안에** 들어가야 하고, 그 안에 다공체 모델 `type DarcyForchheimer` 가 또 온다.
+`vectorSemiImplicitSource`(팬)는 반대로 맨 위에 두는 구조라 헷갈린다.
+
+```
+canopy_t0
+{
+    type            explicitPorositySource;
+    active          yes;
+
+    explicitPorositySourceCoeffs
+    {
+        selectionMode   cellZone;
+        cellZone        canopy_t0;
+        type            DarcyForchheimer;
+        d               (25 25 25);
+        f               (1.3 1.3 1.3);
+        coordinateSystem { origin (0 0 0); e1 (1 0 0); e2 (0 1 0); }
+    }
+}
+```
+
+### ⑤ surfaceFieldValue 가 `name` 을 요구
+
+```
+Entry 'name' not found in dictionary "functions/fanflux_fan_t0_s0"
+```
+
+`regionType sampledSurface` 를 쓰면 `sampledSurfaceDict` 만으로는 안 되고 **`name` 항목이
+따로 있어야 한다.** 함수오브젝트 이름과 같게 넣으면 된다.
+
+```
+fanflux_fan_t0_s0
+{
+    type            surfaceFieldValue;
+    regionType      sampledSurface;
+    name            fanflux_fan_t0_s0;     // <- 이것
+    sampledSurfaceDict { ... }
+    operation       areaNormalIntegrate;
+    fields          (U);
+}
+```
+
+### 덤 — 도커 쪽 둘
+
+- **이미지 엔트리포인트가 작업 디렉터리를 되돌린다.** `-w` 를 믿으면
+  `cannot find file "/data/system/controlDict"` 가 난다. 컨테이너 **안에서 직접 `cd`** 한다.
+- **Git Bash 는 도커 인자의 경로를 제멋대로 바꾼다.** `MSYS_NO_PATHCONV=1` 을 켜고
+  `cygpath -w` 로 윈도우 경로를 만들어 넘긴다. 둘 다 `run_foam_cases.sh` 에 들어 있다.
 
 ---
 
