@@ -78,7 +78,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True, help="케이스 실행 폴더")
     ap.add_argument("--cell", type=float, default=None,
-                    help="격자 한 변(m). 생략하면 fan_params.json 의 mesh_cell_m")
+                    help="격자 한 변(m). 생략하면 fan_params.json 의 refine.cell_inside_m")
     ap.add_argument("--params", default=PARAMS)
     ap.add_argument("--tol", type=float, default=0.05,
                     help="유량 대조 허용 오차 비율 (기본 5%%)")
@@ -90,7 +90,9 @@ def main():
         print("케이스를 찾지 못했다: %s" % a.run)
         return 1
 
-    cell = a.cell or params.get("mesh_cell_m") or 0.10
+    # 팬은 전부 세분 상자 안에 있으므로 기준 격자는 세분 뒤의 한 변이다.
+    ref = params.get("refine") or {}
+    cell = a.cell or ref.get("cell_inside_m") or params.get("mesh_cell_m") or 0.10
     zones = case.get("fan_zones") or []
     sizes = zone_sizes(os.path.join(a.run, "log.topoSet"))
     bad = []

@@ -89,6 +89,50 @@ def topo_fans(zones):
     return head("dictionary", "topoSetDict") + "actions\n(\n" + "\n".join(acts) + "\n);\n"
 
 
+def topo_refine(box):
+    """세분할 영역 — refineMesh 입력. 전 케이스 같은 좌표다."""
+    mn, mx = box["min"], box["max"]
+    body = """// 30 케이스 공통. 케이스마다 옮기지 않는다.
+actions
+(
+    {
+        name    refine;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        box     (%g %g %g) (%g %g %g);
+    }
+);
+""" % (mn[0], mn[1], mn[2], mx[0], mx[1], mx[2])
+    return head("dictionary", "topoSetDict") + body
+
+
+def refine_mesh_dict():
+    """refine 집합을 한 단계 쪼갠다. 세 방향 모두 — 제트가 퍼지는 모양을 봐야 한다.
+
+    useHexTopology 를 켜면 육면체를 모서리 중점으로 2x2x2 로 나눈다.
+    성긴 쪽과 만나는 면에는 매달린 절점이 생기고 그 셀은 다면체가 된다.
+    유한체적법에서는 문제가 없지만 비직교성이 그 경계에서 올라가므로
+    세분 뒤 checkMesh 로 한 번 확인한다.
+    """
+    return head("dictionary", "refineMeshDict") + """set             refine;
+
+coordinateSystem global;
+
+globalCoeffs
+{
+    tan1            (1 0 0);
+    tan2            (0 1 0);
+}
+
+directions      ( tan1 tan2 normal );
+
+useHexTopology  true;
+geometricCut    false;
+writeMesh       false;
+"""
+
+
 def fv_options(zones):
     """온도 제한(템플릿 유지) + 팬 추력."""
     s = head("dictionary", "fvOptions")
@@ -104,6 +148,36 @@ def fv_options(zones):
               "    sources\n    {\n        U  ((%.5f %.5f %.5f) 0);   // 추력 %.4f N\n"
               "    }\n}\n\n" % (nm, nm, d[0] * f, d[1] * f, d[2] * f, f))
     return s
+
+
+TURBULENCE = {
+    # 이름: (OpenFOAM RAS 모델, 왜 이 모델인가)
+    "standard": ("kEpsilon",
+                 "기준선. vane25 에서 쓰던 것을 그대로 물려받았다"),
+    "rng": ("RNGkEpsilon",
+            "제트 확산과 곡률·회전 흐름에서 표준형보다 낫다고 보고된 변형"),
+    "realizable": ("realizableKE",
+                   "제트의 퍼짐을 표준형보다 잘 맞춘다고 보고된 변형"),
+}
+
+
+def turbulence(name):
+    """난류 모델 파일. 기본은 기준선(kEpsilon) 이다.
+
+    표준 k-epsilon 은 제트가 퍼지는 모양과 부력 효과를 실제보다 부드럽게
+    만드는 경향이 있다고 알려져 있다. 하필 우리가 보려는 것이 그 둘이다.
+    그렇다고 30 케이스를 모두 다른 모델로 다시 돌릴 수는 없으므로,
+    기준선은 그대로 두고 대표·극단 케이스 몇 개만 바꿔 돌려
+    **케이스 사이의 순위가 유지되는지**만 확인한다.
+
+    kOmegaSST 는 넣지 않았다. 벽 근처 격자를 따로 짜야 공정한 비교가 되는데
+    지금 격자로 그대로 돌리면 모델을 비교한 것이 아니라 격자를 비교한 것이 된다.
+    """
+    model, why = TURBULENCE[name]
+    return (head("dictionary", "turbulenceProperties") +
+            "// %s — %s\n\nsimulationType  RAS;\n\n"
+            "RAS\n{\n    model           %s;\n    turbulence      on;\n"
+            "    printCoeffs     on;\n}\n" % (name, why, model))
 
 
 def fan_flux(zones, planes, write_s, probe_m=0.30, halfw=0.35):
@@ -239,9 +313,17 @@ if [ "$resume" = no ]; then
     runApp topoSet -dict system/topoSetDict.ac
     runApp createPatch -overwrite
 %s
+    runApp topoSet -dict system/topoSetDict.refine
+    runApp refineMesh -dict system/refineMeshDict -overwrite
+    runApp checkMesh -constant
     runApp topoSet -dict system/topoSetDict.fans
-    if grep -q 'cellZoneSet .* now size 0' log.topoSet; then
-        echo '팬 셀 영역이 비었다. 상자가 격자(0.10 m)보다 얇다. fan_bc.py 의 zone_box 를 볼 것.'
+    # 비었을 때만이 아니라 줄어들었을 때도 잡는다. 세분이 셀 번호를 다시 매기므로
+    # 순서가 어긋나면 셀존이 조용히 작아진다 — 그래도 계산은 끝까지 돈다.
+    small=$(awk '/cellZoneSet .* now size/ { if ($NF < 8) print $2" "$NF }' log.topoSet)
+    if [ -n "$small" ]; then
+        echo '팬 셀 영역이 너무 작다 (8셀 미만):'
+        echo "$small"
+        echo 'refineMesh 가 topoSet.fans 앞에서 돌았는지, zone_box 가 세분 격자 기준인지 볼 것.'
         exit 1
     fi
     rm -rf 0 && cp -r 0.orig 0
@@ -263,6 +345,8 @@ def main():
     ap.add_argument("--repo", default=REPO_DEFAULT, help="fan_params.json 이 있는 저장소")
     ap.add_argument("--template", default=TEMPLATE_DEFAULT, help="복사해 올 기존 OpenFOAM 케이스")
     ap.add_argument("--out", default=OUT_DEFAULT, help="케이스를 펼칠 폴더")
+    ap.add_argument("--turbulence", default="standard", choices=sorted(TURBULENCE),
+                    help="난류 모델. 기본은 기준선(kEpsilon). 민감도 확인용으로만 바꾼다")
     a = ap.parse_args()
     for label, path in (("저장소", a.repo), ("템플릿 케이스", a.template)):
         if not os.path.isdir(path):
@@ -279,15 +363,19 @@ def main():
     for c in spec["cases"]:
         if not (lo <= c["no"] <= hi):
             continue
-        d = os.path.join(a.out, c["run_id"])
+        rid = c["run_id"] + ("" if a.turbulence == "standard"
+                             else "_" + a.turbulence)
+        d = os.path.join(a.out, rid)
         if os.path.isdir(d):
             shutil.rmtree(d)
         os.makedirs(os.path.join(d, "system"))
         # 템플릿 복사
         shutil.copytree(os.path.join(a.template, "0.orig"), os.path.join(d, "0.orig"))
         os.makedirs(os.path.join(d, "constant"))
-        for f in ("g", "thermophysicalProperties", "turbulenceProperties"):
+        for f in ("g", "thermophysicalProperties"):
             shutil.copy2(os.path.join(a.template, "constant", f), os.path.join(d, "constant", f))
+        open(os.path.join(d, "constant", "turbulenceProperties"), "w",
+             encoding="utf-8").write(turbulence(a.turbulence))
         for f in ("fvSchemes", "fvSolution", "blockMeshDict", "createPatchDict"):
             shutil.copy2(os.path.join(a.template, "system", f), os.path.join(d, "system", f))
         shutil.copy2(os.path.join(a.template, "system", "topoSetDict"),
@@ -303,6 +391,10 @@ def main():
                 topo_rack(spec["rack_blockage"]))
 
         zones = c.get("fan_zones", [])
+        open(os.path.join(d, "system", "topoSetDict.refine"), "w", encoding="utf-8").write(
+            topo_refine(spec["refine"]))
+        open(os.path.join(d, "system", "refineMeshDict"), "w", encoding="utf-8").write(
+            refine_mesh_dict())
         open(os.path.join(d, "system", "topoSetDict.fans"), "w", encoding="utf-8").write(
             topo_fans(zones))
         open(os.path.join(d, "system", "fvOptions"), "w", encoding="utf-8").write(
@@ -320,10 +412,13 @@ def main():
         meta = {"no": c["no"], "case": c["case"], "group": c["group"],
                 "purpose": c["purpose"], "per_fan_CMM": c["per_fan_CMM"],
                 "fans_on": c.get("fans_on", 0), "fans_off": c.get("fans_off", []),
-                "rack": with_rack, "endTime_s": a.end, "np": a.np}
+                "rack": with_rack, "endTime_s": a.end, "np": a.np,
+                "run_id": rid,
+                "turbulence": TURBULENCE[a.turbulence][0],
+                "turbulence_why": TURBULENCE[a.turbulence][1]}
         json.dump(meta, open(os.path.join(d, "case.json"), "w", encoding="utf-8"),
                   ensure_ascii=False, indent=2)
-        made.append((c["no"], c["run_id"], len(zones), with_rack))
+        made.append((c["no"], rid, len(zones), with_rack))
 
     for no, rid, nz, rk in made:
         print("  %2d  %-8s 팬존 %2d  재배단 %s" % (no, rid, nz, "있음" if rk else "없음"))

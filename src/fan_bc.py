@@ -38,7 +38,10 @@ LED_W_EACH = 240.0
 LED_BAR = (BED_W * 0.92, 0.05, 0.035)
 
 
-MESH_CELL = 0.10         # blockMesh 균일 격자 한 변(m). 상자를 여기에 맞춘다.
+MESH_CELL = 0.10         # blockMesh 균일 격자 한 변(m)
+REFINE_LEVELS = 1        # 재배단·팬 상자만 refineMesh 로 쪼갠 횟수
+REFINED_CELL = MESH_CELL / (2 ** REFINE_LEVELS)   # 그 안의 격자 한 변(m)
+REFINE_BUFFER = 0.40     # 세분 상자를 팬·캐노피보다 이만큼 넓게 잡는다(m)
 
 
 def box(centre, size):
@@ -47,13 +50,18 @@ def box(centre, size):
             "max": [round(centre[i] + size[i] / 2.0, 4) for i in range(3)]}
 
 
-def zone_box(centre, size, cell=MESH_CELL):
+def zone_box(centre, size, cell=REFINED_CELL):
     """셀 영역용 상자. 격자보다 얇으면 셀 중심을 하나도 못 잡으므로 최소 한 셀은 덮게 키운다.
 
     boxToCell 은 셀 중심이 상자 안에 있는 셀만 고른다. 균일 격자에서 한 변보다
     짧은 상자는 정렬에 따라 0개가 잡힌다. 한 변의 1.2배까지 키우면 어디에 놓든
     축마다 최소 한 줄은 들어온다. 운동량 소스는 volumeMode absolute 라
     상자가 커져도 팬이 내는 총 추력(N)은 그대로다.
+
+    기준이 되는 격자는 세분 **뒤**의 한 변(REFINED_CELL)이다. 팬은 전부 세분
+    상자 안에 있고 topoSet 이 refineMesh 뒤에 돌기 때문이다. 0.05 m 에서는
+    1.2배가 0.06 m 라 실제 팬 두께 0.08 m 가 그대로 살아난다 — E-001 을 만든
+    부풀림이 사라진다.
     """
     return box(centre, [max(size[i], cell * 1.2) for i in range(3)])
 
@@ -129,6 +137,68 @@ def zones_for(layout, tilt, cmm, n, dia, depth, rack, tiers, on=None, above_bed=
                         "맞춰 키운 것이다. 총 추력은 같다.",
         })
     return zs, round(u, 3), round(thrust, 4), off
+
+
+def refine_box(cases, blockage, rack, tiers, canopy_h=0.25,
+               buffer_m=REFINE_BUFFER, snap=MESH_CELL):
+    """세분 상자 하나 — 30 케이스에 같은 좌표로 쓴다.
+
+    케이스마다 팬 자리가 다르다고 상자를 따라 옮기면, 케이스마다 격자가 달라져
+    "팬을 낮췄더니 캐노피 풍속이 올랐다"가 팬 때문인지 그 자리 격자 때문인지
+    갈라낼 수 없다. 그래서 **모든 케이스의 팬 자리와 캐노피를 전부 덮는 상자
+    하나**를 만들고 전 케이스에 그대로 쓴다. 팬이 꺼진 케이스도, 팬이 아예 없는
+    기준선도 같은 상자를 쓴다.
+
+    buffer_m 은 여유다. 팬이 상자 가장자리에 있으면 제트가 나오자마자 성긴
+    격자로 넘어가 거기서 뭉개진다. 상자 경계를 팬·캐노피에서 떨어뜨려 놓아야
+    제트가 다 퍼진 뒤에 경계를 만난다.
+
+    마지막에 성긴 격자 한 변에 맞춰 바깥으로 스냅한다. boxToCell 이 셀 중심으로
+    고르므로 경계가 셀 중간을 지나면 케이스마다 한 줄씩 들쭉날쭉해진다.
+    """
+    lo = [float("inf")] * 3
+    hi = [float("-inf")] * 3
+
+    def take(mn, mx):
+        for i in range(3):
+            lo[i] = min(lo[i], mn[i])
+            hi[i] = max(hi[i], mx[i])
+
+    for c in cases:                       # 모든 케이스의 모든 팬
+        for z in c.get("fan_zones") or []:
+            b = z["cellZone_box_cfd_m"]
+            take(b["min"], b["max"])
+    for b in blockage:                    # 재배단 선반과 기둥
+        take(b["box_cfd_m"]["min"], b["box_cfd_m"]["max"])
+    for bz in tiers:                      # 캐노피 — 선반면 위 canopy_h
+        take([rack[0] - X_SHIFT - BED_W / 2.0, rack[1] - BED_D / 2.0, bz],
+             [rack[0] - X_SHIFT + BED_W / 2.0, rack[1] + BED_D / 2.0, bz + canopy_h])
+
+    # 방 밖으로 나간 몫은 잘라낸다. 바깥에는 셀이 없어 해가 되지는 않지만,
+    # 부피를 그대로 두면 계산량을 실제보다 크게 잡게 된다.
+    room_lo, room_hi = (-4.0, 0.0, 0.0), (4.0, 5.7, 2.7)
+    mn, mx = [], []
+    for i in range(3):
+        a = math.floor((lo[i] - buffer_m) / snap) * snap
+        b = math.ceil((hi[i] + buffer_m) / snap) * snap
+        mn.append(max(a, room_lo[i]))
+        mx.append(min(b, room_hi[i]))
+    size = [round(mx[i] - mn[i], 4) for i in range(3)]
+    return {
+        "min": [round(v, 4) for v in mn],
+        "max": [round(v, 4) for v in mx],
+        "size_m": size,
+        "volume_m3": round(size[0] * size[1] * size[2], 4),
+        "levels": REFINE_LEVELS,
+        "cell_inside_m": REFINED_CELL,
+        "cells_added_est": int(size[0] * size[1] * size[2] / snap ** 3
+                               * (8 ** REFINE_LEVELS - 1)),
+        "buffer_m": buffer_m,
+        "note": "30 케이스 전부에 같은 좌표로 쓴다. 케이스마다 옮기면 조건 효과와 "
+                "격자 효과가 섞인다. topoSet 으로 이 상자를 cellSet 으로 잡고 "
+                "refineMesh 로 %d 단계 쪼갠다. subsetMesh 뒤, 팬 셀존을 잡기 전에 "
+                "돌려야 한다 — 세분이 셀 번호를 다시 매기기 때문이다." % REFINE_LEVELS,
+    }
 
 
 def blockage_for(rack, tiers):
@@ -332,6 +402,8 @@ def main():
                      "above_bed_m_default": ABOVE_BED},
         "rack_default": {"centre_ue_m": list(rack0), "bed_size_m": [BED_W, BED_D],
                          "tier_bed_z_m": tiers},
+        "mesh_cell_m": MESH_CELL,
+        "refine": refine_box(cases, blockage0, rack0, tiers),
         "rack_blockage": blockage0,
         "heat_sources": heat,
         "judge_planes": planes0,
