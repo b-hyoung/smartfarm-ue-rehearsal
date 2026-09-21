@@ -34,6 +34,14 @@ for d in "$ROOT"/*/; do
     rc=$?
     t1=$(date +%s); dt=$((t1 - t0))
     if [ $rc -eq 0 ]; then touch "$d/DONE"; st=ok; else st="fail($rc)"; fi
+
+    # 팬이 제대로 들어갔는지, 그 바람이 캐노피까지 갔는지 검산한다.
+    # 계산이 정상 종료해도 팬이 빠진 채 돌 수 있다(E-001). 케이스마다 남긴다.
+    if command -v python3 >/dev/null 2>&1; then
+        (cd "${SF_REPO:-$PWD}" && python3 -m src.check_fan --run "$d") \
+            > "$d/check_fan.txt" 2>&1 || st="$st+검산실패"
+        sed -n '1,40p' "$d/check_fan.txt"
+    fi
     echo "$no,$rid,$(date -d @$t0 '+%F %T'),$dt,$st" >> "$CSV"
     printf '=== [%s] %s · %d분 %d초 ===\n' "$rid" "$st" $((dt / 60)) $((dt % 60))
     [ $rc -eq 0 ] || { echo "--- 실패 꼬리 ---"; tail -25 "$d/log.allrun"; }

@@ -106,7 +106,66 @@ def fv_options(zones):
     return s
 
 
-def control_dict(end_s, write_s, planes):
+def fan_flux(zones, planes, write_s, probe_m=0.30, halfw=0.35):
+    """유량 검산용 함수오브젝트. 팬 하류와 캐노피 판정면을 지나는 유량(m3/s).
+
+    팬이 내보낸 풍량과 견주면 바람이 어디까지 갔는지 알 수 있다. 하류가 더 크면
+    주위 공기를 끌고 간 것(유인)이고, 캐노피 쪽이 작으면 도중에 새는 것이다.
+
+    `areaNormalIntegrate` 는 면을 지나는 U 의 법선 성분을 면적분한다. 곧 m3/s 다.
+    팬 하류면은 축에서 halfw 만큼만 잘라 제트만 본다. 방 전체를 재면 되돌아오는
+    순환류가 섞여 의미가 없어진다.
+    """
+    out = []
+    for z in zones:
+        c, d = z["centre_cfd_m"], z["dir_unit"]
+        p = [c[i] + d[i] * probe_m for i in range(3)]
+        out.append("""    fanflux_%s
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        writeControl    adjustableRunTime;
+        writeInterval   %g;
+        writeFields     false;
+        regionType      sampledSurface;
+        sampledSurfaceDict
+        {
+            type        plane;
+            planeType   pointAndNormal;
+            pointAndNormalDict { point (%.4f %.4f %.4f); normal (%.4f %.4f %.4f); }
+            interpolate true;
+            bounds      (%.4f %.4f %.4f) (%.4f %.4f %.4f);
+        }
+        operation       areaNormalIntegrate;
+        fields          (U);
+    }""" % (z["id"].lower(), write_s, p[0], p[1], p[2], d[0], d[1], d[2],
+            p[0] - halfw, p[1] - halfw, p[2] - halfw,
+            p[0] + halfw, p[1] + halfw, p[2] + halfw))
+
+    for pl in planes:
+        y0, y1 = pl["y_range_m"]
+        out.append("""    canopyflux_%s
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        writeControl    adjustableRunTime;
+        writeInterval   %g;
+        writeFields     false;
+        regionType      sampledSurface;
+        sampledSurfaceDict
+        {
+            type        plane;
+            planeType   pointAndNormal;
+            pointAndNormalDict { point (0 %g %g); normal (0 0 1); }
+            interpolate true;
+        }
+        operation       areaNormalIntegrate;
+        fields          (U);
+    }""" % (pl["name"], write_s, (y0 + y1) / 2.0, pl["z_cfd_m"]))
+    return "\n".join(out)
+
+
+def control_dict(end_s, write_s, planes, zones=()):
     surf = []
     for p in planes:
         surf.append("""        %s
@@ -151,8 +210,10 @@ functions
 %s
         }
     }
+
+%s
 }
-""" % (end_s, write_s, write_s, "\n".join(surf)))
+""" % (end_s, write_s, write_s, "\n".join(surf), fan_flux(zones, planes, write_s)))
 
 
 def allrun(np_, with_rack):
@@ -247,7 +308,7 @@ def main():
         open(os.path.join(d, "system", "fvOptions"), "w", encoding="utf-8").write(
             fv_options(zones))
         open(os.path.join(d, "system", "controlDict"), "w", encoding="utf-8").write(
-            control_dict(a.end, a.write, spec["judge_planes"]))
+            control_dict(a.end, a.write, spec["judge_planes"], zones))
         open(os.path.join(d, "system", "decomposeParDict"), "w", encoding="utf-8").write(
             head("dictionary", "decomposeParDict") +
             "numberOfSubdomains  %d;\nmethod          hierarchical;\n"
