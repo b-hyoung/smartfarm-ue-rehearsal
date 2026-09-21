@@ -14,13 +14,13 @@
   ],
   "spec": {
     "type": "소형 축류 유동팬 (HAF)",
-    "layout": "ends",
+    "layout": "pushpull",
     "tilt_deg": 15.0,
     "diam_m": 0.2,
-    "per_fan_CMM": 5.0,
-    "per_fan_m3s": 0.08333,
+    "per_fan_CMM": 6.0,
+    "per_fan_m3s": 0.1,
     "outlet_area_m2": 0.03142,
-    "outlet_m_s": 2.65,
+    "outlet_m_s": 3.18,
     "watt_each": 25.0,
     "on": true
   },
@@ -39,25 +39,25 @@
         0.0,
         -0.259
       ],
-      "CMM": 5.0,
-      "outlet_m_s": 2.65
+      "CMM": 6.0,
+      "outlet_m_s": 3.18
     },
     {
-      "id": "FAN_T0_B0",
+      "id": "FAN_T0_R0",
       "tier": 0,
-      "role": "booster",
+      "role": "return",
       "centre_ue_m": [
         5.3,
         2.0,
         0.73
       ],
       "dir_unit": [
-        0.966,
+        1.0,
         0.0,
-        -0.259
+        0.0
       ],
-      "CMM": 5.0,
-      "outlet_m_s": 2.65
+      "CMM": 0.0,
+      "outlet_m_s": 0.0
     },
     {
       "id": "FAN_T1_S0",
@@ -73,41 +73,46 @@
         0.0,
         -0.259
       ],
-      "CMM": 5.0,
-      "outlet_m_s": 2.65
+      "CMM": 6.0,
+      "outlet_m_s": 3.18
     },
     {
-      "id": "FAN_T1_B0",
+      "id": "FAN_T1_R0",
       "tier": 1,
-      "role": "booster",
+      "role": "return",
       "centre_ue_m": [
         5.3,
         2.0,
         1.53
       ],
       "dir_unit": [
-        0.966,
+        1.0,
         0.0,
-        -0.259
+        0.0
       ],
-      "CMM": 5.0,
-      "outlet_m_s": 2.65
+      "CMM": 0.0,
+      "outlet_m_s": 0.0
     }
   ],
   "per_tier": {
     "fans_per_tier": 2,
-    "stream_CMM": 5.0,
+    "stream_CMM": 6.0,
     "canopy_section_m2": 0.2,
-    "canopy_mean_m_s_est": 0.42,
+    "canopy_mean_m_s_est": 0.5,
     "note": "평균 통과 풍속 = 캐노피를 지나는 한 줄기 풍량 / 통과 단면. ends 의 끝 팬은 같은 공기를 이어 미는 것이라 풍량을 더하지 않는다. ends·pushpull 은 선반 깊이 x 작물 높이, top 은 선반 면적, side 는 선반 가로 x 작물 높이를 쓴다. 실제 분포는 CFD 결과로 대체할 추정치다."
   },
   "total": {
     "fans": 4,
-    "installed_CMM": 20.0,
+    "installed_CMM": 12.0,
     "watt": 100.0
   },
   "reference": [
-    "UMass Extension / Farm Energy — HAF 지침: 모든 팬을 같은 방향으로 돌려 순환 고리를 만들고 기류 0.25~0.5 m/s(50~100 fpm) 유지, 팬 간격 12~15 m",
+    "Chen X 외(2024) Agriculture 14:2227 — 환기 6종 비교, 층별 측면 급기+측면 배기 채택, 랙을 배기구 쪽에 붙인 Case 6이 풍속·온도·습도 상대표준편차 최저",
+    "왕 외(2025) Agronomy 15:2326 — 베드에 덕트 통합, 캐노피 0.8 m/s에서 광합성 +17.8%·생체중 +29.6%, 캐노피 온도 -1.3 ℃",
+    "Gu & Goto(2024) Agriculture 14:1199 — 유입 풍속을 올리면 정체 구역 62.4% -> 7.2%, 엇갈림 배치로 16.4% -> 13.2%",
+    "Jung 외(2026) J Agric Eng 2026.2241 — 컨테이너 다단, 배기구 위치가 최대 인자(기여율 57.78%)",
+    "Sohn 외(2023) Comput Electron Agric 215:108363 — 베드 길이 방향 급기 0.65 m/s·CV 33%, 배기구 추가 시 CV 10%",
+    "UMass Extension / Farm Energy — 온실 HAF 지침(대공간용): 팬을 같은 방향으로 돌려 순환 고리, 기류 0.25~0.5 m/s",
     "이정민 외(2024) 한국콘텐츠학회논문지 24(12) — 컨테이너형 수직농장, 베드 양 끝 유동팬, 베드 내 평균 0.12 m/s, 온도편차 ±3 -> ±1.7 ℃",
     "Fang 외(2020) Biosystems Engineering 200:1-12 — 층 길이 방향 급기가 평균 0.65 m/s·CV 33%, 유공 덕트로 캐노피 위 수평 기류",
     "문승미 외(2015) 인터넷정보학회논문지 16(1):57-66 — 순환팬 배치 12개 비교, 재배베드 상부 2대가 최적(0.51 m/s), 토출 2.9 m/s에서 에너지 효율 최적",
