@@ -70,14 +70,26 @@ def slots(layout, tilt, n, rack, tiers):
     return out
 
 
-def zones_for(layout, tilt, cmm, n, dia, depth, rack, tiers):
-    """케이스 하나의 팬 영역 목록. 흐름축 방향만 얇은 상자로 잡는다."""
+def zones_for(layout, tilt, cmm, n, dia, depth, rack, tiers, on=None):
+    """케이스 하나의 팬 영역 목록. 흐름축 방향만 얇은 상자로 잡는다.
+
+    on = {"tiers": [0, 1], "roles": ["supply", "return"]} 로 켤 팬만 고른다.
+    꺼진 팬은 영역을 만들지 않는다. 몸체가 아주 약간 막기는 하지만 무시한다.
+    """
+    on = on or {}
+    on_tiers = on.get("tiers")
+    on_roles = on.get("roles")
     area = math.pi * (dia / 2.0) ** 2
     q = cmm / 60.0
     u = (q / area) if q else 0.0
     thrust = RHO * q * u
-    zs = []
+    zs, off = [], []
     for (cx, cy, cz), d, role, tag in slots(layout, tilt, n, rack, tiers):
+        ti = int(tag[1])
+        if (on_tiers is not None and ti not in on_tiers) or \
+           (on_roles is not None and role not in on_roles):
+            off.append("FAN_" + tag.upper())
+            continue
         nrm = math.sqrt(sum(v * v for v in d)) or 1.0
         d = [v / nrm for v in d]
         size = [depth if abs(d[0]) > 0.5 else dia,
@@ -95,25 +107,38 @@ def zones_for(layout, tilt, cmm, n, dia, depth, rack, tiers):
             "thrust_N": round(thrust, 4),
             "momentum_source_N_m3": round(thrust / vol, 1) if vol else 0.0,
         })
-    return zs, round(u, 3), round(thrust, 4)
+    return zs, round(u, 3), round(thrust, 4), off
 
 
-# 케이스 정의 — (이름, 묶음, 배치, 대당 CMM, 기울기, 한쪽 대수, 재배단, 목적)
+# 케이스 정의 — (이름, 묶음, 배치, 대당 CMM, 기울기, 한쪽 대수, 재배단, 켤 팬, 목적)
+ALL_ON = {"tiers": [0, 1], "roles": ["supply", "return", "booster"]}
 CASE_DEFS = [
-    ("R0", "G0 기준선", "none", 0.0, 0.0, 1, False,
+    ("R0", "G0 기준선", "none", 0.0, 0.0, 1, False, ALL_ON,
      "빈 방 — 재배단도 팬도 없다. 기존 해석과 같은 조건이라 재배단 효과를 떼어 볼 수 있다"),
-    ("R1", "G0 기준선", "pushpull", 0.0, 15.0, 1, True,
+    ("R1", "G0 기준선", "pushpull", 0.0, 15.0, 1, True, ALL_ON,
      "재배단만, 팬 꺼짐 — 팬 효과를 재는 기준"),
-    ("F1", "G1 풍량", "pushpull", 3.6, 15.0, 1, True, "캐노피 0.3 m/s 를 노린 풍량"),
-    ("F2", "G1 풍량", "pushpull", 6.0, 15.0, 1, True, "캐노피 0.5 m/s — 표준안"),
-    ("F3", "G1 풍량", "pushpull", 9.6, 15.0, 1, True, "캐노피 0.8 m/s — 상추 생육 최적 보고값"),
-    ("F4", "G1 풍량", "pushpull", 12.0, 15.0, 1, True, "캐노피 1.0 m/s — 상한, 과하면 여기서 드러난다"),
-    ("L1", "G2 배치", "side", 6.0, 0.0, 1, True, "긴 변 양쪽에서 마주보게 — 중앙 충돌 확인"),
-    ("L2", "G2 배치", "ends", 6.0, 15.0, 1, True, "양 끝 팬을 같은 방향으로 — 방 전체 순환형"),
-    ("L3", "G2 배치", "top", 6.0, 0.0, 1, True, "각 단 상부에서 캐노피로 하방"),
-    ("T1", "G3 각도", "pushpull", 6.0, 0.0, 1, True, "수평 취출 — 기울임이 필요한지 판단"),
-    ("T2", "G3 각도", "pushpull", 6.0, 30.0, 1, True, "30도 하방 — 과하면 바닥으로 빠진다"),
-    ("N1", "G4 대수", "pushpull", 3.0, 15.0, 2, True,
+    ("F1", "G1 풍량", "pushpull", 3.6, 15.0, 1, True, ALL_ON, "캐노피 0.3 m/s 를 노린 풍량"),
+    ("F2", "G1 풍량", "pushpull", 6.0, 15.0, 1, True, ALL_ON, "캐노피 0.5 m/s — 표준안"),
+    ("F3", "G1 풍량", "pushpull", 9.6, 15.0, 1, True, ALL_ON, "캐노피 0.8 m/s — 상추 생육 최적 보고값"),
+    ("F4", "G1 풍량", "pushpull", 12.0, 15.0, 1, True, ALL_ON, "캐노피 1.0 m/s — 상한, 과하면 여기서 드러난다"),
+    ("S1", "G2 켜고 끄기", "pushpull", 6.0, 15.0, 1, True,
+     {"tiers": [0], "roles": ["supply", "return"]},
+     "아래 단만 켬 — 위 단이 아래 단 기류에 얼마나 묻어가는지"),
+    ("S2", "G2 켜고 끄기", "pushpull", 6.0, 15.0, 1, True,
+     {"tiers": [1], "roles": ["supply", "return"]},
+     "위 단만 켬 — 위에서 분 바람이 아래 단으로 떨어지는지"),
+    ("S3", "G2 켜고 끄기", "pushpull", 6.0, 15.0, 1, True,
+     {"tiers": [0, 1], "roles": ["supply"]},
+     "송풍기만 켬, 흡입기 끔 — 흡입기가 정말 필요한지"),
+    ("S4", "G2 켜고 끄기", "pushpull", 6.0, 15.0, 1, True,
+     {"tiers": [0, 1], "roles": ["return"]},
+     "흡입기만 켬, 송풍기 끔 — 당기기만으로 캐노피가 뚫리는지"),
+    ("L2", "G3 배치", "ends", 6.0, 15.0, 1, True, ALL_ON,
+     "양 끝 팬을 같은 방향으로 — 방 전체 순환형"),
+    ("L3", "G3 배치", "top", 6.0, 0.0, 1, True, ALL_ON, "각 단 상부에서 캐노피로 하방"),
+    ("T1", "G4 각도", "pushpull", 6.0, 0.0, 1, True, ALL_ON, "수평 취출 — 기울임이 필요한지 판단"),
+    ("T2", "G4 각도", "pushpull", 6.0, 30.0, 1, True, ALL_ON, "30도 하방 — 과하면 바닥으로 빠진다"),
+    ("N1", "G5 대수", "pushpull", 3.0, 15.0, 2, True, ALL_ON,
      "한쪽에 2대로 나눠 달기. 합계 풍량은 F2 와 같다 — 길이 방향 균일도 비교"),
 ]
 
@@ -167,16 +192,17 @@ def main():
 
     # ── 케이스 ────────────────────────────────────────────
     cases = []
-    for name, grp, layout, cmm, tilt, n, rack_on, why in CASE_DEFS:
+    for name, grp, layout, cmm, tilt, n, rack_on, on, why in CASE_DEFS:
         if layout == "none":
             cases.append({"case": name, "group": grp, "layout": "none", "rack": False,
-                          "fans": 0, "per_fan_CMM": 0.0, "purpose": why})
+                          "fans_on": 0, "per_fan_CMM": 0.0, "purpose": why})
             continue
-        zs, u, f = zones_for(layout, tilt, cmm, n, dia, depth, rack, tiers)
-        sup = [z for z in zs if z["role"] == "supply"]
+        zs, u, f, off = zones_for(layout, tilt, cmm, n, dia, depth, rack, tiers, on)
+        sup = [z for z in zs if z["role"] in ("supply", "booster")]
         cases.append({
             "case": name, "group": grp, "layout": layout, "rack": rack_on,
-            "tilt_deg": tilt, "n_per_side": n, "fans": len(zs),
+            "tilt_deg": tilt, "n_per_side": n,
+            "fans_on": len(zs) if cmm else 0, "fans_off": off,
             "per_fan_CMM": cmm, "outlet_m_s": u, "thrust_N": f,
             "momentum_source_N_m3": zs[0]["momentum_source_N_m3"] if zs else 0.0,
             "stream_CMM_per_tier": round(cmm * len(sup) / max(1, len(tiers)), 2),
@@ -224,8 +250,8 @@ def main():
         "cases": cases,
         "run_order": {
             "1_screening": "R0·R1·F1~F4 를 정상상태로 먼저 돌려 풍량 곡선을 잡는다",
-            "2_layout": "풍량이 정해지면 그 값으로 L1~L3 을 돌려 배치를 고른다",
-            "3_tuning": "고른 배치에서 T1·T2·N1 으로 각도와 대수를 다듬는다",
+            "2_onoff": "풍량이 정해지면 S1~S4 로 어느 팬을 켜야 하는지 고른다",
+            "3_layout": "그 다음 L2·L3 으로 배치를 비교하고, T1·T2·N1 으로 각도와 대수를 다듬는다",
             "4_transient": "최종 조합만 900초 과도해석으로 돌려 기존 규격대로 반출한다",
         },
         "openfoam_hint": {
@@ -249,10 +275,10 @@ def main():
           % (len(cases), len(planes), planes[0]["n_points"], len(blockage),
              "포함" if LED_ON else "제외"))
     for c in cases:
-        print("  %-3s %-8s %-9s 팬%2d  %5.1f CMM  %6s m/s  %7s N/m3  %s"
-              % (c["case"], c["group"], c["layout"], c.get("fans", 0), c["per_fan_CMM"],
-                 c.get("outlet_m_s", "-"), c.get("momentum_source_N_m3", "-"),
-                 c["purpose"][:32]))
+        print("  %-3s %-11s %-9s 켬%2d 끔%2d  %5.1f CMM  %6s m/s  %s"
+              % (c["case"], c["group"], c["layout"], c.get("fans_on", 0),
+                 len(c.get("fans_off", [])), c["per_fan_CMM"],
+                 c.get("outlet_m_s", "-"), c["purpose"][:34]))
     print("  -> data/fan_params.json")
 
 
