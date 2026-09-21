@@ -356,25 +356,45 @@
       "case": "base",
       "fan": "꺼짐",
       "per_fan_CMM": 0.0,
+      "per_fan_m3s": 0.0,
+      "outlet_m_s": 0.0,
+      "thrust_N": 0.0,
+      "momentum_source_N_m3": 0.0,
+      "canopy_target_m_s": 0.0,
       "purpose": "재배단만 있을 때의 캐노피 풍속 — 비교 기준"
     },
     {
       "case": "A",
       "fan": "약",
       "per_fan_CMM": 3.6,
-      "canopy_target_m_s": 0.3
+      "per_fan_m3s": 0.06,
+      "outlet_m_s": 1.91,
+      "thrust_N": 0.1341,
+      "momentum_source_N_m3": 41.9,
+      "canopy_target_m_s": 0.3,
+      "purpose": "캐노피 0.3 m/s 를 노린 조건"
     },
     {
       "case": "B",
       "fan": "표준",
       "per_fan_CMM": 6.0,
-      "canopy_target_m_s": 0.5
+      "per_fan_m3s": 0.1,
+      "outlet_m_s": 3.18,
+      "thrust_N": 0.3724,
+      "momentum_source_N_m3": 116.4,
+      "canopy_target_m_s": 0.5,
+      "purpose": "캐노피 0.5 m/s 를 노린 조건"
     },
     {
       "case": "C",
       "fan": "강",
       "per_fan_CMM": 9.6,
-      "canopy_target_m_s": 0.8
+      "per_fan_m3s": 0.16,
+      "outlet_m_s": 5.09,
+      "thrust_N": 0.9534,
+      "momentum_source_N_m3": 297.9,
+      "canopy_target_m_s": 0.8,
+      "purpose": "캐노피 0.8 m/s 를 노린 조건"
     }
   ],
   "openfoam_hint": {

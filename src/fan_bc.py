@@ -131,6 +131,24 @@ def main():
                 "n_points": nx * ny,
             })
 
+    # 케이스 — 팬 풍량만 바꾼다. 나머지 조건은 전부 동일하게 둔다.
+    cases = []
+    for name, cmm, tgt, label in (("base", 0.0, 0.0, "꺼짐"), ("A", 3.6, 0.3, "약"),
+                                  ("B", 6.0, 0.5, "표준"), ("C", 9.6, 0.8, "강")):
+        qc = cmm / 60.0
+        uc = qc / area if qc else 0.0
+        fc = RHO * qc * uc
+        cases.append({
+            "case": name, "fan": label,
+            "per_fan_CMM": cmm, "per_fan_m3s": round(qc, 5),
+            "outlet_m_s": round(uc, 2),
+            "thrust_N": round(fc, 4),
+            "momentum_source_N_m3": round(fc / (depth * dia * dia), 1) if fc else 0.0,
+            "canopy_target_m_s": tgt,
+            "purpose": "재배단만 있을 때의 캐노피 풍속 — 비교 기준" if name == "base"
+                       else "캐노피 %.1f m/s 를 노린 조건" % tgt,
+        })
+
     per_tier = lay["per_tier"]
     out = {
         "note": "언리얼 배치에서 만든 CFD 경계조건 초안. 팬은 벽면 패치가 아니라 유동 영역 "
@@ -173,13 +191,7 @@ def main():
             "caution": "팬 토출 풍속(약 3.2 m/s)과 캐노피 풍속(약 0.5 m/s)은 다른 값이다. "
                        "기준은 캐노피 쪽이다.",
         },
-        "cases_suggested": [
-            {"case": "base", "fan": "꺼짐", "per_fan_CMM": 0.0,
-             "purpose": "재배단만 있을 때의 캐노피 풍속 — 비교 기준"},
-            {"case": "A", "fan": "약", "per_fan_CMM": 3.6, "canopy_target_m_s": 0.3},
-            {"case": "B", "fan": "표준", "per_fan_CMM": 6.0, "canopy_target_m_s": 0.5},
-            {"case": "C", "fan": "강", "per_fan_CMM": 9.6, "canopy_target_m_s": 0.8},
-        ],
+        "cases_suggested": cases,
         "openfoam_hint": {
             "topoSetDict": "각 fan_zones[].cellZone_box_cfd_m 을 boxToCell 로 잡아 cellZone 생성",
             "fvOptions": "vectorSemiImplicitSource 로 zone 마다 dir_unit × thrust_N 적용 "
