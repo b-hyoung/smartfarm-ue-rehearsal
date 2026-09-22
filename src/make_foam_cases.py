@@ -413,7 +413,8 @@ def main():
     ap.add_argument("--cases", default="1-10")
     ap.add_argument("--end", type=float, default=600.0, help="물리 시간 (초)")
     ap.add_argument("--write", type=float, default=30.0)
-    ap.add_argument("--np", type=int, default=12)
+    ap.add_argument("--np", type=int, default=12,
+                    help="분할 수. hierarchical (n/2 2 1) 이라 짝수만 된다")
     ap.add_argument("--repo", default=REPO_DEFAULT, help="fan_params.json 이 있는 저장소")
     ap.add_argument("--template", default=TEMPLATE_DEFAULT, help="복사해 올 기존 OpenFOAM 케이스")
     ap.add_argument("--out", default=OUT_DEFAULT, help="케이스를 펼칠 폴더")
@@ -422,6 +423,8 @@ def main():
     ap.add_argument("--turbulence", default="standard", choices=sorted(TURBULENCE),
                     help="난류 모델. 기본은 기준선(kEpsilon). 민감도 확인용으로만 바꾼다")
     a = ap.parse_args()
+    if a.np < 2 or a.np % 2:
+        raise SystemExit("--np 는 짝수여야 한다 (분할이 (n/2 2 1)): %d" % a.np)
     for label, path in (("저장소", a.repo), ("템플릿 케이스", a.template)):
         if not os.path.isdir(path):
             raise SystemExit("%s 를 찾을 수 없다: %s" % (label, path))

@@ -28,7 +28,7 @@
 | 이 저장소 | `feat/rack-fans` 브랜치 | `git log --oneline -1` |
 | 템플릿 케이스 | **저장소 안에 있다** (`cfd/template/`). 옮길 것 없다 | |
 | 디스크 | 케이스당 약 0.5 GB → 30 개면 **15 GB** | |
-| 코어 | 많을수록 좋다. 실행기가 기본으로 80 % 를 쓴다 | `nproc` |
+| 코어 | 많을수록 좋다. 실행기가 기본으로 80 % 를 쓴다. `--np` 는 **짝수** | `nproc` |
 
 ---
 
@@ -348,8 +348,15 @@ docker image inspect opencfd/openfoam-default:2512 --format '{{.Architecture}}'
 # 맥에서
 git clone -b feat/rack-fans <저장소> && cd smartfarm-ue-rehearsal
 docker pull opencfd/openfoam-default:2512
-python3 src/make_foam_cases.py --cases 11-20 --end 600 --np 18         --template ~/smartfarm-cfd/cases/acRoom-vane25         --out ~/smartfarm-cfd/cases/fan-study
-SF_REPO=$PWD bash src/run_foam_cases.sh 11 20
+# 12 코어 M4 Pro 기준. --np 는 짝수만 된다 (분할이 (n/2 2 1) 라 9 를 주면 decomposePar 에서 죽는다)
+python3 src/make_foam_cases.py --cases 11-20 --end 600 --np 8
+SF_REPO=$PWD CPUS=8 nohup bash src/run_foam_cases.sh 11 20 > ~/smartfarm-cfd/cases/fan-study/run_11-20.log 2>&1 &
+
+# 잠자기 방지 — 배치가 끝나면 스스로 풀린다. 뚜껑을 닫으면 이것과 무관하게 잠드니 열어 둔다.
+caffeinate -i -w $(pgrep -f "run_foam_cases.sh 11 20") &
+
+# 발열이 걱정되면 코어 상한을 실시간으로 내린다 (재시작 없음). 다음 케이스도 같은 값으로 잡는다.
+bash src/cap_cpus.sh 6 "11 20" &
 ```
 
 ---

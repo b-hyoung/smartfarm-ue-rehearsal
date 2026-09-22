@@ -70,7 +70,7 @@ for d in "$ROOT"/*/; do
             > "$d/check_fan.txt" 2>&1 || st="$st+검산실패"
         sed -n '1,40p' "$d/check_fan.txt"
     fi
-    echo "$no,$rid,$(date -d @$t0 '+%F %T'),$dt,$st" >> "$CSV"
+    echo "$no,$rid,$(date -r $t0 '+%F %T' 2>/dev/null || date -d @$t0 '+%F %T'),$dt,$st" >> "$CSV"
     printf '=== [%s] %s · %d분 %d초 ===\n' "$rid" "$st" $((dt / 60)) $((dt % 60))
     [ $rc -eq 0 ] || { echo "--- 실패 꼬리 ---"; tail -25 "$d/log.allrun"; }
 done
