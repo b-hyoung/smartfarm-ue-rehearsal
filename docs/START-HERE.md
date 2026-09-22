@@ -409,6 +409,7 @@ python3 -m src.judge --runs ~/smartfarm-cfd/cases/fan-study --band 0.25 1.2
 
 | 문서 | 내용 |
 |---|---|
+| `FAN-RESULTS.md` | **1~10 번에서 나온 답과 남은 케이스에서 볼 것.** 다른 컴퓨터가 먼저 읽을 문서 |
 | `FAN-CFD-METHOD.md` | 방법 전체. 5 절 격자, 5-1 캐노피, 5-2 난류, 6 절 판정, 12 절 참고문헌 |
 | `FAN-CFD-MESH-REFERENCES.md` | 격자 문헌 19 편 + 1 차 출처 지침. 선택지 A~D 와 비용 |
 | `FAN-REFERENCES.md` | 팬 배치 문헌 |
