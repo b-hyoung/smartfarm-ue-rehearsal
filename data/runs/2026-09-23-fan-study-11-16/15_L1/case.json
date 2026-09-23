@@ -1,0 +1,16 @@
+{
+  "no": 15,
+  "case": "L1",
+  "group": "G3 배치",
+  "purpose": "양 끝 팬을 같은 방향으로 — 방 전체를 도는 순환형",
+  "per_fan_CMM": 6.0,
+  "fans_on": 4,
+  "fans_off": [],
+  "rack": true,
+  "endTime_s": 600.0,
+  "np": 8,
+  "run_id": "15_L1",
+  "canopy_porous": true,
+  "turbulence": "kEpsilon",
+  "turbulence_why": "기준선. vane25 에서 쓰던 것을 그대로 물려받았다"
+}

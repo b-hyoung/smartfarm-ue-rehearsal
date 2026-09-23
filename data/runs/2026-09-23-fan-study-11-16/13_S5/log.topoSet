@@ -1,0 +1,66 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d2-20251219 OPENFOAM=2512 version=2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : topoSet -dict system/topoSetDict.fans
+Date   : Sep 22 2026
+Time   : 05:22:58
+Host   : d1f0ef24b9fc
+PID    : 754
+I/O    : uncollated
+Case   : /data/cases/fan-study/13_S5
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create polyMesh for time = 0
+
+Reading topoSetDict.fans
+
+Time = 0
+    mesh not changed.
+Created cellSet fan_t0_s0
+    Applying source boxToCell
+    Adding cells with centre within boxes 1((-1.34 1.9 0.63) (-1.26 2.1 0.83))
+    cellSet fan_t0_s0 now size 32
+Created cellZoneSet fan_t0_s0
+    Applying source setToCellZone
+    Adding all cells from cell set: fan_t0_s0 ...
+    cellZoneSet fan_t0_s0 now size 32
+Created cellSet fan_t1_r0
+    Applying source boxToCell
+    Adding cells with centre within boxes 1((1.26 1.9 1.43) (1.34 2.1 1.63))
+    cellSet fan_t1_r0 now size 32
+Created cellZoneSet fan_t1_r0
+    Applying source setToCellZone
+    Adding all cells from cell set: fan_t1_r0 ...
+    cellZoneSet fan_t1_r0 now size 32
+Created cellSet canopy_t0
+    Applying source boxToCell
+    Adding cells with centre within boxes 1((-1.2 1.6 0.55) (1.2 2.4 0.8))
+    cellSet canopy_t0 now size 3032
+Created cellZoneSet canopy_t0
+    Applying source setToCellZone
+    Adding all cells from cell set: canopy_t0 ...
+    cellZoneSet canopy_t0 now size 3032
+Created cellSet canopy_t1
+    Applying source boxToCell
+    Adding cells with centre within boxes 1((-1.2 1.6 1.35) (1.2 2.4 1.6))
+    cellSet canopy_t1 now size 3108
+Created cellZoneSet canopy_t1
+    Applying source setToCellZone
+    Adding all cells from cell set: canopy_t1 ...
+    cellZoneSet canopy_t1 now size 3108
+
+End
+
