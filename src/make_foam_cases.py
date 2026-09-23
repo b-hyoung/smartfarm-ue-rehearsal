@@ -122,6 +122,23 @@ def topo_fans(zones, canopy=()):
     return head("dictionary", "topoSetDict") + "actions\n(\n" + "\n".join(acts) + "\n);\n"
 
 
+def topo_ac(boxes):
+    """에어컨 취출 4 면 + 리턴 면의 faceSet — 케이스별 위치. 템플릿 topoSetDict 와 같은 꼴이다.
+
+    G7(에어컨 위치) 케이스는 fan_params.json 의 cases[].ac.topoSet_boxes_cfd_m 에 옮긴 좌표가
+    들어 있다. 이것을 쓰지 않고 템플릿을 복사하면 A1~A6 이 전부 기준 위치로 돌아간다.
+    """
+    acts = []
+    for nm in ("inletXp", "inletXm", "inletYp", "inletYm", "return"):
+        b = boxes[nm]
+        mn, mx = b["min"], b["max"]
+        acts.append("    {\n        name    %s;\n        type    faceSet;\n"
+                    "        action  new;\n        source  boxToFace;\n"
+                    "        box     (%g %g %g) (%g %g %g);\n    }"
+                    % (nm, mn[0], mn[1], mn[2], mx[0], mx[1], mx[2]))
+    return head("dictionary", "topoSetDict") + "actions\n(\n" + "\n".join(acts) + "\n);\n"
+
+
 def topo_refine(box):
     """세분할 영역 — refineMesh 입력. 전 케이스 같은 좌표다."""
     mn, mx = box["min"], box["max"]
@@ -461,8 +478,14 @@ def main():
         wopen(os.path.join(d, "constant", "turbulenceProperties")).write(turbulence(a.turbulence))
         for f in ("fvSchemes", "fvSolution", "blockMeshDict", "createPatchDict"):
             shutil.copy2(os.path.join(a.template, "system", f), os.path.join(d, "system", f))
-        shutil.copy2(os.path.join(a.template, "system", "topoSetDict"),
-                     os.path.join(d, "system", "topoSetDict.ac"))
+        # 에어컨 취출·리턴 면 — 케이스에 좌표가 있으면(G7 A1~A6 은 위치가 다르다) 그것으로 쓰고,
+        # 없으면 템플릿의 기준 위치를 그대로 복사한다. 이름은 createPatchDict 와 같아야 한다.
+        ac_boxes = (c.get("ac") or {}).get("topoSet_boxes_cfd_m")
+        if ac_boxes:
+            wopen(os.path.join(d, "system", "topoSetDict.ac")).write(topo_ac(ac_boxes))
+        else:
+            shutil.copy2(os.path.join(a.template, "system", "topoSetDict"),
+                         os.path.join(d, "system", "topoSetDict.ac"))
 
         with_rack = bool(c["rack"])
         if with_rack:
