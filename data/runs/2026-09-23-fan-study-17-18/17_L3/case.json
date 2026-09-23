@@ -1,0 +1,16 @@
+{
+  "no": 17,
+  "case": "L3",
+  "group": "G3 배치",
+  "purpose": "상부 하방을 단당 4대로 나눔 — 합계 풍량은 L2 와 같다",
+  "per_fan_CMM": 3.0,
+  "fans_on": 8,
+  "fans_off": [],
+  "rack": true,
+  "endTime_s": 600.0,
+  "np": 12,
+  "run_id": "17_L3",
+  "canopy_porous": true,
+  "turbulence": "kEpsilon",
+  "turbulence_why": "기준선. vane25 에서 쓰던 것을 그대로 물려받았다"
+}
