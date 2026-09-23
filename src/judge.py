@@ -97,8 +97,20 @@ def quantile(sorted_vals, pct):
     return sorted_vals[lo] + (sorted_vals[hi] - sorted_vals[lo]) * (k - lo)
 
 
-def read_points(path, ncol):
-    """raw 표본 -> {(x,y,z): 값}. 좌표로 묶어야 시각끼리 점을 맞출 수 있다."""
+def read_points(path, ncol, crop=None):
+    """raw 표본 -> {(x,y,z): 값}. 좌표로 묶어야 시각끼리 점을 맞출 수 있다.
+
+    crop = (x0, x1, y0, y1) 이면 그 사각형 밖의 점을 버린다.
+
+    이게 왜 필요한가. controlDict 의 `surfaces` 는 평면 하나를 정의할 뿐이라
+    OpenFOAM 이 그 평면이 격자를 가르는 **전체**를 찍는다. 곧 재배 베드 위만이
+    아니라 방 전체 단면(x -4~4, y 0~5.7)이 들어온다. 실제로 5,124 점 가운데
+    베드 안은 855 점, **16.7 %** 뿐이었다. 거르지 않으면 P10 이 상추가 없는
+    방 구석을 읽는다. 05 번에서 방 전체 P10 은 0.071 인데 베드만 보면 0.330 이다.
+
+    데이터 자체는 그대로 둔다. 방 전체를 찍어두면 바람이 어디로 새는지 나중에
+    볼 수 있고 용량도 작다. 좁히는 것은 채점할 때 한다.
+    """
     out = {}
     for line in open(path, encoding="utf-8", errors="replace"):
         if line.startswith("#") or not line.strip():
@@ -107,11 +119,28 @@ def read_points(path, ncol):
         if len(f) < 3 + ncol:
             continue
         try:
-            key = (round(float(f[0]), 4), round(float(f[1]), 4), round(float(f[2]), 4))
+            x, y, z = float(f[0]), float(f[1]), float(f[2])
             vals = [float(v) for v in f[3:3 + ncol]]
         except ValueError:
             continue
-        out[key] = math.sqrt(sum(v * v for v in vals)) if ncol == 3 else vals[0]
+        if crop and not (crop[0] <= x <= crop[1] and crop[2] <= y <= crop[3]):
+            continue
+        out[(round(x, 4), round(y, 4), round(z, 4))] = (
+            math.sqrt(sum(v * v for v in vals)) if ncol == 3 else vals[0])
+    return out
+
+
+def judge_crops(params_path):
+    """fan_params.json 의 judge_planes -> {면 이름: (x0, x1, y0, y1)}."""
+    try:
+        spec = json.load(open(params_path, encoding="utf-8"))
+    except Exception:
+        return {}
+    out = {}
+    for pl in spec.get("judge_planes") or []:
+        xr, yr = pl.get("x_range_cfd_m"), pl.get("y_range_m")
+        if xr and yr:
+            out[pl["name"]] = (xr[0], xr[1], yr[0], yr[1])
     return out
 
 
@@ -129,13 +158,13 @@ def snapshot_times(run):
     return sorted(ts)
 
 
-def mean_field(dirs, fname, ncol):
+def mean_field(dirs, fname, ncol, crop=None):
     """여러 시각의 같은 면을 점마다 평균한 장. 모든 시각에 있는 점만 쓴다."""
     fields = []
     for _, d in dirs:
         p = os.path.join(d, fname)
         if os.path.exists(p):
-            f = read_points(p, ncol)
+            f = read_points(p, ncol, crop)
             if f:
                 fields.append(f)
     if not fields:
@@ -149,9 +178,9 @@ def mean_field(dirs, fname, ncol):
     return [sum(f[k] for f in fields) / n for k in sorted(keys)], n
 
 
-def plane_stats(dirs, name, band, want_cdf=False):
+def plane_stats(dirs, name, band, crop=None, want_cdf=False):
     """면 하나의 성적. 없으면 None."""
-    got = mean_field(dirs, "U_%s.raw" % name, 3)
+    got = mean_field(dirs, "U_%s.raw" % name, 3, crop)
     if got is None:
         return None
     mags, nsnap = got
@@ -177,13 +206,13 @@ def plane_stats(dirs, name, band, want_cdf=False):
 
     # 사후 검증 - 평균 구간의 뒷절반으로 다시 평균해 P10 이 얼마나 움직이나
     if len(dirs) >= 4:
-        half = mean_field(dirs[len(dirs) // 2:], "U_%s.raw" % name, 3)
+        half = mean_field(dirs[len(dirs) // 2:], "U_%s.raw" % name, 3, crop)
         if half and s["P10"] > 1e-9:
             p10h = quantile(sorted(half[0]), 10)
             s["P10_recheck"] = round(p10h, 4)
             s["P10_drift_pct"] = round((p10h - s["P10"]) / s["P10"] * 100, 1)
 
-    got_t = mean_field(dirs, "T_%s.raw" % name, 1)
+    got_t = mean_field(dirs, "T_%s.raw" % name, 1, crop)
     if got_t:
         ts = got_t[0]
         tm = sum(ts) / len(ts)
@@ -196,7 +225,7 @@ def plane_stats(dirs, name, band, want_cdf=False):
     return s
 
 
-def judge_run(run, band, avg_from, last_only, want_cdf=False):
+def judge_run(run, band, avg_from, last_only, crops=None, want_cdf=False):
     ts = snapshot_times(run)
     if not ts:
         return None
@@ -206,7 +235,7 @@ def judge_run(run, band, avg_from, last_only, want_cdf=False):
                     for f in glob.glob(os.path.join(dirs[-1][1], "U_*.raw"))})
     planes = {}
     for nm in names:
-        st = plane_stats(dirs, nm, band, want_cdf)
+        st = plane_stats(dirs, nm, band, (crops or {}).get(nm), want_cdf)
         if st:
             planes[nm] = st
     if not planes:
@@ -241,13 +270,18 @@ def main():
                     help="이 시각(s)부터 시간평균한다. 기본 %d" % AVG_FROM)
     ap.add_argument("--last-only", action="store_true",
                     help="옛 방식 - 마지막 한 장만 읽는다. 대조용")
+    ap.add_argument("--params", default=os.path.join(REPO, "data", "fan_params.json"),
+                    help="judge_planes 범위를 읽을 파일")
+    ap.add_argument("--no-crop", action="store_true",
+                    help="베드 범위로 자르지 않고 방 전체 단면을 채점한다. 대조용")
     ap.add_argument("--cdf", action="store_true", help="CDF 까지 JSON 에 남긴다")
     ap.add_argument("--out", default=None, help="JSON 저장 경로")
     a = ap.parse_args()
     band = (a.band[0], a.band[1])
 
     runs = sorted(d for d in glob.glob(os.path.join(a.runs, "*")) if os.path.isdir(d))
-    rows = [r for r in (judge_run(d, band, a.average_from, a.last_only, a.cdf)
+    crops = {} if a.no_crop else judge_crops(a.params)
+    rows = [r for r in (judge_run(d, band, a.average_from, a.last_only, crops, a.cdf)
                         for d in runs) if r]
     if not rows:
         print("판정면 표본을 찾지 못했다. 아직 돌리지 않았거나 canopy 함수오브젝트가 "
@@ -260,6 +294,7 @@ def main():
 
     head = ("마지막 한 장 (옛 방식)" if a.last_only
             else "시간평균 %.0f 초부터" % a.average_from)
+    head += " · " + ("방 전체 단면" if a.no_crop else "재배 베드 위만")
     print("적정 구간 %.2f ~ %.2f m/s · 케이스 %d 개 · %s · 1 순위 P10"
           % (band[0], band[1], len(rows), head))
     print()
