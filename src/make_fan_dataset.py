@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """팬 스터디를 학습용 데이터셋(CSV)으로 묶는다 — PINO / PINN 입력용.
 
+master 브랜치의 src/ml/make_dataset.py 와 다른 파일이다. 그쪽은 수식 모델(vane_mock)로
+뽑은 리허설용 mock 교재(data/dataset/mock_v1.npz, 조건 -> 온도장 .npz)이고,
+이 파일은 실제 CFD 케이스를 CSV 로 편 것이다. 규격이 달라 덮지 않고 나란히 둔다.
+
 지금까지 케이스 정보는 세 군데에 흩어져 있었다.
 
     data/fan_params.json   케이스 조건 (중첩 JSON)
@@ -22,8 +26,8 @@ docs/FAN-RESULTS.md 는 "누가 언제 무엇을 돌렸나" 작업일지라 학�
    docs/DATASET.md 와 docs/FAN-CFD-ERRATA.md 에 내용이 있다. 학습에 쓰기 전에 반드시 읽어라.
 
 실행
-    py -m src.make_dataset                 메타·점수만 (빠름)
-    py -m src.make_dataset --fields        장(場) CSV 까지
+    py -m src.make_fan_dataset                 메타·점수만 (빠름)
+    py -m src.make_fan_dataset --fields        장(場) CSV 까지
 """
 from __future__ import annotations
 

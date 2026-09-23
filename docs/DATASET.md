@@ -1,6 +1,6 @@
 # 학습용 데이터셋 — PINO / PINN 입력
 
-팬 스터디 CFD 결과를 납작한 CSV 로 편 것이다. `py -m src.make_dataset` 가 만든다.
+팬 스터디 CFD 결과를 납작한 CSV 로 편 것이다. `py -m src.make_fan_dataset` 가 만든다.
 
 > **⚠ 먼저 읽어라 — 이 데이터에는 알려진 오류 셋이 들어 있다.**
 > `cases.csv` 의 `err_*` 열에 표시돼 있고, 내용은 아래 **4 절**과
@@ -19,9 +19,9 @@
 `out/` 은 `.gitignore` 에 있다. 장(場) 은 다시 만들면 되므로 커밋하지 않는다.
 
 ```bash
-py -m src.make_dataset                    # 메타·점수 + 케이스별 CSV (베드 × 채점 구간)
-py -m src.make_dataset --fields           # 방 전체 단면·전 시각까지 (케이스당 35 MB)
-py -m src.make_dataset --fields --window-only   # 채점 구간 300~450 s 만 (1/3 크기)
+py -m src.make_fan_dataset                    # 메타·점수 + 케이스별 CSV (베드 × 채점 구간)
+py -m src.make_fan_dataset --fields           # 방 전체 단면·전 시각까지 (케이스당 35 MB)
+py -m src.make_fan_dataset --fields --window-only   # 채점 구간 300~450 s 만 (1/3 크기)
 ```
 
 `docs/FAN-RESULTS.md` 는 **"누가 언제 무엇을 돌렸나" 작업일지**다. 케이스별 표가 아니라

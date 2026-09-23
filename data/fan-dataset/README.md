@@ -226,13 +226,13 @@
 | `scores.csv` | **케이스 × 판정면** — P10 · P50 · P90 · 평균 · 편차 |
 | `fields/<run_id>.csv` | **판정면 × 시각 × 점** — 재배 베드 안, 300~450 초. 케이스당 약 2 만 행 |
 
-방 전체 단면과 전 시각이 필요하면 `py -m src.make_dataset --fields` →
+방 전체 단면과 전 시각이 필요하면 `py -m src.make_fan_dataset --fields` →
 `out/dataset/fields/` (케이스당 약 35 만 행 / 35 MB, 커밋하지 않는다).
 
 열 설명과 읽는 예는 **`docs/DATASET.md`**.
 
 ```bash
-py -m src.make_dataset            # 이 폴더를 다시 만든다
+py -m src.make_fan_dataset            # 이 폴더를 다시 만든다
 ```
 
 ## 판정면 넉 장
