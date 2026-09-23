@@ -309,6 +309,9 @@ def write_fields(rid, window_only=False, bed_only=False, outdir=None):
                                 "%.5g" % math.sqrt(ux * ux + uy * uy + uz * uz),
                                 T.get((x, y, z), ""), in_bed, int(int(tv) in WINDOW)])
                     rows += 1
+    if not rows:
+        # 헤더만 남은 껍데기를 두지 않는다. 20_T3 처럼 채점 구간에 저장본이 없는 케이스다.
+        os.remove(path)
     return rows
 
 
