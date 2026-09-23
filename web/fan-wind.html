@@ -233,7 +233,10 @@ const SCENE = {"07_F5":{"label":"캐노피 0.8 m/s — 상추 생육 최적 보�
 (function () {
   'use strict';
   var KEYS = Object.keys(SCENE).sort();
-  var cur = SCENE['05_F3'] ? '05_F3' : KEYS[0];
+  // 시작 케이스: 05_F3 에 시각별 원본이 있으면 그것, 없으면 재생되는 첫 케이스.
+  function hasFrames(k) { var f = SCENE[k].tiers.t0.frames; return !!(f && Object.keys(f).length); }
+  var cur = (SCENE['05_F3'] && hasFrames('05_F3')) ? '05_F3'
+          : (KEYS.filter(hasFrames)[0] || (SCENE['05_F3'] ? '05_F3' : KEYS[0]));
   var VMAX = 1.6, LO = 0.3, HI = 1.0;
   var BEDZ = [0.55, 1.35], CANOPY = 0.25, MID = 0.125;
   // 본 점수는 베드 전체다 - src/judge.py 와 같은 범위라야 docs/FAN-RESULTS.md 와 어긋나지 않는다.
