@@ -1,0 +1,16 @@
+{
+  "no": 16,
+  "case": "L2",
+  "group": "G3 배치",
+  "purpose": "각 단 상부에서 캐노피로 하방, 단당 2대",
+  "per_fan_CMM": 6.0,
+  "fans_on": 4,
+  "fans_off": [],
+  "rack": true,
+  "endTime_s": 600.0,
+  "np": 8,
+  "run_id": "16_L2",
+  "canopy_porous": true,
+  "turbulence": "kEpsilon",
+  "turbulence_why": "기준선. vane25 에서 쓰던 것을 그대로 물려받았다"
+}
