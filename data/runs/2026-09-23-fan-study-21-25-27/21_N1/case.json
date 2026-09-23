@@ -1,0 +1,16 @@
+{
+  "no": 21,
+  "case": "N1",
+  "group": "G5 대수",
+  "purpose": "한쪽에 2대씩 총 8대. 합계 풍량은 F3 과 같다 — 길이 방향 균일도 비교",
+  "per_fan_CMM": 3.0,
+  "fans_on": 8,
+  "fans_off": [],
+  "rack": true,
+  "endTime_s": 600.0,
+  "np": 18,
+  "run_id": "21_N1",
+  "canopy_porous": true,
+  "turbulence": "kEpsilon",
+  "turbulence_why": "기준선. vane25 에서 쓰던 것을 그대로 물려받았다"
+}

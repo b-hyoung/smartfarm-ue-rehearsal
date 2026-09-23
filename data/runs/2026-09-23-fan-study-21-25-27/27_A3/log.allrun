@@ -1,0 +1,12 @@
+--- blockMesh ---
+--- topoSet -dict system/topoSetDict.ac ---
+--- createPatch -overwrite ---
+--- topoSet -dict system/topoSetDict.rack ---
+--- subsetMesh keep -patch rackWalls -overwrite ---
+--- topoSet -dict system/topoSetDict.refine ---
+--- refineMesh -dict system/refineMeshDict -overwrite ---
+--- checkMesh -constant ---
+--- topoSet -dict system/topoSetDict.fans ---
+--- decomposePar -force ---
+--- reconstructPar -latestTime ---
+DONE

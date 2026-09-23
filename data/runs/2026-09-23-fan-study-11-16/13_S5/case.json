@@ -1,0 +1,19 @@
+{
+  "no": 13,
+  "case": "S5",
+  "group": "G2 켜고 끄기",
+  "purpose": "아래 단 송풍 + 위 단 흡입만 — 두 단을 하나의 흐름으로 묶을 수 있는지",
+  "per_fan_CMM": 6.0,
+  "fans_on": 2,
+  "fans_off": [
+    "FAN_T0_R0",
+    "FAN_T1_S0"
+  ],
+  "rack": true,
+  "endTime_s": 600.0,
+  "np": 8,
+  "run_id": "13_S5",
+  "canopy_porous": true,
+  "turbulence": "kEpsilon",
+  "turbulence_why": "기준선. vane25 에서 쓰던 것을 그대로 물려받았다"
+}

@@ -1,0 +1,19 @@
+{
+  "no": 12,
+  "case": "S4",
+  "group": "G2 켜고 끄기",
+  "purpose": "흡입기만 켬, 송풍기 끔 — 당기기만으로 캐노피가 뚫리는지",
+  "per_fan_CMM": 6.0,
+  "fans_on": 2,
+  "fans_off": [
+    "FAN_T0_S0",
+    "FAN_T1_S0"
+  ],
+  "rack": true,
+  "endTime_s": 600.0,
+  "np": 8,
+  "run_id": "12_S4",
+  "canopy_porous": true,
+  "turbulence": "kEpsilon",
+  "turbulence_why": "기준선. vane25 에서 쓰던 것을 그대로 물려받았다"
+}

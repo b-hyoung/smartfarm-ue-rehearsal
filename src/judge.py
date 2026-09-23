@@ -83,6 +83,10 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BAND = (0.3, 1.0)          # 적정 구간 - Kitaya 2003 하한, Zhang & Kacira 2016 상한
 STAGNANT = 0.1             # 정체로 보는 선
 AVG_FROM = 300.0           # 이 시각부터 평균한다 (Janke 외 2020 환산 284 초)
+AVG_TO = 450.0             # 이 시각까지. 케이스마다 endTime 이 달라도 구간을 맞춘다.
+#   600 초 케이스와 450 초 케이스를 섞어 놓고 각자 끝까지 평균하면 구간이 달라져
+#   비교가 어긋난다. 17 번 완주 데이터로 재 보니 300~450 은 300~600 대비 P10 이
+#   -0.7 % 라 순위를 뒤집을 폭이 아니다.
 
 
 def quantile(sorted_vals, pct):
@@ -225,11 +229,12 @@ def plane_stats(dirs, name, band, crop=None, want_cdf=False):
     return s
 
 
-def judge_run(run, band, avg_from, last_only, crops=None, want_cdf=False):
+def judge_run(run, band, avg_from, avg_to, last_only, crops=None, want_cdf=False):
     ts = snapshot_times(run)
     if not ts:
         return None
-    dirs = ts[-1:] if last_only else ([x for x in ts if x[0] >= avg_from] or ts[-1:])
+    dirs = ts[-1:] if last_only else (
+        [x for x in ts if avg_from <= x[0] <= avg_to] or ts[-1:])
 
     names = sorted({os.path.basename(f)[2:-4]
                     for f in glob.glob(os.path.join(dirs[-1][1], "U_*.raw"))})
@@ -268,6 +273,9 @@ def main():
                     metavar=("LO", "HI"), help="적정 구간 (m/s). 작물이 바뀌면 여기만 바꾼다")
     ap.add_argument("--average-from", type=float, default=AVG_FROM,
                     help="이 시각(s)부터 시간평균한다. 기본 %d" % AVG_FROM)
+    ap.add_argument("--average-to", type=float, default=AVG_TO,
+                    help="이 시각(s)까지 평균한다. 기본 %d. 케이스마다 endTime 이 달라도 "
+                         "구간을 맞추려는 것이다" % AVG_TO)
     ap.add_argument("--last-only", action="store_true",
                     help="옛 방식 - 마지막 한 장만 읽는다. 대조용")
     ap.add_argument("--params", default=os.path.join(REPO, "data", "fan_params.json"),
@@ -281,7 +289,7 @@ def main():
 
     runs = sorted(d for d in glob.glob(os.path.join(a.runs, "*")) if os.path.isdir(d))
     crops = {} if a.no_crop else judge_crops(a.params)
-    rows = [r for r in (judge_run(d, band, a.average_from, a.last_only, crops, a.cdf)
+    rows = [r for r in (judge_run(d, band, a.average_from, a.average_to, a.last_only, crops, a.cdf)
                         for d in runs) if r]
     if not rows:
         print("판정면 표본을 찾지 못했다. 아직 돌리지 않았거나 canopy 함수오브젝트가 "
@@ -293,7 +301,7 @@ def main():
     rows.sort(key=lambda r: (-r["P10_worst"], r["tier_gap"]))
 
     head = ("마지막 한 장 (옛 방식)" if a.last_only
-            else "시간평균 %.0f 초부터" % a.average_from)
+            else "시간평균 %.0f~%.0f 초" % (a.average_from, a.average_to))
     head += " · " + ("방 전체 단면" if a.no_crop else "재배 베드 위만")
     print("적정 구간 %.2f ~ %.2f m/s · 케이스 %d 개 · %s · 1 순위 P10"
           % (band[0], band[1], len(rows), head))
@@ -328,6 +336,7 @@ def main():
     json.dump({"band_m_s": list(band), "stagnant_m_s": STAGNANT,
                "mode": "last" if a.last_only else "time-average",
                "average_from_s": None if a.last_only else a.average_from,
+               "average_to_s": None if a.last_only else a.average_to,
                "cases": rows},
               open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     print("\n  -> %s" % out)
