@@ -1,0 +1,6 @@
+# 컨테이너 안(리눅스)에서 돌아가는 파일은 항상 LF 로 체크아웃한다.
+# 윈도우에서 CRLF 로 받으면 shebang 이 깨져 "cannot execute: required file
+# not found" 가 난다. 한 번 밟았다 — docs/START-HERE.md 5-1 절 함정 ①.
+*.sh            text eol=lf
+Allrun          text eol=lf
+cfd/template/** text eol=lf

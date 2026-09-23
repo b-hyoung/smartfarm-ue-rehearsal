@@ -1,0 +1,16 @@
+{
+  "no": 18,
+  "case": "T1",
+  "group": "G4 각도",
+  "purpose": "수평 취출 — 기울임이 필요한지 판단",
+  "per_fan_CMM": 6.0,
+  "fans_on": 4,
+  "fans_off": [],
+  "rack": true,
+  "endTime_s": 600.0,
+  "np": 12,
+  "run_id": "18_T1",
+  "canopy_porous": true,
+  "turbulence": "kEpsilon",
+  "turbulence_why": "기준선. vane25 에서 쓰던 것을 그대로 물려받았다"
+}

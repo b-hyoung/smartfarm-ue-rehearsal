@@ -1,0 +1,80 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// comfortHotRoom(SIMPLE, 정상상태) → buoyantPimpleFoam(PIMPLE, 비정상) 전환.
+//   - "*Final" 솔버 항목 추가 (PIMPLE 마지막 보정에 필요)
+//   - "rho.*" 항목 추가 (buoyantPimpleFoam 이 요구)
+//   - SIMPLE 블록 → PIMPLE 블록
+//   - relaxationFactors 제거 (비정상에서는 불필요, 시간간격이 안정성을 담당)
+//   - age 솔버는 FOage 함수오브젝트용으로 유지
+
+solvers
+{
+    "rho.*"
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       0;
+        relTol          0;
+    }
+
+    p_rgh
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-8;
+        relTol          0.01;
+    }
+
+    p_rghFinal
+    {
+        $p_rgh;
+        relTol          0;
+    }
+
+    "(U|h|e|k|epsilon|R)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-7;
+        relTol          0.1;
+    }
+
+    "(U|h|e|k|epsilon|R)Final"
+    {
+        $U;
+        relTol          0;
+    }
+
+    age
+    {
+        $U;
+        relTol          0.001;
+    }
+}
+
+PIMPLE
+{
+    momentumPredictor yes;
+    nOuterCorrectors 3;   // PISO(1) -> PIMPLE. 부력·압력 결합 안정화
+    nCorrectors     2;
+    nNonOrthogonalCorrectors 2;   // 격자 비직교성 max 80.9 (반타원 블록 접합부) 대응
+    pRefCell        0;
+    pRefValue       1e5;
+}
+
+
+// ************************************************************************* //
