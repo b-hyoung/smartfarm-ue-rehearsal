@@ -283,6 +283,16 @@ of oscillatory behavior" 라고 보고했다. 농업 시설에서는 Janke 외(2
 자세한 근거는 `docs/FAN-CFD-TRANSIENT-REFERENCES.md` 에 있다(과도해석 논문 28 편,
 1 차 지침 8 종).
 
+### 판정면은 베드 범위로 잘라 읽는다
+
+`surfaces` 함수오브젝트는 **평면 하나를 정의할 뿐 범위를 자르지 않는다.** OpenFOAM 은
+그 평면이 격자를 가르는 전체를 찍으므로 방 전체 단면(x −4~4, y 0~5.7)이 나온다.
+실제로 5,124 점 가운데 재배 베드 위는 **855 점, 16.7 %** 뿐이다.
+
+거르지 않으면 P10 이 상추가 없는 방 구석을 읽는다. 05 F3 에서 방 전체 P10 은 0.071,
+베드만 보면 0.215 다. `src/judge.py` 가 `fan_params.json` 의 `judge_planes` 범위로
+자른 뒤 채점한다. 자세한 것은 `FAN-CFD-ERRATA.md` E-002.
+
 ### 실행
 
 OpenFOAM 의 `sample`(surfaces, plane)이 판정면마다
