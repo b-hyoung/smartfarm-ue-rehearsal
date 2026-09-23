@@ -1,0 +1,16 @@
+{
+  "no": 8,
+  "case": "F6",
+  "group": "G1 풍량",
+  "purpose": "캐노피 1.0 m/s — 상한, 과하면 여기서 드러난다",
+  "per_fan_CMM": 12.0,
+  "fans_on": 4,
+  "fans_off": [],
+  "rack": true,
+  "endTime_s": 600.0,
+  "np": 18,
+  "run_id": "08_F6",
+  "canopy_porous": true,
+  "turbulence": "kEpsilon",
+  "turbulence_why": "기준선. vane25 에서 쓰던 것을 그대로 물려받았다"
+}

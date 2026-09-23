@@ -1,0 +1,16 @@
+{
+  "no": 7,
+  "case": "F5",
+  "group": "G1 풍량",
+  "purpose": "캐노피 0.8 m/s — 상추 생육 최적 보고값",
+  "per_fan_CMM": 9.6,
+  "fans_on": 4,
+  "fans_off": [],
+  "rack": true,
+  "endTime_s": 600.0,
+  "np": 18,
+  "run_id": "07_F5",
+  "canopy_porous": true,
+  "turbulence": "kEpsilon",
+  "turbulence_why": "기준선. vane25 에서 쓰던 것을 그대로 물려받았다"
+}
