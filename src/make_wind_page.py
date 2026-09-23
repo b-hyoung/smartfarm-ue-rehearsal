@@ -2,10 +2,13 @@
 """판정면 raw -> 미리보기 웹의 데이터(scene.js). 300~450 초 시간평균, 49x17 격자.
 
 web/fan-wind.html 은 이 scene.js 와 web/_wind/app.js 를 한 파일로 합쳐 둔 것이다.
+시각별 재생용으로 있는 스냅샷 전부를 tiers[*].frames 에 넣는다 (30 초 간격).
 케이스가 늘면
 
     py -m src.make_wind_page            # scene.js 다시 만들기
     py -m src.make_wind_page --build    # web/fan-wind.html 까지 다시 합치기
+원본 폴더는 SF_WIND_ROOT (기본 ~/smartfarm-cfd/cases/fan-study). 맥처럼 원본이 없는
+컴퓨터에서는 sh src/unpack_runs.sh 로 data/runs 의 tar.gz 를 풀어 그 폴더를 준다.
 
 본 점수는 베드 전체를 쓴다 — src/judge.py 와 같은 범위라야 docs/FAN-RESULTS.md 와
 어긋나지 않는다. 테두리를 뺀 안쪽 값은 tiers[*].inner 에 보조로만 넣는다.
@@ -13,8 +16,10 @@ web/fan-wind.html 은 이 scene.js 와 web/_wind/app.js 를 한 파일로 합쳐
 import io, json, math, os, sys
 sys.stdout.reconfigure(encoding="utf-8")
 
-ROOT = r"C:\Users\ACE\smartfarm-cfd\cases\fan-study"
-REPO = r"C:\Users\ACE\Desktop\smartfarm-ue-rehearsal"
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 원본 판정면 폴더. 맥에서는 data/runs/*/<case>/postProcessing.tar.gz 를 한 폴더에 풀어
+# SF_WIND_ROOT 로 준다 (src/unpack_runs.sh).
+ROOT = os.environ.get("SF_WIND_ROOT", os.path.expanduser("~/smartfarm-cfd/cases/fan-study"))
 WEB  = os.path.join(REPO, "web")
 OUT  = os.path.join(WEB, "_wind", "scene.js")
 NX, NY = 49, 17
@@ -23,32 +28,64 @@ MARGIN = 0.10          # 보조 지표: 프레임 자리인 베드 테두리를 
 TIMES = range(300, 451, 30)
 
 
+def snapshot(path, rnd=True):
+    """raw 한 장 -> 49x17 격자 (|U|). 칸에 점이 없으면 None. 평균용은 rnd=False."""
+    acc, cnt = [[0.0] * NX for _ in range(NY)], [[0] * NX for _ in range(NY)]
+    for line in open(path, encoding="utf-8", errors="replace"):
+        if not line.strip() or line[0] == "#":
+            continue
+        p = line.split()
+        if len(p) < 6:
+            continue
+        x, y = float(p[0]), float(p[1])
+        i = int(round((x - X0) / (X1 - X0) * (NX - 1)))
+        j = int(round((y - Y0) / (Y1 - Y0) * (NY - 1)))
+        if not (0 <= i < NX and 0 <= j < NY):
+            continue
+        acc[j][i] += math.sqrt(float(p[3]) ** 2 + float(p[4]) ** 2 + float(p[5]) ** 2)
+        cnt[j][i] += 1
+    return [[(round(acc[j][i] / cnt[j][i], 3) if rnd else acc[j][i] / cnt[j][i])
+             if cnt[j][i] else None for i in range(NX)] for j in range(NY)]
+
+
+def raw_path(case, plane, t):
+    return "%s/%s/postProcessing/canopy/%d/U_%s.raw" % (ROOT, case, t, plane)
+
+
 def grid(case, plane):
-    """스냅샷마다 격자로 묶고, 격자칸별 시간평균을 낸다."""
+    """300~450 초 스냅샷을 격자칸별로 시간평균한다 (본 점수용)."""
     acc, cnt = [[0.0] * NX for _ in range(NY)], [[0] * NX for _ in range(NY)]
     snaps = 0
     for t in TIMES:
-        f = "%s/%s/postProcessing/canopy/%d/U_%s.raw" % (ROOT, case, t, plane)
+        f = raw_path(case, plane, t)
         if not os.path.exists(f):
             continue
         snaps += 1
-        for line in open(f, encoding="utf-8", errors="replace"):
-            if not line.strip() or line[0] == "#":
-                continue
-            p = line.split()
-            if len(p) < 6:
-                continue
-            x, y = float(p[0]), float(p[1])
-            i = int(round((x - X0) / (X1 - X0) * (NX - 1)))
-            j = int(round((y - Y0) / (Y1 - Y0) * (NY - 1)))
-            if not (0 <= i < NX and 0 <= j < NY):
-                continue
-            acc[j][i] += math.sqrt(float(p[3]) ** 2 + float(p[4]) ** 2 + float(p[5]) ** 2)
-            cnt[j][i] += 1
+        g = snapshot(f, rnd=False)
+        for j in range(NY):
+            for i in range(NX):
+                if g[j][i] is not None:
+                    acc[j][i] += g[j][i]
+                    cnt[j][i] += 1
     if not snaps:
         return None, 0
     return [[round(acc[j][i] / cnt[j][i], 3) if cnt[j][i] else None
              for i in range(NX)] for j in range(NY)], snaps
+
+
+def frames(case, plane):
+    """있는 시각 전부 -> {"30": 격자, "60": 격자, ...}. 재생용."""
+    d = "%s/%s/postProcessing/canopy" % (ROOT, case)
+    if not os.path.isdir(d):
+        return {}
+    out = {}
+    for name in sorted(os.listdir(d), key=lambda n: float(n) if n.replace(".", "").isdigit() else 1e9):
+        if not name.replace(".", "").isdigit():
+            continue
+        f = "%s/%s/U_%s.raw" % (d, name, plane)
+        if os.path.exists(f):
+            out[str(int(float(name)))] = snapshot(f)
+    return out
 
 
 def score(g, margin=0.0):
@@ -79,6 +116,14 @@ P = json.load(open(os.path.join(REPO, "data", "fan_params.json"), encoding="utf-
 meta = {c["run_id"]: c for c in P["cases"]}
 BED_W, BED_D = 2.40, 0.80
 
+def load_existing():
+    """기존 scene.js. 이 컴퓨터에 원본이 없는 케이스는 여기 것을 그대로 둔다."""
+    if not os.path.exists(OUT):
+        return {}
+    txt = io.open(OUT, encoding="utf-8").read().strip()
+    return json.loads(txt[txt.index("{"):txt.rindex("}") + 1])
+
+
 out = {}
 for case in sorted(d for d in os.listdir(ROOT) if d[0].isdigit()):
     m = meta.get(case, {})
@@ -91,7 +136,7 @@ for case in sorted(d for d in os.listdir(ROOT) if d[0].isdigit()):
         full, inner = score(g) or {}, score(g, MARGIN) or {}
         tiers[tk] = dict(full, nx=NX, ny=NY, x=[X0, X1], y=[Y0, Y1], g=g,
                          inner={k: inner[k] for k in ("p10", "p50", "p90", "band", "cv")},
-                         margin=MARGIN)
+                         margin=MARGIN, frames=frames(case, tag + "_canopy_mid"))
     if len(tiers) < 2:
         print("건너뜀", case)
         continue
@@ -120,8 +165,19 @@ for case in sorted(d for d in os.listdir(ROOT) if d[0].isdigit()):
         "ac": (m.get("ac") or {}).get("centre_cfd_m", [0.0, 2.0])[:2],
         "tiers": tiers,
     }
-    print("%-8s 장 %d  P10 %.3f  P90 %.3f  고르기 %d%%"
-          % (case, snaps, tiers["t0"]["p10"], tiers["t0"]["p90"], tiers["t0"]["cv"]))
+    print("%-8s 장 %d  재생 %2d  P10 %.3f  P90 %.3f  고르기 %d%%"
+          % (case, snaps, len(tiers["t0"]["frames"]), tiers["t0"]["p10"],
+             tiers["t0"]["p90"], tiers["t0"]["cv"]))
+
+kept = 0
+for k, v in load_existing().items():
+    if k not in out:
+        for t in v.get("tiers", {}).values():
+            t.setdefault("frames", {})
+        out[k] = v
+        kept += 1
+if kept:
+    print("원본 없는 케이스 %d 개는 기존 scene.js 값을 유지" % kept)
 
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, "w", encoding="utf-8", newline="\n") as f:

@@ -116,10 +116,12 @@
     });
   }
 
+  var fieldPlanes = [];                       // [아래 단, 위 단] 바닥 텍스처 면
   function build(id) {
     if (!HAS3D) return;
     var d = SCENE[id];
     clear(gField); clear(gCanopy); clear(gFan);
+    fieldPlanes = [];
     buildAC(d);
     ['t0', 't1'].forEach(function (tk, ti) {
       var t = d.tiers[tk], z = BEDZ[ti];
@@ -130,6 +132,7 @@
       pl.rotation.x = -Math.PI / 2;
       pl.position.copy(P(0, 2.0, z + MID));
       gField.add(pl);
+      fieldPlanes.push(pl);
 
       var box = new THREE.Mesh(new THREE.BoxGeometry(2.4, CANOPY, 0.8),
         new THREE.MeshLambertMaterial({ color: 0x4f7f57, transparent: true, opacity: 0.16 }));
@@ -325,6 +328,83 @@
     });
   }
 
+  // ── 시각별 재생 ────────────────────────────────────────────────────────
+  // 슬라이더 눈금 = 그 케이스에 있는 시각(30 초 간격) + 마지막 "평균".
+  // 점수 상자·표는 공식 채점값(평균) 그대로 두고, 그림 넷과 이 시각 P10 만 바꾼다.
+  var tlRange = document.getElementById('tlRange'), tlPlay = document.getElementById('tlPlay'),
+      tlLabel = document.getElementById('tlLabel');
+  var tlTimes = [], tlTimer = null;
+
+  function frameOf(t, key) {                 // key 가 null 이면 평균 장
+    return key === null ? t : { nx: t.nx, ny: t.ny, g: t.frames[key] };
+  }
+  function p10Of(g) {
+    var v = [];
+    g.forEach(function (row) { row.forEach(function (x) { if (x != null) v.push(x); }); });
+    if (!v.length) return null;
+    v.sort(function (a, b) { return a - b; });
+    return v[Math.floor((v.length - 1) * 0.1)];
+  }
+  function paintFrames(k, key) {
+    var d = SCENE[k], f0 = frameOf(d.tiers.t0, key), f1 = frameOf(d.tiers.t1, key);
+    if (HAS3D && fieldPlanes.length === 2) {
+      [f0, f1].forEach(function (f, i) {
+        var tex = new THREE.CanvasTexture(imageOf(f));
+        tex.magFilter = THREE.LinearFilter; tex.minFilter = THREE.LinearFilter;
+        fieldPlanes[i].material.map.dispose();
+        fieldPlanes[i].material.map = tex;
+        fieldPlanes[i].material.needsUpdate = true;
+      });
+      render();
+    }
+    drawMap(document.getElementById('m0'), f0);
+    drawMap(document.getElementById('m1'), f1);
+    var p0 = profiles(f0), p1 = profiles(f1);
+    drawProfile(document.getElementById('px'),
+      [{ v: p0.x, c: '#2C6E8F', n: '아래 단' }, { v: p1.x, c: '#A8501F', n: '위 단', d: '5 3' }],
+      '← 베드 길이 2.4 m →');
+    drawProfile(document.getElementById('py'),
+      [{ v: p0.y, c: '#2C6E8F', n: '아래 단' }, { v: p1.y, c: '#A8501F', n: '위 단', d: '5 3' }],
+      '← 베드 깊이 0.8 m →');
+    if (key === null) {
+      tlLabel.textContent = '평균 300 ~ 450 s';
+    } else {
+      var p = p10Of(f0.g);
+      tlLabel.textContent = 't = ' + key + ' s · 이 시각 P10 아래 ' + (p === null ? '-' : p.toFixed(2));
+    }
+  }
+  function tlKey() {                          // 슬라이더 위치 -> 시각 문자열 또는 null(평균)
+    var i = +tlRange.value;
+    return i < tlTimes.length ? tlTimes[i] : null;
+  }
+  function tlStop() {
+    if (tlTimer) { clearInterval(tlTimer); tlTimer = null; }
+    tlPlay.textContent = '▶';
+  }
+  function tlSetup(k) {
+    tlStop();
+    var fr = SCENE[k].tiers.t0.frames || {};
+    tlTimes = Object.keys(fr).sort(function (a, b) { return a - b; });
+    tlRange.max = tlTimes.length;             // 마지막 눈금 = 평균
+    tlRange.value = tlTimes.length;
+    var has = tlTimes.length > 0;
+    tlRange.disabled = !has; tlPlay.disabled = !has;
+    tlLabel.textContent = has ? '평균 300 ~ 450 s' : '시간별 원본 없음 — 평균 한 장만';
+  }
+  tlRange.addEventListener('input', function () { tlStop(); paintFrames(cur, tlKey()); });
+  tlPlay.addEventListener('click', function () {
+    if (tlTimer) { tlStop(); return; }
+    if (+tlRange.value >= tlTimes.length) tlRange.value = 0;
+    paintFrames(cur, tlKey());
+    tlPlay.textContent = '❚❚';
+    tlTimer = setInterval(function () {
+      var i = +tlRange.value + 1;
+      if (i >= tlTimes.length) i = 0;         // 평균 눈금은 건너뛰고 처음으로
+      tlRange.value = i;
+      paintFrames(cur, tlKey());
+    }, 500);
+  });
+
   function select(k) {
     if (!SCENE[k]) return;
     cur = k;
@@ -337,6 +417,7 @@
     var d = SCENE[k], t0 = d.tiers.t0, t1 = d.tiers.t1;
 
     build(k); render();
+    tlSetup(k);
 
     document.getElementById('caption').textContent =
       k.replace('_', ' ') + ' — ' + cond(d) + ' · ' + d.label;

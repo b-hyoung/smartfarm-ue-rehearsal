@@ -53,6 +53,13 @@
     border-radius:999px; padding:6px 14px; }
   .bar button[aria-pressed="true"] { background:var(--flow); color:#fff; border-color:var(--flow); }
   .bar button:focus-visible { outline:2px solid var(--flow); outline-offset:2px; }
+  .timeline { display:flex; align-items:center; gap:12px; margin-top:12px; font-size:14px; }
+  .timeline button { width:38px; height:32px; border:1px solid var(--line); border-radius:6px;
+    background:var(--surface); color:var(--ink); cursor:pointer; font-size:14px; }
+  .timeline button:disabled { opacity:.4; cursor:default; }
+  .timeline input[type=range] { flex:1 1 200px; min-width:140px; accent-color:var(--flow); }
+  .timeline .t { font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--ink-soft);
+    white-space:nowrap; }
   .toggles { display:flex; flex-wrap:wrap; gap:14px; margin-top:12px; font-size:14px; }
   .toggles label { display:flex; align-items:center; gap:7px; cursor:pointer; }
 
@@ -123,6 +130,11 @@
       <div class="hud">
         <span>드래그 = 회전</span><span>휠 = 확대</span><span>오른쪽 드래그 = 이동</span>
       </div>
+    </div>
+    <div class="timeline">
+      <button id="tlPlay" type="button" aria-label="재생">▶</button>
+      <input type="range" id="tlRange" min="0" max="0" value="0" step="1">
+      <span class="t" id="tlLabel">평균 300 ~ 450 s</span>
     </div>
     <div class="toggles">
       <label><input type="checkbox" id="tRoom" checked> 방 윤곽</label>
