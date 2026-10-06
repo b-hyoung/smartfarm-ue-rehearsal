@@ -102,6 +102,7 @@ td.code sub{font-size:10px}
 <a href="#fan" data-tab="fan">팬 데이터시트</a>
 <a href="#paper" data-tab="paper">논문 정리</a>
 <a href="#turb" data-tab="turb">난류 쉬운 설명</a>
+<a href="#pinn" data-tab="pinn">PINN 최적화</a>
 <a href="#fix" data-tab="fix">수정 기록</a>
 </nav></header>
 <main>
@@ -383,6 +384,81 @@ CFD는 바람의 <b>속도</b>와 <b>온도</b>만 계산하는 게 아니다. �
 </ol>
 
 <div class="note"><b>한계.</b> 13개 학습 케이스 중 4개(11~14)만 이 값이 있다. 나머지 9개(02~10)는 다른 PC에서 계산해 아직 없다. 4개만으로도 “출렁임이 어느 정도 크기인가”는 붙잡히지만, 05 F3 같은 기준 케이스까지 있으면 더 단단해진다.</div>
+</section>
+<section class="panel" id="pinn" hidden>
+<h1>PINN 최적화 — 최소 전력 팬 조합</h1>
+<p class="meta">RANS-PINN(난류값 포함, 모델 3개 앙상블) · 학습 2026-10-06 16:36 · 코드 <code>src/ml/fan_pinn.py</code> · 결과 <code>data/fan_pinn/result_rans_keps.json</code></p>
+
+<div class="lead">
+<b>실용안은 송풍기 2대만 6.5 CMM, 17.8 W</b>다. 상추 기준에 4% 못 미치지만(아래 단 적정 면적 72%) 가장 믿을 만하고, 네 대를 모두 켜는 것의 절반 전력이다.
+기준을 다 통과하려면 위 단 흡입기를 더해 <b>약 33 W</b>가 필요하다는 예측이지만, 학습에 없던 조합이라 CFD 확인 전에는 확정하지 않는다.
+</div>
+
+<h2><span class="no">1</span>무엇을 했나</h2>
+<ol class="flow">
+<li><b>입력</b> — 팬 네 대 풍량 조합. 팬마다 끔 또는 6.5~12 CMM (오리엔탈모터 EMR2090VMH-A 최저속 6.5, 학습 데이터 상한 12) 0.5 간격 = 28,561 조합</li>
+<li><b>예측</b> — RANS-PINN이 조합마다 두 단 캐노피의 바람 분포를 예측 (CFD 몇 시간 → 거의 즉시)</li>
+<li><b>판정</b> — 두 단 모두 적정 면적(0.3~1.0 m/s) ≥ 75%, P10 ≥ 0.28 m/s</li>
+<li><b>전력</b> — EMR2090VMH-A 공식 수치(6.5 CMM 8.9 W ~ 20.1 CMM 113 W) 보간</li>
+<li><b>결과</b> — 통과 22 조합. 통과하지 못해도 “전력을 더 쓸수록 얼마나 덜 모자라나”(파레토)를 함께 본다</li>
+</ol>
+
+<h2><span class="no">2</span>추천 조합</h2>
+<div class="tbl"><table>
+<tr><th>아래 송풍</th><th>아래 흡입</th><th>위 송풍</th><th>위 흡입</th><th>전력 W</th><th>아래 면적</th><th>아래 P10</th><th>위 면적</th><th>위 P10</th><th>부족</th><th>비고</th></tr>
+<tr class="hit"><td class="num">6.5</td><td class="num off">끔</td><td class="num">6.5</td><td class="num off">끔</td><td class="num"><b>17.8</b></td><td class="num ng">72%</td><td class="num ok">0.35</td><td class="num ok">78%</td><td class="num ok">0.36</td><td class="num">4%</td><td><span class="pill ok">실용안</span> 학습 패턴(11 S3), 편차 ±2%</td></tr>
+<tr><td class="num">6.5</td><td class="num off">끔</td><td class="num">7</td><td class="num off">끔</td><td class="num"><b>19.3</b></td><td class="num ng">72%</td><td class="num ok">0.35</td><td class="num ok">76%</td><td class="num ok">0.39</td><td class="num">3%</td><td>학습 패턴</td></tr>
+<tr><td class="num">6.5</td><td class="num off">끔</td><td class="num">7.5</td><td class="num">7.5</td><td class="num"><b>32.8</b></td><td class="num ok">75%</td><td class="num ok">0.34</td><td class="num ok">76%</td><td class="num ok">0.44</td><td class="num">0%</td><td><span class="miss">엄격 통과안</span> 학습 밖 패턴, 편차 ±3~6%</td></tr>
+</table></div>
+<p class="meta">부족 = 네 기준(두 단 × 면적·P10) 중 가장 크게 모자란 비율. 편차 = 모델 3개가 서로 다르게 답한 정도(클수록 불확실).</p>
+<ul>
+<li><b>아래 단 흡입기는 모든 후보에서 꺼져 있다.</b> CFD 원자료(12 S4 흡입기만 켬 = 빈 방 수준)와 같은 결론이다.</li>
+<li>캐노피 기온은 실용안에서 25.2 ℃ / 24.2 ℃. 목표 22 ℃는 팬이 아니라 에어컨 설정이 정한다(목표 탭 참고).</li>
+</ul>
+
+<h2><span class="no">3</span>전력을 더 쓰면 얼마나 나아지나 (파레토)</h2>
+<div class="tbl"><table>
+<tr><th>아래 송풍</th><th>아래 흡입</th><th>위 송풍</th><th>위 흡입</th><th>전력 W</th><th>아래 면적</th><th>아래 P10</th><th>위 면적</th><th>위 P10</th><th>부족</th><th>비고</th></tr>
+<tr><td class="num">6.5</td><td class="num off">끔</td><td class="num off">끔</td><td class="num off">끔</td><td class="num"><b>8.9</b></td><td class="num ng">70%</td><td class="num ok">0.33</td><td class="num ng">40%</td><td class="num ng">0.20</td><td class="num">46%</td><td>학습 밖 패턴</td></tr>
+<tr><td class="num">7</td><td class="num off">끔</td><td class="num off">끔</td><td class="num off">끔</td><td class="num"><b>10.4</b></td><td class="num ng">67%</td><td class="num ok">0.36</td><td class="num ng">41%</td><td class="num ng">0.20</td><td class="num">45%</td><td>학습 밖 패턴</td></tr>
+<tr><td class="num">7.5</td><td class="num off">끔</td><td class="num off">끔</td><td class="num off">끔</td><td class="num"><b>12.0</b></td><td class="num ng">65%</td><td class="num ok">0.40</td><td class="num ng">43%</td><td class="num ng">0.21</td><td class="num">43%</td><td>학습 밖 패턴</td></tr>
+<tr><td class="num">8</td><td class="num off">끔</td><td class="num off">끔</td><td class="num off">끔</td><td class="num"><b>13.5</b></td><td class="num ng">62%</td><td class="num ok">0.43</td><td class="num ng">45%</td><td class="num ng">0.21</td><td class="num">40%</td><td>학습 밖 패턴</td></tr>
+<tr><td class="num">8.5</td><td class="num off">끔</td><td class="num off">끔</td><td class="num off">끔</td><td class="num"><b>15.0</b></td><td class="num ng">57%</td><td class="num ok">0.46</td><td class="num ng">47%</td><td class="num ng">0.21</td><td class="num">38%</td><td>학습 밖 패턴</td></tr>
+<tr><td class="num">9</td><td class="num off">끔</td><td class="num off">끔</td><td class="num off">끔</td><td class="num"><b>16.6</b></td><td class="num ng">53%</td><td class="num ok">0.50</td><td class="num ng">49%</td><td class="num ng">0.21</td><td class="num">35%</td><td>학습 밖 패턴</td></tr>
+<tr class="hit"><td class="num">6.5</td><td class="num off">끔</td><td class="num">6.5</td><td class="num off">끔</td><td class="num"><b>17.8</b></td><td class="num ng">72%</td><td class="num ok">0.35</td><td class="num ok">78%</td><td class="num ok">0.36</td><td class="num">4%</td><td></td></tr>
+<tr><td class="num">6.5</td><td class="num off">끔</td><td class="num">7</td><td class="num off">끔</td><td class="num"><b>19.3</b></td><td class="num ng">72%</td><td class="num ok">0.35</td><td class="num ok">76%</td><td class="num ok">0.39</td><td class="num">3%</td><td></td></tr>
+<tr><td class="num">6.5</td><td class="num off">끔</td><td class="num">7.5</td><td class="num off">끔</td><td class="num"><b>20.9</b></td><td class="num ng">73%</td><td class="num ok">0.36</td><td class="num ng">74%</td><td class="num ok">0.41</td><td class="num">3%</td><td></td></tr>
+<tr><td class="num">6.5</td><td class="num off">끔</td><td class="num">6.5</td><td class="num">6.5</td><td class="num"><b>26.7</b></td><td class="num ng">74%</td><td class="num ok">0.34</td><td class="num ok">81%</td><td class="num ok">0.38</td><td class="num">1%</td><td>학습 밖 패턴</td></tr>
+<tr><td class="num">6.5</td><td class="num off">끔</td><td class="num">7</td><td class="num">6.5</td><td class="num"><b>28.2</b></td><td class="num ng">75%</td><td class="num ok">0.34</td><td class="num ok">78%</td><td class="num ok">0.41</td><td class="num">0%</td><td>학습 밖 패턴</td></tr>
+<tr><td class="num">6.5</td><td class="num off">끔</td><td class="num">7.5</td><td class="num">6.5</td><td class="num"><b>29.8</b></td><td class="num ng">75%</td><td class="num ok">0.34</td><td class="num ok">76%</td><td class="num ok">0.44</td><td class="num">0%</td><td>학습 밖 패턴</td></tr>
+<tr><td class="num">6.5</td><td class="num off">끔</td><td class="num">7.5</td><td class="num">7</td><td class="num"><b>31.3</b></td><td class="num ok">75%</td><td class="num ok">0.34</td><td class="num ok">76%</td><td class="num ok">0.44</td><td class="num">0%</td><td>학습 밖 패턴</td></tr>
+<tr><td class="num">6.5</td><td class="num off">끔</td><td class="num">7.5</td><td class="num">7.5</td><td class="num"><b>32.8</b></td><td class="num ok">75%</td><td class="num ok">0.34</td><td class="num ok">76%</td><td class="num ok">0.44</td><td class="num">0%</td><td>학습 밖 패턴</td></tr>
+</table></div>
+<p>한 단만 켜는 조합(8.9~16.6 W)은 다른 단이 크게 모자라 35~46% 부족하다. <b>두 단에 송풍기를 하나씩 두는 순간(17.8 W) 부족분이 4%로 뚝 떨어진다</b>. 그 뒤로는 전력을 늘려도 몇 %씩만 줄어든다.</p>
+
+<h2><span class="no">4</span>이 모델을 얼마나 믿을 수 있나</h2>
+<h3>학습에서 뺀 케이스 맞히기 (06 F4 · 13 S5)</h3>
+<div class="tbl"><table>
+<tr><th>방식</th><th>뺀 케이스 면적 오차</th><th>뺀 케이스 P10 오차</th><th>학습 케이스 면적 오차</th><th>학습 케이스 P10 오차</th><th>난류 점성 ÷ 공기 점성<br><span style="font-weight:400">CFD 실제 234</span></th></tr>
+<tr><td>데이터만 (물리 없음)</td><td class="num">0.093</td><td class="num">0.074</td><td class="num">0.013</td><td class="num">0.036</td><td class="num">—</td></tr>
+<tr><td>RANS, 난류값 없음</td><td class="num">0.024</td><td class="num">0.081</td><td class="num">0.023</td><td class="num">0.039</td><td class="num">0 (꺼짐)</td></tr>
+<tr><td>RANS, 난류값 가중 0.01</td><td class="num">0.045</td><td class="num">0.044</td><td class="num">0.120</td><td class="num">0.037</td><td class="num">27</td></tr>
+<tr class="hit"><td><b>RANS, 난류값 가중 1 (논문대로)</b></td><td class="num">0.019</td><td class="num">0.058</td><td class="num">0.050</td><td class="num">0.026</td><td class="num">177</td></tr>
+</table></div>
+<ul>
+<li>논문대로 난류값(맥 11~14 케이스의 k · ε · 압력)을 넣은 모델이 <b>학습에 없던 케이스의 적정 면적을 가장 잘 맞힌다</b>(오차 0.019).</li>
+<li>난류 크기도 실제와 맞다: 송풍기만 켠 조건에서 175배 (CFD 11 S3 실제 234배).</li>
+</ul>
+
+<div class="note"><b>약점.</b> 한 단에 흡입기만 있거나 팬이 꺼진 단(13 S5 위 단, 09 S1 위 단, 02 R1)은 학습 케이스인데도 잘 재현하지 못한다(예: 13 S5 위 단 실제 82% → 예측 39%). 팬 없이 에어컨 바람만 있는 약한 흐름이라 물리식과 데이터가 부딪히는 구간으로 보인다. <b>엄격 통과안(32.8 W)이 바로 “위 단 흡입기”를 쓰는 조합</b>이라 이 약점의 영향을 받을 수 있다.</div>
+
+<h2><span class="no">5</span>한계와 다음</h2>
+<ul>
+<li>정답이 실측이 아니라 CFD 계산값이며 E-004 · E-005 · E-006 오류를 안고 있다.</li>
+<li>난류값은 13 케이스 중 4개(11~14)만 있다. 05 F3 등 나머지(다른 PC)를 받으면 더 단단해진다.</li>
+<li>엄격 통과안처럼 학습에 없던 조합은 CFD 한 번으로 확인할 수 있다 — 실측을 반영해 CFD를 다시 계산할 때 함께 넣는다.</li>
+<li>실측은 온도 센서 + 에어컨 취출구 온도 + (가능하면) 열선 풍속계 1대. 온도 역산 리허설에서 벽 온도·열손실은 온도만으로 되찾았고(벽 28.1 ℃ vs 정답 29 ℃), 취출구 온도를 모르면 역산이 무너졌다.</li>
+</ul>
 </section>
 <section class="panel" id="fix" hidden>
 <h1>수정 기록</h1>
