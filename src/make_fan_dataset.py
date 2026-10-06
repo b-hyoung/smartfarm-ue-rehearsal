@@ -100,7 +100,16 @@ def snaps_in_window(rid):
 
 
 def fan_positions(c):
-    """켜진 팬의 (x, y, z, 방향) 목록. slots() 규칙과 같다. 한 단 몫이 아니라 전부."""
+    """켜진 팬의 (x, y, z, 방향) 목록. 한 단 몫이 아니라 전부.
+
+    CFD 가 실제로 쓴 fan_zones(centre_cfd_m, dir_unit)를 그대로 옮긴다. 예전에는 slots()
+    규칙으로 다시 계산해서 fans_off(G2 켜고 끄기)를 무시하고, 흡입기(return)·순환형(ends)
+    방향을 송풍기처럼 적었다. fan_zones 가 없는 옛 케이스만 규칙으로 계산한다.
+    """
+    zones = c.get("fan_zones")
+    if zones is not None and (zones or not c.get("fans_on")):
+        return [tuple(round(v, 3) for v in list(z["centre_cfd_m"]) + list(z["dir_unit"]))
+                for z in zones]
     layout = c.get("layout", "none")
     n = c.get("n_per_side") or 0
     if not c.get("per_fan_CMM") or layout == "none":
