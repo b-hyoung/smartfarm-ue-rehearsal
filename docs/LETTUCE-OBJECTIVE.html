@@ -79,6 +79,10 @@ td.code span{display:block;padding:3px 8px;border-radius:4px;margin:2px 0}
 td.warn-c{color:var(--warn);background:var(--warn-bg);white-space:nowrap}
 td.code sub{font-size:10px}
 .panel th[scope],.tbl th{vertical-align:top}
+.term{text-decoration:underline dotted var(--accent);text-decoration-thickness:2px;text-underline-offset:3px;cursor:help}
+.term:hover,.term:focus{background:var(--accent-soft);outline:none;border-radius:3px}
+#termpop{position:absolute;z-index:20;max-width:320px;padding:10px 12px;border-radius:8px;background:var(--ink);color:var(--bg);font-size:13px;line-height:1.6;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+#termpop b{display:block;margin-bottom:2px}
 </style>
 </head>
 <body>
@@ -373,98 +377,154 @@ CFD를 다시 돌리거나 모델을 다시 학습시킨 것이 아니다. 아�
 </section>
 <section class="panel" id="paper" hidden>
 <h1>논문 정리 — RANS-PINN</h1>
-<p class="meta">팬 조건 PINN(<code>src/ml/fan_pinn.py</code>)이 따르는 논문 · 원문 PDF를 직접 읽고 정리 · 2026-10-06</p>
+<p class="meta">팬 조건 <span class="term" tabindex="0" role="button" data-def="물리 정보 신경망. 데이터만 외우게 하지 않고, 유체 방정식을 얼마나 어기는지도 벌점(손실)으로 줘서 물리 법칙을 지키게 학습시킨 신경망.">PINN</span>(<code>src/ml/fan_pinn.py</code>)이 따르는 논문 · 원문 PDF를 직접 읽고 정리 · 2026-10-06</p>
 
 <div class="tbl"><table>
-<tr><th>제목</th><td><b>RANS-PINN based Simulation Surrogates for Predicting Turbulent Flows</b></td></tr>
+<tr><th>제목</th><td><b><span class="term" tabindex="0" role="button" data-def="레이놀즈 평균 나비에-스토크스 식. 흔들리는 난류를 시간 평균해서 평균 흐름만 푸는 방식. 산업용 CFD 대부분이 이것이다.">RANS</span>-PINN based Simulation Surrogates for Predicting Turbulent Flows</b></td></tr>
 <tr><th>저자</th><td>Shinjan Ghosh, Amit Chakraborty, Georgia Olympia Brikis, Biswadip Dey — Siemens Technology (미국 프린스턴)</td></tr>
-<tr><th>발표</th><td>ICML 2023 워크숍 “Synergy of Scientific and Machine Learning Modeling” (동료 심사), <a href="https://arxiv.org/abs/2306.06034">arXiv:2306.06034</a> (v3, 2023-08-11)</td></tr>
-<tr><th>확장판</th><td>“Using Parametric PINNs for Predicting Internal and External Turbulent Flows”, <a href="https://arxiv.org/abs/2410.18917">arXiv:2410.18917</a> (2024) — 같은 틀을 날개·후향 계단 유동으로 넓힘</td></tr>
+<tr><th>발표</th><td>ICML 2023 <span class="term" tabindex="0" role="button" data-def="학회 안의 작은 주제별 발표 모임. 본 학회 논문보다 짧고 가벼운 형식.">워크숍</span> “Synergy of Scientific and Machine Learning Modeling” (<span class="term" tabindex="0" role="button" data-def="다른 연구자가 논문을 검토해 통과시킨 것. 신뢰도의 기본 조건.">동료 심사</span>), <a href="https://arxiv.org/abs/2306.06034">arXiv:2306.06034</a> (v3, 2023-08-11)</td></tr>
+<tr><th>확장판</th><td>“Using Parametric PINNs for Predicting Internal and External Turbulent Flows”, <a href="https://arxiv.org/abs/2410.18917">arXiv:2410.18917</a> (2024) — 같은 틀을 날개·<span class="term" tabindex="0" role="button" data-def="통로가 계단처럼 갑자기 넓어지는 형상. 흐름이 떨어졌다 다시 붙는 표준 시험 문제.">후향 계단</span> 유동으로 넓힘</td></tr>
 </table></div>
 
 <div class="lead">
-k-ε 난류모델(산업 CFD에서 가장 많이 쓰는 2방정식 RANS)을 PINN 손실에 넣고, <b>레이놀즈 수를 입력으로 더해</b> 한 번 학습한 모델이 <b>CFD를 돌리지 않은 조건의 유동장까지</b> 예측하게 한 연구다. 우리 문제의 “팬 풍량 → 기류장”과 구조가 같다.
+<span class="term" tabindex="0" role="button" data-def="가장 널리 쓰는 난류모델. 난류 에너지 k와 그 에너지가 사라지는 속도 ε 두 값을 따로 풀어 난류의 효과(난류 점성)를 계산한다. 우리 OpenFOAM CFD도 이걸 썼다.">k-ε</span> <span class="term" tabindex="0" role="button" data-def="눈에 안 보일 만큼 작은 소용돌이를 다 계산하지 않고, 그 평균 효과만 식으로 넣는 방법.">난류모델</span>(산업 <span class="term" tabindex="0" role="button" data-def="전산유체역학. 컴퓨터로 공기·물 흐름을 계산하는 것.">CFD</span>에서 가장 많이 쓰는 <span class="term" tabindex="0" role="button" data-def="난류를 두 개의 추가 식(k 식, ε 식)으로 나타내는 난류모델 종류. k-ε가 대표다.">2방정식</span> RANS)을 PINN 손실에 넣고, <b><span class="term" tabindex="0" role="button" data-def="관성력 ÷ 점성력. 흐름이 얼마나 빠르고 거친지(난류인지)를 나타내는 숫자. 이 논문에서는 유입 속도를 바꾸는 것과 같다. 우리 문제에서는 팬 풍량이 이 역할을 한다.">레이놀즈 수</span>를 입력으로 더해</b> 한 번 학습한 모델이 <b>CFD를 돌리지 않은 조건의 <span class="term" tabindex="0" role="button" data-def="공간 각 점에서의 바람 속도·압력 분포 전체.">유동장</span>까지</b> 예측하게 한 연구다. 우리 문제의 “팬 풍량 → 기류장”과 구조가 같다.
 </div>
 
 <h2><span class="no">1</span>왜 이 논문인가</h2>
 <ul>
-<li>우리 CFD(OpenFOAM <code>buoyantPimpleFoam</code>)도 <b>표준 k-ε</b>로 풀었다. 같은 난류모델을 PINN에 넣은 연구라 물리 손실이 CFD와 같은 식이 된다.</li>
-<li><b>매개변수형</b>이다. 운전 조건을 입력으로 넣어 학습에 없던 조건을 예측한다 — 우리가 하려는 “팬 조합 탐색”이 바로 이것이다.</li>
-<li>저자들 스스로 “2방정식 RANS를 PINN에 넣은 연구는 아직 드물다”고 적었고, 그 공백을 채운 연구다. 앞선 Eivazi 외(2022)는 k-ε가 아니라 레이놀즈 응력을 직접 출력하는 방식이었다.</li>
+<li>우리 <span class="term" tabindex="0" role="button" data-def="전산유체역학. 컴퓨터로 공기·물 흐름을 계산하는 것.">CFD</span>(<span class="term" tabindex="0" role="button" data-def="우리가 쓴 무료 공개 CFD 프로그램.">OpenFOAM</span> <code>buoyantPimpleFoam</code>)도 <b>표준 <span class="term" tabindex="0" role="button" data-def="가장 널리 쓰는 난류모델. 난류 에너지 k와 그 에너지가 사라지는 속도 ε 두 값을 따로 풀어 난류의 효과(난류 점성)를 계산한다. 우리 OpenFOAM CFD도 이걸 썼다.">k-ε</span></b>로 풀었다. 같은 <span class="term" tabindex="0" role="button" data-def="눈에 안 보일 만큼 작은 소용돌이를 다 계산하지 않고, 그 평균 효과만 식으로 넣는 방법.">난류모델</span>을 <span class="term" tabindex="0" role="button" data-def="물리 정보 신경망. 데이터만 외우게 하지 않고, 유체 방정식을 얼마나 어기는지도 벌점(손실)으로 줘서 물리 법칙을 지키게 학습시킨 신경망.">PINN</span>에 넣은 연구라 <span class="term" tabindex="0" role="button" data-def="신경망 예측이 지배방정식을 얼마나 어기는지 잰 벌점. PDE 손실이라고도 한다.">물리 손실</span>이 CFD와 같은 식이 된다.</li>
+<li><b><span class="term" tabindex="0" role="button" data-def="운전 조건(레이놀즈 수, 팬 풍량 등)을 신경망 입력에 넣어, 한 번 학습한 모델로 여러 조건을 예측하게 만든 형태.">매개변수형</span></b>이다. 운전 조건을 입력으로 넣어 학습에 없던 조건을 예측한다 — 우리가 하려는 “팬 조합 탐색”이 바로 이것이다.</li>
+<li>저자들 스스로 “<span class="term" tabindex="0" role="button" data-def="난류를 두 개의 추가 식(k 식, ε 식)으로 나타내는 난류모델 종류. k-ε가 대표다.">2방정식</span> <span class="term" tabindex="0" role="button" data-def="레이놀즈 평균 나비에-스토크스 식. 흔들리는 난류를 시간 평균해서 평균 흐름만 푸는 방식. 산업용 CFD 대부분이 이것이다.">RANS</span>를 PINN에 넣은 연구는 아직 드물다”고 적었고, 그 공백을 채운 연구다. 앞선 Eivazi 외(2022)는 k-ε가 아니라 <span class="term" tabindex="0" role="button" data-def="난류의 빠른 흔들림이 평균 흐름에 주는 추가 힘. 이걸 직접 계산하는 대신 k-ε 같은 난류모델로 근사한다.">레이놀즈 응력</span>을 직접 출력하는 방식이었다.</li>
 </ul>
 
 <h2><span class="no">2</span>지배방정식</h2>
 <div class="tbl"><table>
 <tr><th>식</th><th>논문 표기</th></tr>
-<tr><td>연속(질량 보존)</td><td class="code">∇·u = 0</td></tr>
-<tr><td>운동량(RANS)</td><td class="code">ρ(u·∇)u + ∇p − μ<sub>eff</sub>∇²u = 0,&nbsp; μ<sub>eff</sub> = μ + μ<sub>t</sub> = μ + 0.09 k²/ε</td></tr>
+<tr><td><span class="term" tabindex="0" role="button" data-def="연속 방정식 = 질량 보존. 어떤 공간에 들어온 공기량과 나간 공기량이 같아야 한다는 식.">연속</span>(질량 보존)</td><td class="code">∇·u = 0</td></tr>
+<tr><td><span class="term" tabindex="0" role="button" data-def="힘의 균형 식(뉴턴 제2법칙의 유체판). 압력, 점성, 관성, 외부 힘이 공기를 어떻게 움직이는지.">운동량</span>(<span class="term" tabindex="0" role="button" data-def="레이놀즈 평균 나비에-스토크스 식. 흔들리는 난류를 시간 평균해서 평균 흐름만 푸는 방식. 산업용 CFD 대부분이 이것이다.">RANS</span>)</td><td class="code">ρ(u·∇)u + ∇p − μ<sub>eff</sub>∇²u = 0,&nbsp; μ<sub>eff</sub> = μ + μ<sub>t</sub> = μ + 0.09 k²/ε</td></tr>
 <tr><td>k 식</td><td class="code">∇·(ρuk) = ∇·[(μ + μ<sub>t</sub>/σ<sub>k</sub>)∇k] + P<sub>k</sub> − ε</td></tr>
 <tr><td>ε 식</td><td class="code">∇·(ρuε) = ∇·[(μ + μ<sub>t</sub>/σ<sub>ε</sub>)∇ε] + (C<sub>1</sub>P<sub>ε</sub> − C<sub>2</sub>ε) ε/k</td></tr>
-<tr><td>상수</td><td class="code">C<sub>1</sub> = 1.44, C<sub>2</sub> = 1.92, σ<sub>k</sub> = 1, σ<sub>ε</sub> = 1.3 (Launder &amp; Spalding 1974 표준값)</td></tr>
+<tr><td><span class="term" tabindex="0" role="button" data-def="실험으로 정해 둔 숫자. 표준 k-ε는 1974년 Launder &amp; Spalding 값을 그대로 쓴다.">상수</span></td><td class="code">C<sub>1</sub> = 1.44, C<sub>2</sub> = 1.92, σ<sub>k</sub> = 1, σ<sub>ε</sub> = 1.3 (Launder &amp; Spalding 1974 표준값)</td></tr>
 </table></div>
-<p class="meta">원문 PDF의 ε 식 생성항 부호는 “+C<sub>2</sub>ε”로 찍혀 있으나 표준 k-ε는 “−C<sub>2</sub>ε”이다. 우리 구현은 표준식을 쓴다.</p>
+<p class="meta">원문 PDF의 ε 식 <span class="term" tabindex="0" role="button" data-def="평균 흐름의 속도 차이(전단)에서 난류 에너지가 새로 만들어지는 양.">생성항</span> 부호는 “+C<sub>2</sub>ε”로 찍혀 있으나 표준 <span class="term" tabindex="0" role="button" data-def="가장 널리 쓰는 난류모델. 난류 에너지 k와 그 에너지가 사라지는 속도 ε 두 값을 따로 풀어 난류의 효과(난류 점성)를 계산한다. 우리 OpenFOAM CFD도 이걸 썼다.">k-ε</span>는 “−C<sub>2</sub>ε”이다. 우리 구현은 표준식을 쓴다.</p>
 
 <h2><span class="no">3</span>구조와 학습법</h2>
 <ol class="flow">
-<li><b>변수마다 따로 둔 신경망</b> — u, p, k, ε 각각 별도 네트워크(Modulus 기본값의 Fourier Neural Operator). 입력은 모두 같다: 좌표 (x, y) + 레이놀즈 수.</li>
-<li><b>예열(pre-training)</b> — 처음에는 데이터 손실만으로 각 네트워크를 따로 학습한다. 데이터·물리 손실을 처음부터 같이 넣으면 손실이 출렁이고 수렴이 느리며 검증 오차가 크다고 보고했다.</li>
-<li><b>물리 손실 추가</b> — 예열 뒤 PDE 손실을 넣는다. 각 PDE 항은 <b>자기 잔차 크기의 역수</b>로 가중해 서로 균형을 맞춘다.</li>
-<li><b>ε 에는 로그 손실</b> — 벽 근처와 전단층에서 ε가 급변하므로 ε의 데이터·PDE 손실은 로그로, 나머지는 MSE로 계산한다.</li>
-<li><b>최적화</b> — Adam, 학습률 0.001에서 감쇠율 0.95로 줄이며 수렴할 때까지. 구현은 NVIDIA Modulus 22.03.</li>
+<li><b>변수마다 따로 둔 신경망</b> — u, p, k, ε 각각 별도 네트워크(<span class="term" tabindex="0" role="button" data-def="NVIDIA가 만든 PINN·물리 AI 개발 도구(지금 이름은 PhysicsNeMo).">Modulus</span> 기본값의 <span class="term" tabindex="0" role="button" data-def="푸리에 신경 연산자(FNO). 격자 위 데이터 전체를 한 번에 받아 주파수 성분으로 바꿔 계산하는 신경망. 고른 격자에 강하다.">Fourier Neural Operator</span>). 입력은 모두 같다: 좌표 (x, y) + <span class="term" tabindex="0" role="button" data-def="관성력 ÷ 점성력. 흐름이 얼마나 빠르고 거친지(난류인지)를 나타내는 숫자. 이 논문에서는 유입 속도를 바꾸는 것과 같다. 우리 문제에서는 팬 풍량이 이 역할을 한다.">레이놀즈 수</span>.</li>
+<li><b><span class="term" tabindex="0" role="button" data-def="pre-training. 처음에는 데이터만 맞추게 학습해 대략 맞는 상태를 만든 뒤 물리 손실을 넣는 방법. 처음부터 다 넣으면 학습이 불안정하다.">예열</span>(pre-training)</b> — 처음에는 <span class="term" tabindex="0" role="button" data-def="신경망 예측이 CFD 값과 얼마나 다른지 잰 벌점.">데이터 손실</span>만으로 각 네트워크를 따로 학습한다. 데이터·<span class="term" tabindex="0" role="button" data-def="신경망 예측이 지배방정식을 얼마나 어기는지 잰 벌점. PDE 손실이라고도 한다.">물리 손실</span>을 처음부터 같이 넣으면 손실이 출렁이고 수렴이 느리며 <span class="term" tabindex="0" role="button" data-def="학습에 쓰지 않은 데이터로 잰 오차. 모델이 외우지 않고 일반화했는지 본다.">검증 오차</span>가 크다고 보고했다.</li>
+<li><b>물리 손실 추가</b> — 예열 뒤 <span class="term" tabindex="0" role="button" data-def="편미분방정식. 공간·시간에 따라 변하는 양을 다루는 식. 유체 방정식이 여기에 속한다.">PDE</span> 손실을 넣는다. 각 PDE 항은 <b>자기 <span class="term" tabindex="0" role="button" data-def="식에 예측값을 넣었을 때 0이 되어야 하는데 남는 값. 작을수록 식을 잘 지킨다.">잔차</span> 크기의 역수</b>로 가중해 서로 균형을 맞춘다.</li>
+<li><b>ε 에는 <span class="term" tabindex="0" role="button" data-def="오차를 그대로 쓰지 않고 로그를 씌워 계산하는 벌점. 값이 몇 자릿수씩 차이 나는 ε 같은 변수에 쓴다.">로그 손실</span></b> — 벽 근처와 <span class="term" tabindex="0" role="button" data-def="빠른 바람과 느린 바람이 맞닿아 미끄러지는 층. 소용돌이가 많이 생긴다.">전단층</span>에서 ε가 급변하므로 ε의 데이터·PDE 손실은 로그로, 나머지는 <span class="term" tabindex="0" role="button" data-def="평균 제곱 오차. 오차를 제곱해 평균낸 값. 가장 흔한 벌점 계산법.">MSE</span>로 계산한다.</li>
+<li><b>최적화</b> — <span class="term" tabindex="0" role="button" data-def="신경망 학습에 가장 많이 쓰는 최적화 방법. 오차를 줄이는 방향으로 가중치를 조금씩 고친다.">Adam</span>, <span class="term" tabindex="0" role="button" data-def="한 번에 가중치를 얼마나 크게 고칠지 정하는 값. 처음엔 크게, 점점 작게 줄인다(감쇠).">학습률</span> 0.001에서 감쇠율 0.95로 줄이며 수렴할 때까지. 구현은 NVIDIA Modulus 22.03.</li>
 </ol>
 <p>전체 손실은 L = L<sub>data</sub> + L<sub>BC</sub> + L<sub>PDE</sub>, L<sub>PDE</sub> = λ<sub>1</sub>L<sub>NS</sub> + λ<sub>2</sub>L<sub>cont</sub> + λ<sub>3</sub>L<sub>k</sub> + λ<sub>4</sub>L<sub>ε</sub>.</p>
 
 <h2><span class="no">4</span>실험과 결과</h2>
-<p>CFD는 Simcenter STAR-CCM+(k-ε, 벽함수)로 만들고, 좌표·속도·압력을 특성 길이·유입 속도·동압으로 무차원화했다. 케이스마다 데이터 3,000점, PDE 점 3,000점을 뽑았다(원래 격자 61,000점).</p>
+<p><span class="term" tabindex="0" role="button" data-def="전산유체역학. 컴퓨터로 공기·물 흐름을 계산하는 것.">CFD</span>는 Simcenter <span class="term" tabindex="0" role="button" data-def="Siemens의 상용 CFD 프로그램. 우리 OpenFOAM과 같은 일을 한다.">STAR-CCM+</span>(<span class="term" tabindex="0" role="button" data-def="가장 널리 쓰는 난류모델. 난류 에너지 k와 그 에너지가 사라지는 속도 ε 두 값을 따로 풀어 난류의 효과(난류 점성)를 계산한다. 우리 OpenFOAM CFD도 이걸 썼다.">k-ε</span>, <span class="term" tabindex="0" role="button" data-def="벽 바로 옆의 아주 얇은 층을 촘촘히 계산하지 않고 경험식으로 대신하는 방법.">벽함수</span>)로 만들고, 좌표·속도·압력을 특성 길이·유입 속도·<span class="term" tabindex="0" role="button" data-def="바람이 가진 운동 에너지만큼의 압력. ½ × 밀도 × 속도².">동압</span>으로 <span class="term" tabindex="0" role="button" data-def="길이·속도·압력을 기준값으로 나눠 단위 없는 숫자로 바꾸는 것. 크기가 비슷해져 신경망이 학습하기 쉬워진다.">무차원화</span>했다. 케이스마다 데이터 3,000점, <span class="term" tabindex="0" role="button" data-def="편미분방정식. 공간·시간에 따라 변하는 양을 다루는 식. 유체 방정식이 여기에 속한다.">PDE</span> 점 3,000점을 뽑았다(원래 <span class="term" tabindex="0" role="button" data-def="CFD가 공간을 잘게 나눈 칸. 칸마다 값을 계산한다.">격자</span> 61,000점).</p>
 
 <h3>손실 구성 비교 — 원기둥 유동 (검증 오차)</h3>
 <div class="tbl"><table>
 <tr><th>손실</th><th>x 속도</th><th>y 속도</th><th>압력</th></tr>
 <tr><td>데이터만</td><td class="num">0.205</td><td class="num">0.284</td><td class="num">0.029</td></tr>
 <tr><td>데이터 + PDE</td><td class="num">0.187</td><td class="num">0.474</td><td class="num">0.066</td></tr>
-<tr class="hit"><td>데이터 + PDE + ε 로그 손실</td><td class="num ok">0.014</td><td class="num ok">0.030</td><td class="num">0.105</td></tr>
+<tr class="hit"><td>데이터 + PDE + ε <span class="term" tabindex="0" role="button" data-def="오차를 그대로 쓰지 않고 로그를 씌워 계산하는 벌점. 값이 몇 자릿수씩 차이 나는 ε 같은 변수에 쓴다.">로그 손실</span></td><td class="num ok">0.014</td><td class="num ok">0.030</td><td class="num">0.105</td></tr>
 </table></div>
-<p>속도 오차는 열 배 넘게 줄었지만 압력 오차는 오히려 커졌다. 학습법(예열 + 잔차 가중 + ε 로그 손실)이 핵심이라는 것이 저자들의 결론이다.</p>
+<p>속도 오차는 열 배 넘게 줄었지만 압력 오차는 오히려 커졌다. 학습법(<span class="term" tabindex="0" role="button" data-def="pre-training. 처음에는 데이터만 맞추게 학습해 대략 맞는 상태를 만든 뒤 물리 손실을 넣는 방법. 처음부터 다 넣으면 학습이 불안정하다.">예열</span> + <span class="term" tabindex="0" role="button" data-def="식에 예측값을 넣었을 때 0이 되어야 하는데 남는 값. 작을수록 식을 잘 지킨다.">잔차</span> 가중 + ε 로그 손실)이 핵심이라는 것이 저자들의 결론이다.</p>
 
 <h3>다른 형상 (단일 레이놀즈 수)</h3>
 <div class="tbl"><table>
 <tr><th>형상</th><th>x 속도</th><th>y 속도</th><th>압력</th></tr>
-<tr><td>NACA 2412 날개 (Re = 3×10⁵)</td><td class="num">0.091</td><td class="num">0.131</td><td class="num">0.022</td></tr>
-<tr><td>후향 계단 (Re = 5600)</td><td class="num">0.024</td><td class="num">0.146</td><td class="num">0.137</td></tr>
+<tr><td><span class="term" tabindex="0" role="button" data-def="미국 항공자문위원회가 정한 표준 날개 단면 모양 중 하나.">NACA 2412</span> 날개 (Re = 3×10⁵)</td><td class="num">0.091</td><td class="num">0.131</td><td class="num">0.022</td></tr>
+<tr><td><span class="term" tabindex="0" role="button" data-def="통로가 계단처럼 갑자기 넓어지는 형상. 흐름이 떨어졌다 다시 붙는 표준 시험 문제.">후향 계단</span> (Re = 5600)</td><td class="num">0.024</td><td class="num">0.146</td><td class="num">0.137</td></tr>
 </table></div>
 
 <h3>매개변수형 — 학습에 없던 레이놀즈 수 예측</h3>
 <p>Re 2800~5600 사이 6개 CFD로 학습하고, 학습에 없던 두 조건을 61,000점 전부에서 검증했다.</p>
 <div class="tbl"><table>
 <tr><th>검증 조건</th><th>위치</th><th>x 속도</th><th>y 속도</th><th>압력</th></tr>
-<tr><td>Re = 3140</td><td>학습 범위 안 (보간)</td><td class="num">0.139</td><td class="num">0.289</td><td class="num">0.164</td></tr>
-<tr><td>Re = 5700</td><td>학습 범위 밖 (외삽)</td><td class="num">0.153</td><td class="num">0.200</td><td class="num">0.079</td></tr>
+<tr><td>Re = 3140</td><td>학습 범위 안 (<span class="term" tabindex="0" role="button" data-def="학습한 조건들 사이의 값을 예측하는 것. 비교적 믿을 만하다.">보간</span>)</td><td class="num">0.139</td><td class="num">0.289</td><td class="num">0.164</td></tr>
+<tr><td>Re = 5700</td><td>학습 범위 밖 (<span class="term" tabindex="0" role="button" data-def="학습한 범위 밖의 조건을 예측하는 것. 틀리기 쉽다.">외삽</span>)</td><td class="num">0.153</td><td class="num">0.200</td><td class="num">0.079</td></tr>
 </table></div>
-<p>CFD 한 번에 약 24 코어·분이 걸리는 것을 거의 실시간으로 낸다. 확장판(2410.18917)은 날개에서 보간 시 u 속도 오차 6%, 외삽 시 12%를 보고했다.</p>
+<p>CFD 한 번에 약 24 <span class="term" tabindex="0" role="button" data-def="CPU 코어 1개로 1분 계산한 양. 24 코어·분 = 코어 24개면 1분.">코어·분</span>이 걸리는 것을 거의 실시간으로 낸다. 확장판(2410.18917)은 날개에서 보간 시 u 속도 오차 6%, 외삽 시 12%를 보고했다.</p>
 
 <h2><span class="no">5</span>논문과 우리 적용의 차이</h2>
 <div class="tbl"><table>
 <tr><th>항목</th><th>논문</th><th>우리 (<code>fan_pinn.py</code>)</th><th>영향</th></tr>
-<tr><td>매개변수</td><td>레이놀즈 수 1개 (유입 속도)</td><td>팬 네 대 풍량 4개, 켜고 끄기 포함</td><td class="warn-c">조합 공간이 훨씬 넓다</td></tr>
+<tr><td>매개변수</td><td><span class="term" tabindex="0" role="button" data-def="관성력 ÷ 점성력. 흐름이 얼마나 빠르고 거친지(난류인지)를 나타내는 숫자. 이 논문에서는 유입 속도를 바꾸는 것과 같다. 우리 문제에서는 팬 풍량이 이 역할을 한다.">레이놀즈 수</span> 1개 (유입 속도)</td><td>팬 네 대 풍량 4개, 켜고 끄기 포함</td><td class="warn-c">조합 공간이 훨씬 넓다</td></tr>
 <tr><td>차원</td><td>2D</td><td>3D (w 추가)</td><td>계산 부담 증가</td></tr>
-<tr><td>학습 CFD 수</td><td>6개, 한 변수만 고르게</td><td>13개, 한 번에 한 변수씩</td><td class="warn-c">조합 외삽에 약함</td></tr>
-<tr><td><b>데이터에 있는 변수</b></td><td><b>u, p, k, ε 모두</b> (ε 데이터 로그 손실을 명시)</td><td><b>u, T 뿐</b> — CFD가 p, k, ε를 저장하지 않음</td><td class="ng">k, ε를 물리식만으로 추론해야 한다. k → 0 같은 자명해에 빠질 위험 (확인 중)</td></tr>
+<tr><td>학습 <span class="term" tabindex="0" role="button" data-def="전산유체역학. 컴퓨터로 공기·물 흐름을 계산하는 것.">CFD</span> 수</td><td>6개, 한 변수만 고르게</td><td>13개, 한 번에 한 변수씩</td><td class="warn-c">조합 <span class="term" tabindex="0" role="button" data-def="학습한 범위 밖의 조건을 예측하는 것. 틀리기 쉽다.">외삽</span>에 약함</td></tr>
+<tr><td><b>데이터에 있는 변수</b></td><td><b>u, p, k, ε 모두</b> (ε 데이터 <span class="term" tabindex="0" role="button" data-def="오차를 그대로 쓰지 않고 로그를 씌워 계산하는 벌점. 값이 몇 자릿수씩 차이 나는 ε 같은 변수에 쓴다.">로그 손실</span>을 명시)</td><td><b>u, T 뿐</b> — CFD가 p, k, ε를 저장하지 않음</td><td class="ng">k, ε를 물리식만으로 추론해야 한다. k → 0 같은 <span class="term" tabindex="0" role="button" data-def="식은 만족하지만 의미 없는 답. 예: k를 0으로 두면 k 식이 저절로 맞아 버린다.">자명해</span>에 빠질 위험 (확인 중)</td></tr>
 <tr><td>데이터 위치</td><td>영역 전체에서 3,000점</td><td>판정면 4장 (z 네 높이)</td><td>z 방향 정보가 얇다</td></tr>
-<tr><td>추가 물리</td><td>없음</td><td>캐노피 다공체 저항(Darcy–Forchheimer), 부력(Boussinesq) — 우리 CFD가 쓴 항</td><td>CFD와 같은 식으로 맞춤</td></tr>
-<tr><td>네트워크</td><td>FNO (Modulus)</td><td>변수별 완전연결망 (5층 × 128, SiLU)</td><td>흩어진 점 데이터라 FNO 대신. 후향 계단 실험은 논문도 완전연결망</td></tr>
-<tr><td>ε 손실</td><td>로그 손실</td><td>ε로 나눈 상대 잔차</td><td>같은 목적(크기 차 완화), 형태는 다름</td></tr>
+<tr><td>추가 물리</td><td>없음</td><td>캐노피 <span class="term" tabindex="0" role="button" data-def="구멍이 많아 바람이 통과하면서 저항을 받는 물체. 상추 잎 덩어리(캐노피)를 이렇게 단순화했다.">다공체</span> 저항(<span class="term" tabindex="0" role="button" data-def="다공체(구멍 많은 물체)를 지나는 바람이 받는 저항 식. 느릴 때는 속도에 비례(Darcy), 빠를 때는 속도²에 비례(Forchheimer)하는 저항을 더한다. 우리 CFD는 상추 캐노피를 이 식으로 넣었다.">Darcy–Forchheimer</span>), <span class="term" tabindex="0" role="button" data-def="따뜻한 공기가 가벼워 위로 뜨는 힘.">부력</span>(<span class="term" tabindex="0" role="button" data-def="부시네스크 근사. 공기 밀도 차이는 무게(부력)에만 반영하고 나머지 계산에서는 밀도를 일정하게 보는 방법. 따뜻한 공기가 뜨는 효과를 넣는다.">Boussinesq</span>) — 우리 CFD가 쓴 항</td><td>CFD와 같은 식으로 맞춤</td></tr>
+<tr><td>네트워크</td><td>FNO (<span class="term" tabindex="0" role="button" data-def="NVIDIA가 만든 PINN·물리 AI 개발 도구(지금 이름은 PhysicsNeMo).">Modulus</span>)</td><td>변수별 <span class="term" tabindex="0" role="button" data-def="층마다 모든 뉴런이 다음 층 모든 뉴런과 연결된 가장 기본적인 신경망. 흩어진 점 데이터에 쓰기 좋다.">완전연결망</span> (5층 × 128, <span class="term" tabindex="0" role="button" data-def="신경망 활성화 함수의 한 종류. 매끄러워서 미분을 여러 번 해야 하는 PINN에 잘 맞는다.">SiLU</span>)</td><td>흩어진 점 데이터라 FNO 대신. <span class="term" tabindex="0" role="button" data-def="통로가 계단처럼 갑자기 넓어지는 형상. 흐름이 떨어졌다 다시 붙는 표준 시험 문제.">후향 계단</span> 실험은 논문도 완전연결망</td></tr>
+<tr><td>ε 손실</td><td>로그 손실</td><td>ε로 나눈 상대 <span class="term" tabindex="0" role="button" data-def="식에 예측값을 넣었을 때 0이 되어야 하는데 남는 값. 작을수록 식을 잘 지킨다.">잔차</span></td><td>같은 목적(크기 차 완화), 형태는 다름</td></tr>
 </table></div>
 
-<div class="note"><b>설명할 때.</b> “Siemens 연구진의 매개변수형 RANS-PINN(ICML 2023 워크숍) 정식화를 따르고, 우리 CFD의 캐노피 다공체·부력 항을 더했다. 논문과 달리 난류량 데이터가 없어 k와 ε는 물리식으로만 추론했다”가 정확한 표현이다.</div>
+<div class="note"><b>설명할 때.</b> “Siemens 연구진의 <span class="term" tabindex="0" role="button" data-def="운전 조건(레이놀즈 수, 팬 풍량 등)을 신경망 입력에 넣어, 한 번 학습한 모델로 여러 조건을 예측하게 만든 형태.">매개변수형</span> <span class="term" tabindex="0" role="button" data-def="레이놀즈 평균 나비에-스토크스 식. 흔들리는 난류를 시간 평균해서 평균 흐름만 푸는 방식. 산업용 CFD 대부분이 이것이다.">RANS</span>-<span class="term" tabindex="0" role="button" data-def="물리 정보 신경망. 데이터만 외우게 하지 않고, 유체 방정식을 얼마나 어기는지도 벌점(손실)으로 줘서 물리 법칙을 지키게 학습시킨 신경망.">PINN</span>(ICML 2023 <span class="term" tabindex="0" role="button" data-def="학회 안의 작은 주제별 발표 모임. 본 학회 논문보다 짧고 가벼운 형식.">워크숍</span>) 정식화를 따르고, 우리 CFD의 캐노피 다공체·부력 항을 더했다. 논문과 달리 난류량 데이터가 없어 k와 ε는 물리식으로만 추론했다”가 정확한 표현이다.</div>
 
 <h2><span class="no">6</span>함께 쓴 문헌</h2>
 <ul class="refs">
-<li>Raissi, Perdikaris, Karniadakis (2019) Physics-informed neural networks, <i>J. Comput. Phys.</i> 378 — PINN 원전</li>
-<li>Raissi, Yazdani, Karniadakis (2020) Hidden fluid mechanics, <i>Science</i> 367 — 관측 안 된 변수를 지배방정식으로 추론</li>
-<li><a href="https://cris.fau.de/publications/293052365">Eivazi, Tahani, Schlatter, Vinuesa (2022) PINNs for solving RANS equations, <i>Physics of Fluids</i> 34, 075117</a> — 레이놀즈 응력 방식의 RANS-PINN</li>
-<li><a href="https://pubs.aip.org/aip/pof/article/37/9/093626/3364463/Darcy-Brinkman-Forchheimer-physics-informed-neural">Darcy–Brinkman–Forchheimer PINNs (2025) <i>Physics of Fluids</i> 37, 093626</a> — 다공체 항을 넣은 PINN</li>
+<li>Raissi, Perdikaris, Karniadakis (2019) Physics-informed neural networks, <i>J. Comput. Phys.</i> 378 — <span class="term" tabindex="0" role="button" data-def="물리 정보 신경망. 데이터만 외우게 하지 않고, 유체 방정식을 얼마나 어기는지도 벌점(손실)으로 줘서 물리 법칙을 지키게 학습시킨 신경망.">PINN</span> 원전</li>
+<li>Raissi, Yazdani, Karniadakis (2020) Hidden fluid mechanics, <i>Science</i> 367 — 관측 안 된 변수를 <span class="term" tabindex="0" role="button" data-def="그 현상을 지배하는 기본 식. 공기 흐름에서는 질량 보존, 운동량(힘의 균형), 에너지 식.">지배방정식</span>으로 추론</li>
+<li><a href="https://cris.fau.de/publications/293052365">Eivazi, Tahani, Schlatter, Vinuesa (2022) PINNs for solving RANS equations, <i>Physics of Fluids</i> 34, 075117</a> — <span class="term" tabindex="0" role="button" data-def="난류의 빠른 흔들림이 평균 흐름에 주는 추가 힘. 이걸 직접 계산하는 대신 k-ε 같은 난류모델로 근사한다.">레이놀즈 응력</span> 방식의 <span class="term" tabindex="0" role="button" data-def="레이놀즈 평균 나비에-스토크스 식. 흔들리는 난류를 시간 평균해서 평균 흐름만 푸는 방식. 산업용 CFD 대부분이 이것이다.">RANS</span>-PINN</li>
+<li><a href="https://pubs.aip.org/aip/pof/article/37/9/093626/3364463/Darcy-Brinkman-Forchheimer-physics-informed-neural">Darcy–Brinkman–Forchheimer PINNs (2025) <i>Physics of Fluids</i> 37, 093626</a> — <span class="term" tabindex="0" role="button" data-def="구멍이 많아 바람이 통과하면서 저항을 받는 물체. 상추 잎 덩어리(캐노피)를 이렇게 단순화했다.">다공체</span> 항을 넣은 PINN</li>
 <li><a href="https://www.sciencedirect.com/science/article/abs/pii/S0360132323005905">Wei &amp; Ooka (2023) Indoor airflow field reconstruction using PINN, <i>Building and Environment</i> 242</a> — 실내 기류 PINN</li>
 </ul>
+<h2><span class="no">7</span>용어집</h2>
+<p class="meta">본문의 밑줄 친 단어를 누르면 같은 설명이 뜬다.</p>
+<div class="tbl"><table>
+<tr><th>용어</th><th>뜻</th></tr>
+<tr><td><b>Fourier Neural Operator</b></td><td>푸리에 신경 연산자(FNO). 격자 위 데이터 전체를 한 번에 받아 주파수 성분으로 바꿔 계산하는 신경망. 고른 격자에 강하다.</td></tr>
+<tr><td><b>Darcy–Forchheimer</b></td><td>다공체(구멍 많은 물체)를 지나는 바람이 받는 저항 식. 느릴 때는 속도에 비례(Darcy), 빠를 때는 속도²에 비례(Forchheimer)하는 저항을 더한다. 우리 CFD는 상추 캐노피를 이 식으로 넣었다.</td></tr>
+<tr><td><b>Boussinesq</b></td><td>부시네스크 근사. 공기 밀도 차이는 무게(부력)에만 반영하고 나머지 계산에서는 밀도를 일정하게 보는 방법. 따뜻한 공기가 뜨는 효과를 넣는다.</td></tr>
+<tr><td><b>레이놀즈 응력</b></td><td>난류의 빠른 흔들림이 평균 흐름에 주는 추가 힘. 이걸 직접 계산하는 대신 k-ε 같은 난류모델로 근사한다.</td></tr>
+<tr><td><b>레이놀즈 수</b></td><td>관성력 ÷ 점성력. 흐름이 얼마나 빠르고 거친지(난류인지)를 나타내는 숫자. 이 논문에서는 유입 속도를 바꾸는 것과 같다. 우리 문제에서는 팬 풍량이 이 역할을 한다.</td></tr>
+<tr><td><b>매개변수형</b></td><td>운전 조건(레이놀즈 수, 팬 풍량 등)을 신경망 입력에 넣어, 한 번 학습한 모델로 여러 조건을 예측하게 만든 형태.</td></tr>
+<tr><td><b>2방정식</b></td><td>난류를 두 개의 추가 식(k 식, ε 식)으로 나타내는 난류모델 종류. k-ε가 대표다.</td></tr>
+<tr><td><b>k-ε</b></td><td>가장 널리 쓰는 난류모델. 난류 에너지 k와 그 에너지가 사라지는 속도 ε 두 값을 따로 풀어 난류의 효과(난류 점성)를 계산한다. 우리 OpenFOAM CFD도 이걸 썼다.</td></tr>
+<tr><td><b>난류모델</b></td><td>눈에 안 보일 만큼 작은 소용돌이를 다 계산하지 않고, 그 평균 효과만 식으로 넣는 방법.</td></tr>
+<tr><td><b>RANS</b></td><td>레이놀즈 평균 나비에-스토크스 식. 흔들리는 난류를 시간 평균해서 평균 흐름만 푸는 방식. 산업용 CFD 대부분이 이것이다.</td></tr>
+<tr><td><b>PINN</b></td><td>물리 정보 신경망. 데이터만 외우게 하지 않고, 유체 방정식을 얼마나 어기는지도 벌점(손실)으로 줘서 물리 법칙을 지키게 학습시킨 신경망.</td></tr>
+<tr><td><b>지배방정식</b></td><td>그 현상을 지배하는 기본 식. 공기 흐름에서는 질량 보존, 운동량(힘의 균형), 에너지 식.</td></tr>
+<tr><td><b>연속</b></td><td>연속 방정식 = 질량 보존. 어떤 공간에 들어온 공기량과 나간 공기량이 같아야 한다는 식.</td></tr>
+<tr><td><b>운동량</b></td><td>힘의 균형 식(뉴턴 제2법칙의 유체판). 압력, 점성, 관성, 외부 힘이 공기를 어떻게 움직이는지.</td></tr>
+<tr><td><b>유효 점성</b></td><td>공기 자체의 끈적임(분자 점성) + 난류가 섞어 주는 효과(난류 점성). μ_eff = μ + μ_t.</td></tr>
+<tr><td><b>난류 점성</b></td><td>난류가 운동량을 섞는 효과를 끈적임처럼 표현한 값. k-ε에서는 0.09 × k² / ε.</td></tr>
+<tr><td><b>생성항</b></td><td>평균 흐름의 속도 차이(전단)에서 난류 에너지가 새로 만들어지는 양.</td></tr>
+<tr><td><b>상수</b></td><td>실험으로 정해 둔 숫자. 표준 k-ε는 1974년 Launder &amp; Spalding 값을 그대로 쓴다.</td></tr>
+<tr><td><b>유동장</b></td><td>공간 각 점에서의 바람 속도·압력 분포 전체.</td></tr>
+<tr><td><b>예열</b></td><td>pre-training. 처음에는 데이터만 맞추게 학습해 대략 맞는 상태를 만든 뒤 물리 손실을 넣는 방법. 처음부터 다 넣으면 학습이 불안정하다.</td></tr>
+<tr><td><b>데이터 손실</b></td><td>신경망 예측이 CFD 값과 얼마나 다른지 잰 벌점.</td></tr>
+<tr><td><b>물리 손실</b></td><td>신경망 예측이 지배방정식을 얼마나 어기는지 잰 벌점. PDE 손실이라고도 한다.</td></tr>
+<tr><td><b>PDE</b></td><td>편미분방정식. 공간·시간에 따라 변하는 양을 다루는 식. 유체 방정식이 여기에 속한다.</td></tr>
+<tr><td><b>잔차</b></td><td>식에 예측값을 넣었을 때 0이 되어야 하는데 남는 값. 작을수록 식을 잘 지킨다.</td></tr>
+<tr><td><b>로그 손실</b></td><td>오차를 그대로 쓰지 않고 로그를 씌워 계산하는 벌점. 값이 몇 자릿수씩 차이 나는 ε 같은 변수에 쓴다.</td></tr>
+<tr><td><b>MSE</b></td><td>평균 제곱 오차. 오차를 제곱해 평균낸 값. 가장 흔한 벌점 계산법.</td></tr>
+<tr><td><b>전단층</b></td><td>빠른 바람과 느린 바람이 맞닿아 미끄러지는 층. 소용돌이가 많이 생긴다.</td></tr>
+<tr><td><b>Adam</b></td><td>신경망 학습에 가장 많이 쓰는 최적화 방법. 오차를 줄이는 방향으로 가중치를 조금씩 고친다.</td></tr>
+<tr><td><b>학습률</b></td><td>한 번에 가중치를 얼마나 크게 고칠지 정하는 값. 처음엔 크게, 점점 작게 줄인다(감쇠).</td></tr>
+<tr><td><b>Modulus</b></td><td>NVIDIA가 만든 PINN·물리 AI 개발 도구(지금 이름은 PhysicsNeMo).</td></tr>
+<tr><td><b>STAR-CCM+</b></td><td>Siemens의 상용 CFD 프로그램. 우리 OpenFOAM과 같은 일을 한다.</td></tr>
+<tr><td><b>벽함수</b></td><td>벽 바로 옆의 아주 얇은 층을 촘촘히 계산하지 않고 경험식으로 대신하는 방법.</td></tr>
+<tr><td><b>무차원화</b></td><td>길이·속도·압력을 기준값으로 나눠 단위 없는 숫자로 바꾸는 것. 크기가 비슷해져 신경망이 학습하기 쉬워진다.</td></tr>
+<tr><td><b>동압</b></td><td>바람이 가진 운동 에너지만큼의 압력. ½ × 밀도 × 속도².</td></tr>
+<tr><td><b>격자</b></td><td>CFD가 공간을 잘게 나눈 칸. 칸마다 값을 계산한다.</td></tr>
+<tr><td><b>검증 오차</b></td><td>학습에 쓰지 않은 데이터로 잰 오차. 모델이 외우지 않고 일반화했는지 본다.</td></tr>
+<tr><td><b>보간</b></td><td>학습한 조건들 사이의 값을 예측하는 것. 비교적 믿을 만하다.</td></tr>
+<tr><td><b>외삽</b></td><td>학습한 범위 밖의 조건을 예측하는 것. 틀리기 쉽다.</td></tr>
+<tr><td><b>자명해</b></td><td>식은 만족하지만 의미 없는 답. 예: k를 0으로 두면 k 식이 저절로 맞아 버린다.</td></tr>
+<tr><td><b>다공체</b></td><td>구멍이 많아 바람이 통과하면서 저항을 받는 물체. 상추 잎 덩어리(캐노피)를 이렇게 단순화했다.</td></tr>
+<tr><td><b>부력</b></td><td>따뜻한 공기가 가벼워 위로 뜨는 힘.</td></tr>
+<tr><td><b>완전연결망</b></td><td>층마다 모든 뉴런이 다음 층 모든 뉴런과 연결된 가장 기본적인 신경망. 흩어진 점 데이터에 쓰기 좋다.</td></tr>
+<tr><td><b>SiLU</b></td><td>신경망 활성화 함수의 한 종류. 매끄러워서 미분을 여러 번 해야 하는 PINN에 잘 맞는다.</td></tr>
+<tr><td><b>동료 심사</b></td><td>다른 연구자가 논문을 검토해 통과시킨 것. 신뢰도의 기본 조건.</td></tr>
+<tr><td><b>arXiv</b></td><td>논문 사전 공개 사이트. 심사 전·후 원고를 무료로 올린다.</td></tr>
+<tr><td><b>워크숍</b></td><td>학회 안의 작은 주제별 발표 모임. 본 학회 논문보다 짧고 가벼운 형식.</td></tr>
+<tr><td><b>후향 계단</b></td><td>통로가 계단처럼 갑자기 넓어지는 형상. 흐름이 떨어졌다 다시 붙는 표준 시험 문제.</td></tr>
+<tr><td><b>NACA 2412</b></td><td>미국 항공자문위원회가 정한 표준 날개 단면 모양 중 하나.</td></tr>
+<tr><td><b>코어·분</b></td><td>CPU 코어 1개로 1분 계산한 양. 24 코어·분 = 코어 24개면 1분.</td></tr>
+<tr><td><b>CFD</b></td><td>전산유체역학. 컴퓨터로 공기·물 흐름을 계산하는 것.</td></tr>
+<tr><td><b>OpenFOAM</b></td><td>우리가 쓴 무료 공개 CFD 프로그램.</td></tr>
+</table></div>
 </section>
 </main>
 <script>
@@ -479,6 +539,32 @@ k-ε 난류모델(산업 CFD에서 가장 많이 쓰는 2방정식 RANS)을 PINN
     e.preventDefault();history.replaceState(null,'','#'+a.dataset.tab);show(a.dataset.tab);window.scrollTo(0,0);
   })});
   show(location.hash.slice(1));
+})();
+</script>
+<script>
+(function(){
+  var pop=null;
+  function close(){ if(pop){pop.remove();pop=null;} }
+  function open(el){
+    close();
+    pop=document.createElement('div'); pop.id='termpop';
+    var b=document.createElement('b'); b.textContent=el.textContent;
+    pop.appendChild(b); pop.appendChild(document.createTextNode(el.dataset.def));
+    document.body.appendChild(pop);
+    var r=el.getBoundingClientRect(), w=pop.offsetWidth;
+    var left=Math.min(Math.max(8, r.left+window.scrollX), window.scrollX+document.documentElement.clientWidth-w-8);
+    pop.style.left=left+'px'; pop.style.top=(r.bottom+window.scrollY+6)+'px';
+  }
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('.term');
+    if(el){ e.stopPropagation(); (pop && pop.firstChild.textContent===el.textContent)?close():open(el); }
+    else if(!e.target.closest('#termpop')) close();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape') close();
+    if(e.key==='Enter' && e.target.classList && e.target.classList.contains('term')) open(e.target);
+  });
+  window.addEventListener('resize',close);
 })();
 </script>
 </body>
