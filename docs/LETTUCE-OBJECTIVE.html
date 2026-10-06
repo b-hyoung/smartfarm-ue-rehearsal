@@ -81,8 +81,19 @@ td.code sub{font-size:10px}
 .panel th[scope],.tbl th{vertical-align:top}
 .term{text-decoration:underline dotted var(--accent);text-decoration-thickness:2px;text-underline-offset:3px;cursor:help}
 .term:hover,.term:focus{background:var(--accent-soft);outline:none;border-radius:3px}
-#termpop{position:absolute;z-index:20;max-width:320px;padding:10px 12px;border-radius:8px;background:var(--ink);color:var(--bg);font-size:13px;line-height:1.6;box-shadow:0 6px 20px rgba(0,0,0,.25)}
-#termpop b{display:block;margin-bottom:2px}
+#termdrawer{position:fixed;top:0;right:0;height:100%;width:min(440px,92vw);z-index:30;background:var(--surface);border-left:1px solid var(--line);box-shadow:-12px 0 32px rgba(0,0,0,.18);transform:translateX(105%);transition:transform .32s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+#termdrawer.open{transform:translateX(0)}
+#termdrawer header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 6px}
+#termdrawer .lbl{font-size:12px;color:var(--muted);letter-spacing:.04em}
+#termdrawer .x{border:0;background:var(--bg);color:var(--ink);width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer}
+#termdrawer h4{margin:4px 22px 0;font-size:30px;line-height:1.25;color:var(--accent);word-break:keep-all}
+#termdrawer p{margin:18px 22px;font-size:18px;line-height:1.75;word-break:keep-all}
+#termdrawer .nav{margin-top:auto;padding:14px 22px 22px;display:flex;gap:8px;border-top:1px solid var(--line)}
+#termdrawer .nav button{flex:1;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px;border-radius:8px;font:inherit;cursor:pointer}
+#termshade{position:fixed;inset:0;z-index:29;background:rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .32s}
+#termshade.open{opacity:1;pointer-events:auto}
+.term.on{background:var(--accent-soft);border-radius:3px}
+@media (prefers-reduced-motion:reduce){#termdrawer,#termshade{transition:none}}
 </style>
 </head>
 <body>
@@ -470,7 +481,7 @@ CFD를 다시 돌리거나 모델을 다시 학습시킨 것이 아니다. 아�
 <li><a href="https://www.sciencedirect.com/science/article/abs/pii/S0360132323005905">Wei &amp; Ooka (2023) Indoor airflow field reconstruction using PINN, <i>Building and Environment</i> 242</a> — 실내 기류 PINN</li>
 </ul>
 <h2><span class="no">7</span>용어집</h2>
-<p class="meta">본문의 밑줄 친 단어를 누르면 같은 설명이 뜬다.</p>
+<p class="meta">본문의 밑줄 친 단어를 누르면 오른쪽에 같은 설명이 크게 뜬다. 패널 안 버튼이나 ← → 키로 다음 용어로 넘어간다.</p>
 <div class="tbl"><table>
 <tr><th>용어</th><th>뜻</th></tr>
 <tr><td><b>Fourier Neural Operator</b></td><td>푸리에 신경 연산자(FNO). 격자 위 데이터 전체를 한 번에 받아 주파수 성분으로 바꿔 계산하는 신경망. 고른 격자에 강하다.</td></tr>
@@ -541,30 +552,44 @@ CFD를 다시 돌리거나 모델을 다시 학습시킨 것이 아니다. 아�
   show(location.hash.slice(1));
 })();
 </script>
+<div id="termshade"></div>
+<aside id="termdrawer" aria-hidden="true" aria-label="용어 설명">
+<header><span class="lbl">용어 설명</span><button class="x" aria-label="닫기">×</button></header>
+<h4></h4><p></p>
+<div class="nav"><button data-d="-1">← 이전 용어</button><button data-d="1">다음 용어 →</button></div>
+</aside>
 <script>
 (function(){
-  var pop=null;
-  function close(){ if(pop){pop.remove();pop=null;} }
+  var dr=document.getElementById('termdrawer'), sh=document.getElementById('termshade'), cur=null;
+  function terms(){ var p=document.querySelector('.panel:not([hidden])'); return p?[].slice.call(p.querySelectorAll('.term')):[]; }
   function open(el){
-    close();
-    pop=document.createElement('div'); pop.id='termpop';
-    var b=document.createElement('b'); b.textContent=el.textContent;
-    pop.appendChild(b); pop.appendChild(document.createTextNode(el.dataset.def));
-    document.body.appendChild(pop);
-    var r=el.getBoundingClientRect(), w=pop.offsetWidth;
-    var left=Math.min(Math.max(8, r.left+window.scrollX), window.scrollX+document.documentElement.clientWidth-w-8);
-    pop.style.left=left+'px'; pop.style.top=(r.bottom+window.scrollY+6)+'px';
+    if(cur) cur.classList.remove('on');
+    cur=el; el.classList.add('on');
+    dr.querySelector('h4').textContent=el.textContent;
+    dr.querySelector('p').textContent=el.dataset.def;
+    dr.classList.add('open'); sh.classList.add('open'); dr.setAttribute('aria-hidden','false');
+  }
+  function close(){
+    dr.classList.remove('open'); sh.classList.remove('open'); dr.setAttribute('aria-hidden','true');
+    if(cur){ cur.classList.remove('on'); cur=null; }
+  }
+  function step(d){
+    var a=terms(); if(!a.length) return;
+    var i=cur?a.indexOf(cur):-1; var n=a[(i+d+a.length)%a.length];
+    open(n); n.scrollIntoView({block:'center',behavior:'smooth'});
   }
   document.addEventListener('click',function(e){
     var el=e.target.closest('.term');
-    if(el){ e.stopPropagation(); (pop && pop.firstChild.textContent===el.textContent)?close():open(el); }
-    else if(!e.target.closest('#termpop')) close();
+    if(el){ e.preventDefault(); (cur===el)?close():open(el); return; }
+    if(e.target===sh || e.target.closest('#termdrawer .x')) close();
+    var b=e.target.closest('#termdrawer .nav button'); if(b) step(+b.dataset.d);
   });
   document.addEventListener('keydown',function(e){
     if(e.key==='Escape') close();
     if(e.key==='Enter' && e.target.classList && e.target.classList.contains('term')) open(e.target);
+    if(dr.classList.contains('open') && (e.key==='ArrowRight'||e.key==='ArrowLeft')) step(e.key==='ArrowRight'?1:-1);
   });
-  window.addEventListener('resize',close);
+  document.querySelectorAll('.tabs a').forEach(function(a){a.addEventListener('click',close)});
 })();
 </script>
 </body>
