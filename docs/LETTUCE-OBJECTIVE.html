@@ -101,6 +101,7 @@ td.code sub{font-size:10px}
 <a href="#goal" data-tab="goal" class="on">목표 · 판정</a>
 <a href="#fan" data-tab="fan">팬 데이터시트</a>
 <a href="#paper" data-tab="paper">논문 정리</a>
+<a href="#turb" data-tab="turb">난류 쉬운 설명</a>
 <a href="#fix" data-tab="fix">수정 기록</a>
 </nav></header>
 <main>
@@ -325,6 +326,63 @@ E-006은 계산 오류이므로 이 경향의 상당 부분은 실물이 아니�
 <li><a href="https://nl.farnell.com/ebm-papst/w1g200-ec87-20/fan-ec-200mm-230vac-500m3-h-41dba/dp/1781535">ebm-papst W1G200-EC87-20</a></li>
 <li><a href="https://www.energy.gov/sites/prod/files/2014/04/f15/motor_tip_sheet11.pdf">미국 에너지부 모터 팁시트 — 부분부하 효율</a></li>
 </ul>
+</section>
+<section class="panel" id="turb" hidden>
+<h1>k · ε · 압력 — 쉬운 설명</h1>
+<p class="meta">맥에서 T7로 가져온 CFD 결과(11~14번)에서 새로 꺼낸 값들이 무엇인지 · 2026-10-06</p>
+
+<div class="lead">
+CFD는 바람의 <b>속도</b>와 <b>온도</b>만 계산하는 게 아니다. 바람이 <b>얼마나 출렁이는지(k)</b>, 그 출렁임이 <b>얼마나 빨리 잦아드는지(ε)</b>, 공기를 <b>어느 쪽으로 미는 힘(압력)</b>도 같이 계산한다. 지금까지 PINN은 앞의 둘만 받았고, 이번에 뒤의 셋을 처음 받았다.
+</div>
+
+<h2><span class="no">1</span>그림으로 보기</h2>
+<div class="tbl" style="padding:14px">
+<svg viewBox="0 0 640 170" width="100%" role="img" aria-label="평균 바람과 출렁임">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <g style="color:var(--accent)" stroke="currentColor" fill="none" stroke-width="3">
+    <line x1="30" y1="60" x2="600" y2="60" marker-end="url(#ah)"/>
+  </g>
+  <text x="30" y="40" fill="var(--ink)" font-size="15" font-weight="700">평균 바람 (속도) — 지금까지 쓰던 값</text>
+  <path d="M30,125 C60,100 90,150 120,125 S180,100 210,125 S270,150 300,125 S360,95 390,125 S450,155 480,125 S540,100 570,125" stroke="var(--warn)" stroke-width="3" fill="none"/>
+  <circle cx="120" cy="125" r="9" stroke="var(--warn)" fill="none" stroke-width="2"/>
+  <circle cx="300" cy="125" r="12" stroke="var(--warn)" fill="none" stroke-width="2"/>
+  <circle cx="480" cy="125" r="8" stroke="var(--warn)" fill="none" stroke-width="2"/>
+  <text x="30" y="162" fill="var(--ink)" font-size="15" font-weight="700">그 안의 출렁임·작은 소용돌이 (난류) — 세기가 k, 잦아드는 속도가 ε</text>
+</svg>
+</div>
+
+<h2><span class="no">2</span>하나씩</h2>
+<div class="grid">
+  <div class="card"><div class="k">속도 U · 이미 쓰던 값</div><div class="v">바람의 방향과 빠르기</div><div class="s">“캐노피 위로 0.5 m/s가 오른쪽으로 분다.”</div></div>
+  <div class="card"><div class="k">k · 난류 에너지</div><div class="v">바람이 얼마나 출렁이나</div><div class="s">강물로 치면 평균 흐름 위의 물결 세기. 11 S3 캐노피에서 0.044 m²/s² — 바람이 평균값에서 <b>±0.17 m/s</b> 정도로 계속 흔들린다는 뜻이다.</div></div>
+  <div class="card"><div class="k">ε · 소산율</div><div class="v">출렁임이 얼마나 빨리 잦아드나</div><div class="s">컵의 물을 숟가락으로 저은 뒤 물결이 가라앉는 빠르기. 크면 금방 잔잔해진다.</div></div>
+  <div class="card"><div class="k">압력 p</div><div class="v">공기를 미는 힘의 지도</div><div class="s">바람은 압력이 높은 곳에서 낮은 곳으로 밀려간다. 팬 앞은 높고 흡입기 앞은 낮다.</div></div>
+</div>
+
+<h3>k와 ε를 합치면 — “섞는 힘”</h3>
+<p>출렁임은 공기를 마구 섞는다. 그래서 바람은 실제 공기보다 훨씬 <b>끈적한 공기처럼</b> 행동한다. 빠른 줄기와 느린 구석의 차이가 금방 섞여 줄어든다. 이 섞는 힘(난류 점성)은 k와 ε로 계산한다: <b>0.09 × k² ÷ ε</b>.</p>
+
+<h2><span class="no">3</span>왜 이게 필요했나</h2>
+<div class="tbl"><table>
+<tr><th></th><th>실제 CFD (11 S3 캐노피)</th><th>지금까지 PINN이 추론한 값</th></tr>
+<tr><td>출렁임 세기 k</td><td class="num ok">0.044 m²/s²</td><td class="num ng">0.00003 m²/s²</td></tr>
+<tr><td>섞는 힘 ÷ 공기 원래 끈적임</td><td class="num ok"><b>234배</b></td><td class="num ng"><b>0.1배</b></td></tr>
+</table></div>
+<ul>
+<li>PINN에게 k·ε 정답을 주지 않았더니, “출렁임이 없다(k = 0)”고 해 버리면 물리 시험 한 과목이 저절로 만점이 되는 꼼수를 찾았다.</li>
+<li>그 결과 PINN 속 공기는 <b>거의 섞이지 않는 공기</b>가 됐다. 실제(234배)와 2,000배 넘게 차이 난다.</li>
+<li>섞이지 않는 공기에서는 바람 줄기가 좁게 나가고 옆이 정체된다. 그래서 PINN이 <b>바람 약한 구석(P10)을 실제보다 나쁘게</b> 예측했을 가능성이 있다.</li>
+</ul>
+
+<h2><span class="no">4</span>이번에 한 일</h2>
+<ol class="flow">
+<li><b>맥 → T7</b>: 11 S3 · 12 S4 · 13 S5 · 14 S6 네 케이스의 300~450초 결과(246 MB 묶음)</li>
+<li><b>판정면 위치에서 뽑기</b>: OpenFOAM으로 기존 속도 데이터와 똑같은 점 3,320곳에서 k · ε · 압력을 꺼냈다 (<code>src/extract_keps.py</code>)</li>
+<li><b>맞는지 확인</b>: 같은 점·같은 시각의 속도가 기존 데이터와 0.0001 m/s 이내로 일치 — 엉뚱한 위치를 뽑지 않았다</li>
+<li><b>PINN에 정답지로 추가</b>: 논문 방식대로 k·압력은 일반 오차, ε는 로그 오차로. 지금 다시 학습 중</li>
+</ol>
+
+<div class="note"><b>한계.</b> 13개 학습 케이스 중 4개(11~14)만 이 값이 있다. 나머지 9개(02~10)는 다른 PC에서 계산해 아직 없다. 4개만으로도 “출렁임이 어느 정도 크기인가”는 붙잡히지만, 05 F3 같은 기준 케이스까지 있으면 더 단단해진다.</div>
 </section>
 <section class="panel" id="fix" hidden>
 <h1>수정 기록</h1>
