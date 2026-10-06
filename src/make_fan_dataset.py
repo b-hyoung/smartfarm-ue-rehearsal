@@ -104,33 +104,15 @@ def fan_positions(c):
 
     CFD 가 실제로 쓴 fan_zones(centre_cfd_m, dir_unit)를 그대로 옮긴다. 예전에는 slots()
     규칙으로 다시 계산해서 fans_off(G2 켜고 끄기)를 무시하고, 흡입기(return)·순환형(ends)
-    방향을 송풍기처럼 적었다. fan_zones 가 없는 옛 케이스만 규칙으로 계산한다.
+    방향을 송풍기처럼 적었다. fan_zones 가 없거나 fans_on 과 어긋나면 지어내지 않고 멈춘다.
     """
     zones = c.get("fan_zones")
-    if zones is not None and (zones or not c.get("fans_on")):
-        return [tuple(round(v, 3) for v in list(z["centre_cfd_m"]) + list(z["dir_unit"]))
-                for z in zones]
-    layout = c.get("layout", "none")
-    n = c.get("n_per_side") or 0
-    if not c.get("per_fan_CMM") or layout == "none":
-        return []
-    out = []
-    h = c.get("fan_height_above_bed_m", 0.18)
-    tilt = math.radians(c.get("tilt_deg", 0.0))
-    for ti, bz in enumerate(TIERS):
-        if layout == "top":
-            k = max(2, n * 2)
-            for i in range(k):
-                out.append((round(-BED_W / 2 + BED_W * (i + 0.5) / k, 3), 2.0,
-                            round(bz + 0.55, 3), 0.0, 0.0, -1.0))
-        else:
-            for i in range(n):
-                fy = round(2.0 + BED_D * ((i + 0.5) / n - 0.5), 3)
-                for sx in (-1, 1):
-                    out.append((sx * (BED_W / 2 + 0.10), fy, round(bz + h, 3),
-                                round(-sx * math.cos(tilt), 3), 0.0, round(-math.sin(tilt), 3)))
-    return out
-
+    on = int(c.get("fans_on") or 0)
+    if zones is None or len(zones) != on:
+        raise ValueError("%s: fan_zones %s 개, fans_on %d — fan_params.json 을 먼저 고쳐라"
+                         % (c.get("run_id"), "없음" if zones is None else len(zones), on))
+    return [tuple(round(v, 3) for v in list(z["centre_cfd_m"]) + list(z["dir_unit"]))
+            for z in zones]
 
 CASE_COLS = [
     # 식별

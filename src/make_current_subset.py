@@ -15,7 +15,10 @@
     25~30 A1~A6  에어컨 위치가 다르다 (E-003, 저장본 1 장 케이스 포함)
 
 입력  cmm_T0_S cmm_T0_R cmm_T1_S cmm_T1_R  (T0 아래 단, T1 위 단, S 송풍기, R 흡입기)
+      명목 풍량이다. CFD 는 이 값을 추력 ρQ²/A 로 바꿔 운동량 소스로 넣었을 뿐,
+      팬을 지나는 실제 풍량을 맞추거나 검증하지 않았다 (fan_bc.py).
 출력  두 단 캐노피 중간면의 적정 면적·P10·P90·평균 기온·기온 편차 (scores.csv 그대로)
+오류  err_E004 · err_E005 · err_E006 (cases.csv 그대로). 지금 13 행은 전부 1 이다
 
 실행
     py -m src.make_current_subset          -> data/fan-dataset/current_subset.csv
@@ -36,6 +39,7 @@ HOME = {"ac_xy": (0.0, 2.0), "layout": "pushpull", "n_per_side": 1,
         "tilt_deg": 15.0, "fan_height_above_bed_m": 0.18}
 PLANE = "canopy_mid"
 METRICS = ["band_ratio", "P10", "P90", "T_mean_C", "T_sd"]
+ERRS = ["err_E004_ac_vertical", "err_E005_ac_slot_2x", "err_E006_rackwall_heat"]
 
 
 def matches_home(c):
@@ -68,8 +72,11 @@ def main():
             if r["plane"].endswith(PLANE):
                 S.setdefault(r["run_id"], {})[r["tier"]] = r
 
+    with io.open(os.path.join(DATA, "fan-dataset", "cases.csv"), encoding="utf-8") as f:
+        E = {r["run_id"]: r for r in csv.DictReader(f)}
+
     cols = (["run_id", "case", "purpose"] + ["cmm_" + f[4:8] for f in FANS] + ["cmm_total"]
-            + ["t%s_%s" % (t, m) for t in ("0", "1") for m in METRICS])
+            + ["t%s_%s" % (t, m) for t in ("0", "1") for m in METRICS] + ERRS)
     rows, skipped = [], []
     for c in P["cases"]:
         rid = c["run_id"]
@@ -86,6 +93,7 @@ def main():
         for t in ("0", "1"):
             for m in METRICS:
                 row["t%s_%s" % (t, m)] = S[rid][t][m]
+        row.update({k: E[rid][k] for k in ERRS})
         rows.append(row)
 
     with io.open(OUT, "w", newline="", encoding="utf-8") as f:

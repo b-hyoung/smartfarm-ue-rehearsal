@@ -65,10 +65,21 @@ code{font-size:12.5px;background:var(--line);padding:1px 5px;border-radius:4px}
 a{color:var(--accent)}
 .refs li{margin:4px 0;font-size:13.5px}
 @media (max-width:600px){h1{font-size:23px}.lead{font-size:15.5px}}
+.tabs{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.tabs nav{max-width:960px;margin:0 auto;padding:0 16px;display:flex;gap:4px;overflow-x:auto}
+.tabs a{padding:12px 14px;color:var(--muted);text-decoration:none;font-weight:500;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs a.on{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs a:hover{color:var(--ink)}
+td.ok,td.ng{white-space:nowrap}
 </style>
 </head>
 <body>
+<header class="tabs"><nav>
+<a href="#goal" data-tab="goal" class="on">목표 · 판정</a>
+<a href="#fan" data-tab="fan">팬 데이터시트</a>
+</nav></header>
 <main>
+<section class="panel" id="goal">
 
 <h1>상추 기준 목표 정의</h1>
 <p class="meta">팬 스터디 대리모델·최적화의 목표 · 2026-10-06 · 데이터: <code>data/fan-dataset/current_subset.csv</code> (현재 상황 13 케이스, CFD 계산값)</p>
@@ -81,7 +92,7 @@ a{color:var(--accent)}
 <h2><span class="no">1</span>목표식</h2>
 
 <div class="grid">
-  <div class="card"><div class="k">최소화</div><div class="v">팬 전력 합계</div><div class="s">Σ P(Qᵢ) · 데이터시트 풍량-전력 곡선 (팬 선정 대기)</div></div>
+  <div class="card"><div class="k">최소화</div><div class="v">팬 전력 합계</div><div class="s">Σ P(Qᵢ) · W1G200-CI77-52 곡선 추정 · “팬 데이터시트” 탭</div></div>
   <div class="card"><div class="k">제약 ① 풍속 범위</div><div class="v">0.3~1.0 m/s 면적 ≥ 75%</div><div class="s">아래 단·위 단 각각</div></div>
   <div class="card"><div class="k">제약 ② 정체 방지</div><div class="v">P10 ≥ 0.28 m/s</div><div class="s">팁번 방지 하한, 두 단 각각</div></div>
   <div class="card"><div class="k">제약 ③ 기온</div><div class="v">22 ± 1 ℃</div><div class="s">캐노피 평균, 두 단 각각</div></div>
@@ -107,34 +118,34 @@ a{color:var(--accent)}
 </div>
 
 <div class="tbl"><table>
-<tr><th rowspan="2">케이스</th><th colspan="4">팬 풍량 CMM</th><th rowspan="2">상대 전력<br><span style="font-weight:400">F3 = 100</span></th><th colspan="2">아래 단 풍속</th><th colspan="2">위 단 풍속</th><th colspan="2">기온 ℃</th><th rowspan="2">판정</th></tr>
+<tr><th rowspan="2">케이스</th><th colspan="4">팬 풍량 CMM</th><th rowspan="2">팬 전력 W<br><span style="font-weight:400">추정</span></th><th colspan="2">아래 단 풍속</th><th colspan="2">위 단 풍속</th><th colspan="2">기온 ℃</th><th rowspan="2">판정</th></tr>
 <tr><th>아래 송풍</th><th>아래 흡입</th><th>위 송풍</th><th>위 흡입</th><th>적정 면적</th><th>P10</th><th>적정 면적</th><th>P10</th><th>아래</th><th>위</th></tr>
-<tr><td><b>02_R1</b> 재배단만, 팬 꺼짐</td><td class="num off">끔</td><td class="num off">끔</td><td class="num off">끔</td><td class="num off">끔</td><td class="num">0</td><td class="num ng">0%</td><td class="num ng">0.06</td><td class="num ng">65%</td><td class="num ng">0.22</td><td class="num ok">22.7</td><td class="num ok">22.4</td><td class="v"><span class="miss">아래 면적 · 아래 P10 · 위 면적 · 위 P10</span></td></tr>
-<tr><td><b>03_F1</b> 0.3 m/s 를 노린 풍량</td><td class="num">3.6</td><td class="num">3.6</td><td class="num">3.6</td><td class="num">3.6</td><td class="num">22</td><td class="num ng">71%</td><td class="num ng">0.23</td><td class="num ok">76%</td><td class="num ng">0.23</td><td class="num ng">25.1</td><td class="num ng">23.7</td><td class="v"><span class="miss">아래 면적 · 아래 P10 · 위 P10</span></td></tr>
-<tr><td><b>04_F2</b> 0.4 m/s</td><td class="num">4.8</td><td class="num">4.8</td><td class="num">4.8</td><td class="num">4.8</td><td class="num">51</td><td class="num ok">76%</td><td class="num ng">0.27</td><td class="num ng">73%</td><td class="num ng">0.25</td><td class="num ng">25.4</td><td class="num ng">23.8</td><td class="v"><span class="miss">아래 P10 · 위 면적 · 위 P10</span></td></tr>
-<tr><td><b>05_F3</b> 0.5 m/s</td><td class="num">6</td><td class="num">6</td><td class="num">6</td><td class="num">6</td><td class="num">100</td><td class="num ng">71%</td><td class="num ok">0.32</td><td class="num ok">76%</td><td class="num ok">0.36</td><td class="num ng">25.5</td><td class="num ng">24.3</td><td class="v"><span class="miss">아래 면적</span></td></tr>
-<tr><td><b>06_F4</b> 0.6 m/s</td><td class="num">7.2</td><td class="num">7.2</td><td class="num">7.2</td><td class="num">7.2</td><td class="num">173</td><td class="num ng">65%</td><td class="num ok">0.42</td><td class="num ng">72%</td><td class="num ok">0.37</td><td class="num ng">25.7</td><td class="num ng">24.6</td><td class="v"><span class="miss">아래 면적 · 위 면적</span></td></tr>
-<tr><td><b>07_F5</b> 0.8 m/s</td><td class="num">9.6</td><td class="num">9.6</td><td class="num">9.6</td><td class="num">9.6</td><td class="num">410</td><td class="num ng">44%</td><td class="num ok">0.50</td><td class="num ng">55%</td><td class="num ok">0.48</td><td class="num ng">25.8</td><td class="num ng">25.1</td><td class="v"><span class="miss">아래 면적 · 위 면적</span></td></tr>
-<tr><td><b>08_F6</b> 1.0 m/s</td><td class="num">12</td><td class="num">12</td><td class="num">12</td><td class="num">12</td><td class="num">800</td><td class="num ng">19%</td><td class="num ok">0.71</td><td class="num ng">29%</td><td class="num ok">0.71</td><td class="num ng">26.4</td><td class="num ng">25.9</td><td class="v"><span class="miss">아래 면적 · 위 면적</span></td></tr>
-<tr><td><b>09_S1</b> 아래 단만 켬</td><td class="num">6</td><td class="num">6</td><td class="num off">끔</td><td class="num off">끔</td><td class="num">50</td><td class="num ng">72%</td><td class="num ok">0.34</td><td class="num ng">66%</td><td class="num ng">0.18</td><td class="num ng">24.7</td><td class="num ok">22.8</td><td class="v"><span class="miss">아래 면적 · 위 면적 · 위 P10</span></td></tr>
-<tr><td><b>10_S2</b> 위 단만 켬</td><td class="num off">끔</td><td class="num off">끔</td><td class="num">6</td><td class="num">6</td><td class="num">50</td><td class="num ng">0%</td><td class="num ng">0.04</td><td class="num ok">76%</td><td class="num ok">0.36</td><td class="num ng">25.1</td><td class="num ng">23.9</td><td class="v"><span class="miss">아래 면적 · 아래 P10</span></td></tr>
-<tr class="hit"><td><b>11_S3</b> 송풍기만 켬, 흡입기 끔</td><td class="num">6</td><td class="num off">끔</td><td class="num">6</td><td class="num off">끔</td><td class="num">50</td><td class="num ng">69%</td><td class="num ok">0.33</td><td class="num ok">76%</td><td class="num ok">0.40</td><td class="num ng">25.2</td><td class="num ng">24.1</td><td class="v"><span class="miss">아래 면적</span></td></tr>
-<tr><td><b>12_S4</b> 흡입기만 켬, 송풍기 끔</td><td class="num off">끔</td><td class="num">6</td><td class="num off">끔</td><td class="num">6</td><td class="num">50</td><td class="num ng">3%</td><td class="num ng">0.06</td><td class="num ng">22%</td><td class="num ng">0.13</td><td class="num ng">24.9</td><td class="num ng">23.1</td><td class="v"><span class="miss">아래 면적 · 아래 P10 · 위 면적 · 위 P10</span></td></tr>
-<tr><td><b>13_S5</b> 아래 단 송풍 + 위 단 흡입만</td><td class="num">6</td><td class="num off">끔</td><td class="num off">끔</td><td class="num">6</td><td class="num">50</td><td class="num ng">71%</td><td class="num ok">0.31</td><td class="num ok">82%</td><td class="num ng">0.26</td><td class="num ng">24.9</td><td class="num ok">22.7</td><td class="v"><span class="miss">아래 면적 · 위 P10</span></td></tr>
-<tr><td><b>14_S6</b> 송풍기만 켜고 풍량 두 배</td><td class="num">12</td><td class="num off">끔</td><td class="num">12</td><td class="num off">끔</td><td class="num">400</td><td class="num ng">24%</td><td class="num ok">0.71</td><td class="num ng">32%</td><td class="num ok">0.67</td><td class="num ng">25.8</td><td class="num ng">25.0</td><td class="v"><span class="miss">아래 면적 · 위 면적</span></td></tr>
+<tr><td><b>02_R1</b> 재배단만, 팬 꺼짐</td><td class="num off">끔</td><td class="num off">끔</td><td class="num off">끔</td><td class="num off">끔</td><td class="num">0.0</td><td class="num ng">0%</td><td class="num ng">0.06</td><td class="num ng">65%</td><td class="num ng">0.22</td><td class="num ok">22.7</td><td class="num ok">22.4</td><td class="v"><span class="miss">아래 면적 · 아래 P10 · 위 면적 · 위 P10</span></td></tr>
+<tr><td><b>03_F1</b> 0.3 m/s 를 노린 풍량</td><td class="num">3.6</td><td class="num">3.6</td><td class="num">3.6</td><td class="num">3.6</td><td class="num">15.9</td><td class="num ng">71%</td><td class="num ng">0.23</td><td class="num ok">76%</td><td class="num ng">0.23</td><td class="num ng">25.1</td><td class="num ng">23.7</td><td class="v"><span class="miss">아래 면적 · 아래 P10 · 위 P10</span></td></tr>
+<tr><td><b>04_F2</b> 0.4 m/s</td><td class="num">4.8</td><td class="num">4.8</td><td class="num">4.8</td><td class="num">4.8</td><td class="num">18.0</td><td class="num ok">76%</td><td class="num ng">0.27</td><td class="num ng">73%</td><td class="num ng">0.25</td><td class="num ng">25.4</td><td class="num ng">23.8</td><td class="v"><span class="miss">아래 P10 · 위 면적 · 위 P10</span></td></tr>
+<tr><td><b>05_F3</b> 0.5 m/s</td><td class="num">6</td><td class="num">6</td><td class="num">6</td><td class="num">6</td><td class="num">21.6</td><td class="num ng">71%</td><td class="num ok">0.32</td><td class="num ok">76%</td><td class="num ok">0.36</td><td class="num ng">25.5</td><td class="num ng">24.3</td><td class="v"><span class="miss">아래 면적</span></td></tr>
+<tr><td><b>06_F4</b> 0.6 m/s</td><td class="num">7.2</td><td class="num">7.2</td><td class="num">7.2</td><td class="num">7.2</td><td class="num">27.0</td><td class="num ng">65%</td><td class="num ok">0.42</td><td class="num ng">72%</td><td class="num ok">0.37</td><td class="num ng">25.7</td><td class="num ng">24.6</td><td class="v"><span class="miss">아래 면적 · 위 면적</span></td></tr>
+<tr><td><b>07_F5</b> 0.8 m/s</td><td class="num">9.6</td><td class="num">9.6</td><td class="num">9.6</td><td class="num">9.6</td><td class="num">44.5</td><td class="num ng">44%</td><td class="num ok">0.50</td><td class="num ng">55%</td><td class="num ok">0.48</td><td class="num ng">25.8</td><td class="num ng">25.1</td><td class="v"><span class="miss">아래 면적 · 위 면적</span></td></tr>
+<tr><td><b>08_F6</b> 1.0 m/s</td><td class="num">12</td><td class="num">12</td><td class="num">12</td><td class="num">12</td><td class="num">73.2</td><td class="num ng">19%</td><td class="num ok">0.71</td><td class="num ng">29%</td><td class="num ok">0.71</td><td class="num ng">26.4</td><td class="num ng">25.9</td><td class="v"><span class="miss">아래 면적 · 위 면적</span></td></tr>
+<tr><td><b>09_S1</b> 아래 단만 켬</td><td class="num">6</td><td class="num">6</td><td class="num off">끔</td><td class="num off">끔</td><td class="num">10.8</td><td class="num ng">72%</td><td class="num ok">0.34</td><td class="num ng">66%</td><td class="num ng">0.18</td><td class="num ng">24.7</td><td class="num ok">22.8</td><td class="v"><span class="miss">아래 면적 · 위 면적 · 위 P10</span></td></tr>
+<tr><td><b>10_S2</b> 위 단만 켬</td><td class="num off">끔</td><td class="num off">끔</td><td class="num">6</td><td class="num">6</td><td class="num">10.8</td><td class="num ng">0%</td><td class="num ng">0.04</td><td class="num ok">76%</td><td class="num ok">0.36</td><td class="num ng">25.1</td><td class="num ng">23.9</td><td class="v"><span class="miss">아래 면적 · 아래 P10</span></td></tr>
+<tr class="hit"><td><b>11_S3</b> 송풍기만 켬, 흡입기 끔</td><td class="num">6</td><td class="num off">끔</td><td class="num">6</td><td class="num off">끔</td><td class="num">10.8</td><td class="num ng">69%</td><td class="num ok">0.33</td><td class="num ok">76%</td><td class="num ok">0.40</td><td class="num ng">25.2</td><td class="num ng">24.1</td><td class="v"><span class="miss">아래 면적</span></td></tr>
+<tr><td><b>12_S4</b> 흡입기만 켬, 송풍기 끔</td><td class="num off">끔</td><td class="num">6</td><td class="num off">끔</td><td class="num">6</td><td class="num">10.8</td><td class="num ng">3%</td><td class="num ng">0.06</td><td class="num ng">22%</td><td class="num ng">0.13</td><td class="num ng">24.9</td><td class="num ng">23.1</td><td class="v"><span class="miss">아래 면적 · 아래 P10 · 위 면적 · 위 P10</span></td></tr>
+<tr><td><b>13_S5</b> 아래 단 송풍 + 위 단 흡입만</td><td class="num">6</td><td class="num off">끔</td><td class="num off">끔</td><td class="num">6</td><td class="num">10.8</td><td class="num ng">71%</td><td class="num ok">0.31</td><td class="num ok">82%</td><td class="num ng">0.26</td><td class="num ng">24.9</td><td class="num ok">22.7</td><td class="v"><span class="miss">아래 면적 · 위 P10</span></td></tr>
+<tr><td><b>14_S6</b> 송풍기만 켜고 풍량 두 배</td><td class="num">12</td><td class="num off">끔</td><td class="num">12</td><td class="num off">끔</td><td class="num">36.6</td><td class="num ng">24%</td><td class="num ok">0.71</td><td class="num ng">32%</td><td class="num ok">0.67</td><td class="num ng">25.8</td><td class="num ng">25.0</td><td class="v"><span class="miss">아래 면적 · 위 면적</span></td></tr>
 </table></div>
-<p class="meta">상대 전력은 팬 데이터시트를 받기 전 임시값이다. 전력 ∝ 풍량³(상사법칙)으로 Σ Q³ 를 05 F3(6 CMM × 4대)에 맞춰 나눴다. 기준은 적정 면적 ≥ 75%, P10 ≥ 0.28 m/s, 기온 21~23 ℃.</p>
+<p class="meta">팬 전력은 ebm-papst W1G200-CI77-52 기준 추정값이다. 대당 P = 3.6 + 0.00853·Q³ W (Q: CMM), 꺼진 팬은 0 W. “팬 데이터시트” 탭 참고. 기준은 적정 면적 ≥ 75%, P10 ≥ 0.28 m/s, 기온 21~23 ℃.</p>
 
 <h3>읽은 것</h3>
 <div class="grid">
   <div class="card"><div class="k">풍속 제약 통과</div><div class="v">없음</div><div class="s">13 케이스 모두 네 값 중 하나 이상이 모자란다</div></div>
-  <div class="card"><div class="k">1순위 후보</div><div class="v">11 S3 · 전력 50</div><div class="s">송풍기 2대만 6 CMM. 69% / 76%, P10 0.33 / 0.40. 네 대를 켠 05 F3과 거의 같은 풍속을 전력 절반으로 낸다. 모자란 것은 아래 단 면적 6%p</div></div>
-  <div class="card"><div class="k">2순위 후보</div><div class="v">04 F2 · 전력 51</div><div class="s">네 대 4.8 CMM. 면적 76% / 73%로 거의 맞지만 P10이 0.27 / 0.25로 정체 하한에 조금 못 미친다</div></div>
+  <div class="card"><div class="k">1순위 후보</div><div class="v">11 S3 · 10.8 W</div><div class="s">송풍기 2대만 6 CMM. 69% / 76%, P10 0.33 / 0.40. 네 대를 켠 05 F3(21.6 W)과 거의 같은 풍속을 절반 전력으로 낸다. 모자란 것은 아래 단 면적 6%p</div></div>
+  <div class="card"><div class="k">2순위 후보</div><div class="v">04 F2 · 18.0 W</div><div class="s">네 대 4.8 CMM. 면적 76% / 73%로 거의 맞지만 P10이 0.27 / 0.25로 정체 하한에 조금 못 미친다</div></div>
   <div class="card"><div class="k">흡입기의 몫</div><div class="v">거의 없음</div><div class="s">흡입기만 켠 12 S4는 빈 방 수준(P10 0.06 / 0.13). 흡입기를 끈 11 S3은 05 F3과 비슷하다</div></div>
 </div>
 
 <div class="note">
-<b>범위 밖에 유일한 통과안이 있다.</b> 팬 높이를 선반면 +0.10 m로 낮춘 23 H1(네 대 6 CMM, 전력 100)은 78% / 81%, P10 0.35 / 0.28로 풍속 제약을 넘는다.
+<b>범위 밖에 유일한 통과안이 있다.</b> 팬 높이를 선반면 +0.10 m로 낮춘 23 H1(네 대 6 CMM, 약 21.6 W)은 78% / 81%, P10 0.35 / 0.28로 풍속 제약을 넘는다.
 높이는 이번 학습 입력이 아니어서 빠졌지만, “송풍기만 켜고 높이를 낮추는” 조합이 전력·풍속을 같이 맞출 가능성이 있다. 이 조합은 데이터에 없다.
 </div>
 
@@ -186,9 +197,9 @@ E-006은 계산 오류이므로 이 경향의 상당 부분은 실물이 아니�
 
 <h2><span class="no">4</span>우리 구성 (예정)</h2>
 <ol class="flow">
-  <li><b>학습 데이터 정리 (완료)</b> — <code>cases.csv</code>의 팬 위치 열을 CFD가 실제로 쓴 <code>fan_zones</code> 기준으로 고쳤다. 꺼진 팬이 빠지고 흡입기는 바깥을 향한다.</li>
+  <li><b>학습 데이터 정리 (완료, GPT 교차검증)</b> — <code>cases.csv</code>의 팬 위치 열을 CFD가 실제로 쓴 <code>fan_zones</code> 기준으로 고쳤다. 꺼진 팬이 빠지고 흡입기는 바깥을 향한다. 학습표에는 오류(E-004~006) 표시 열을 붙였고, 풍량은 추력 환산용 명목값이다.</li>
   <li><b>목표 단일 출처</b> — 위 기준값을 설정 파일 하나에 두고 채점기와 최적화가 같이 읽는다.</li>
-  <li><b>팬 데이터시트</b> — 지름 0.2 m급 축류팬, 3.6~12 CMM 범위를 덮는 실제 제품의 풍량-전력 곡선.</li>
+  <li><b>팬 데이터시트 (완료, 추정식)</b> — W1G200-CI77-52 기준 P = P₀ + k·Q³. “팬 데이터시트” 탭.</li>
   <li><b>대리모델</b> — 현재 운전 상황(에어컨 기준 위치, 마주보기, 15°, +0.18 m)에 맞는 13 케이스만 쓴다: 02 R1 · 03~08 F1~F6 · 09~14 S1~S6. 입력은 팬 네 대 각각의 풍량(꺼짐 = 0), 출력은 두 단의 적정 면적과 P10. 학습표 <code>data/fan-dataset/current_subset.csv</code>.</li>
   <li><b>최적화</b> — 풍속 제약을 지키는 최소 전력 후보를 찾는다. 대리모델 불확실성이 큰 후보는 “미검증”으로 따로 표시한다.</li>
 </ol>
@@ -209,6 +220,93 @@ E-006은 계산 오류이므로 이 경향의 상당 부분은 실물이 아니�
 <li><a href="https://www.sciencedirect.com/science/article/abs/pii/S1537511020302361">A CFD analysis on improving lettuce canopy airflow distribution in a plant factory considering crop resistance and LED heat dissipation</a></li>
 </ul>
 
+</section>
+<section class="panel" id="fan" hidden>
+<h1>팬 데이터시트</h1>
+<p class="meta">재배단 순환팬 후보와 전력식 · 2026-10-06 · CFD 가정: 지름 0.20 m, 대당 3.6~12 CMM, 출구 1.9~6.4 m/s, 단마다 송풍기 1대 + 흡입기 1대</p>
+
+<div class="lead">
+기준 팬은 <b>ebm-papst W1G200-CI77-52</b>로 둔다. 후보 가운데 속도별 실측 전력이 데이터시트에 있는 유일한 제품이고, 0-10 V·PWM으로 3.6~12 CMM을 연속으로 낼 수 있다.
+</div>
+
+<h2><span class="no">1</span>기준 팬 사양</h2>
+<div class="grid">
+  <div class="card"><div class="k">형식</div><div class="v">EC 축류팬</div><div class="s">원형 노즐형, Ø200 mm</div></div>
+  <div class="card"><div class="k">최대 풍량</div><div class="v">약 18.2 CMM</div><div class="s">1090 m³/h. 같은 계열 HH77-52 값 (추정)</div></div>
+  <div class="card"><div class="k">정격 전력</div><div class="v">55 W</div><div class="s">자유송풍 2950 rpm · 최대 정압 120 Pa</div></div>
+  <div class="card"><div class="k">전원 · 제어</div><div class="v">24 VDC</div><div class="s">16~28 V · 0-10 V / PWM. 신호 약 10% 이하에서 정지</div></div>
+</div>
+
+<h3>데이터시트 실측값 (rpm, W)</h3>
+<div class="tbl"><table>
+<tr><th>운전</th><th>측정점</th><th>회전수 rpm</th><th>전력 W</th></tr>
+<tr><td>정격 속도</td><td>1~4 (뒤로 갈수록 배압 증가)</td><td class="num">2950 · 2890 · 2800 · 2780</td><td class="num">55 · 58 · 61 · 63</td></tr>
+<tr><td>저속</td><td>5~8</td><td class="num">2270 · 2230 · 2170 · 2130</td><td class="num">27 · 28 · 29 · 30</td></tr>
+<tr><td>최고속</td><td>1′~4′</td><td class="num">2970 · 3100 · 2970 (1′의 2300은 표기 의심)</td><td class="num">77 · 80 · 80 (1′ 73)</td></tr>
+</table></div>
+<p class="meta">데이터시트 5쪽 “Measured values”. 풍량은 곡선 그림에만 있어 숫자로 옮기지 못했으므로 Q ∝ rpm 으로 추정한다.</p>
+
+<h2><span class="no">2</span>전력식</h2>
+<p>순수 상사법칙 P ∝ Q³ 은 저속에서 전력을 너무 낮게 잡는다. 0.77배 속도(2270/2950)에서 Q³ 예측은 25.1 W인데 실측은 27 W다. 3.6 CMM에서는 0.4 W라는 비현실적인 값이 나온다. EC 팬은 구동 전자부 손실이 바닥값으로 남으므로 고정 손실 항을 넣는다.</p>
+<p style="font-size:18px;text-align:center;margin:16px 0"><b>P = 3.56 + 0.008532 · Q³</b> &nbsp;W</p>
+<p class="meta" style="text-align:center">Q: 대당 CMM · 꺼진 팬 0 W · 맞춘 점 (18.2 CMM, 55 W), (14.0 CMM, 27 W)</p>
+<div class="tbl"><table>
+<tr><th>대당 풍량 CMM</th><th>3.6</th><th>4.8</th><th>6.0</th><th>7.2</th><th>9.6</th><th>12.0</th></tr>
+<tr><td>추정 전력</td><td class="num">4.0 W</td><td class="num">4.5 W</td><td class="num">5.4 W</td><td class="num">6.7 W</td><td class="num">11.1 W</td><td class="num">18.3 W</td></tr>
+<tr><td>정격 대비 속도</td><td class="num">20%</td><td class="num">26%</td><td class="num">33%</td><td class="num">40%</td><td class="num">53%</td><td class="num">66%</td></tr>
+</table></div>
+
+<h3>케이스별 팬 전력</h3>
+<div class="tbl"><table>
+<tr><th>케이스</th><th>팬 전력 합계 W</th></tr>
+<tr><td>02 R1 전부 꺼짐</td><td class="num">0.0</td></tr>
+<tr><td>03 F1 4대 × 3.6 CMM</td><td class="num">15.8</td></tr>
+<tr><td>04 F2 4대 × 4.8</td><td class="num">18.0</td></tr>
+<tr><td>05 F3 4대 × 6.0</td><td class="num">21.6</td></tr>
+<tr class="hit"><td>09~13 2대 × 6.0 (11 S3 등)</td><td class="num">10.8</td></tr>
+<tr><td>14 S6 송풍기 2대 × 12</td><td class="num">36.6</td></tr>
+<tr><td>08 F6 4대 × 12</td><td class="num">73.2</td></tr>
+</table></div>
+
+<h2><span class="no">3</span>후보 비교</h2>
+<div class="tbl"><table>
+<tr><th>제품 (제조사)</th><th>크기</th><th>최대 풍량 CMM</th><th>정격 전력</th><th>전압</th><th>속도 제어</th><th>3.6~12 CMM</th><th>판단</th></tr>
+<tr class="hit"><td><b>W1G200-CI77-52</b> (ebm-papst, EC 축류)</td><td>Ø200</td><td class="num">≈18.2 (추정)</td><td class="num">55 W</td><td>24 VDC</td><td>0-10 V / PWM</td><td class="ok">가능 (추정)</td><td>기준 팬</td></tr>
+<tr><td>W1G200-HH77-52 (ebm-papst, 프레임형)</td><td>225×225×80</td><td class="num">18.2</td><td class="num">55 W</td><td>24 VDC</td><td>0-10 V / PWM</td><td class="ok">가능 (추정)</td><td>같은 계열, 프레임 장착이 쉬움</td></tr>
+<tr><td>Centro EC 200 (Blauberg, 덕트)</td><td>덕트 200</td><td class="num">14.8</td><td class="num">84 W</td><td>교류</td><td>EC 가변속</td><td class="ok">가능, 여유 작음</td><td>대안. 출구 확산구 필요</td></tr>
+<tr><td>ECMF-200 (Terra-Bloom, 덕트)</td><td>8″</td><td class="num">20.1</td><td class="num">75 W</td><td>110~120 VAC</td><td>가변저항, PWM·0-10 V 옵션</td><td class="ok">가능</td><td>국내 전압 아님</td></tr>
+<tr><td>CLOUDLINE S8 (AC Infinity, 덕트)</td><td>8″</td><td class="num">24.3</td><td class="num">최대 180 W</td><td>100~240 VAC</td><td>PWM EC 10단</td><td class="ok">가능, 과대</td><td>단별 전력 공식 자료 없음</td></tr>
+<tr><td>W1G200-EC87-20 (ebm-papst)</td><td>Ø200</td><td class="num">8.3</td><td class="num">11 W</td><td>230 VAC</td><td>미확인</td><td class="ng">불가</td><td>최대가 12 CMM 미만</td></tr>
+</table></div>
+<p>식물공장 전용 순환팬의 국내 제품 사양은 찾지 못했다. 그로우룸에서는 덕트팬(ECMF-200, CLOUDLINE)이 표준이지만, 베드 끝 개방형 송풍에는 축류팬이 맞다.</p>
+
+<div class="note"><b>한계.</b> 최대 풍량 18.2 CMM은 같은 계열 HH77-52 값을 빌렸다. 개방형 베드라 자유송풍에 가깝게 돈다고 가정했으며, 실제 풍량은 배압에 따라 줄어든다. 구매 후 전력계로 3~5 단을 실측해 이 식을 바꾼다. 실측 전까지 모든 전력은 추정값이다.</div>
+
+<h2><span class="no">4</span>출처</h2>
+<ul class="refs">
+<li><a href="https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/504/W1G200-CI77-52.pdf">ebm-papst W1G200-CI77-52 데이터시트</a></li>
+<li><a href="https://datasheets.ibselectronics.com/W1G200_HH77_52_pdf.pdf">ebm-papst W1G200-HH77-52 데이터시트</a></li>
+<li><a href="https://blaubergventilatoren.net/modelpdf/centro-ec-200-1">Blauberg Centro EC 200</a></li>
+<li><a href="https://cdn.shopify.com/s/files/1/0939/2046/files/ECMF-200.pdf">Terra-Bloom ECMF-200</a></li>
+<li><a href="https://www.acinfinity.com/hvac-home-ventilation/inline-duct-fan-systems/cloudline-s8-quiet-inline-duct-fan-system-with-speed-controller-8-inch/">AC Infinity CLOUDLINE S8</a></li>
+<li><a href="https://nl.farnell.com/ebm-papst/w1g200-ec87-20/fan-ec-200mm-230vac-500m3-h-41dba/dp/1781535">ebm-papst W1G200-EC87-20</a></li>
+<li><a href="https://www.energy.gov/sites/prod/files/2014/04/f15/motor_tip_sheet11.pdf">미국 에너지부 모터 팁시트 — 부분부하 효율</a></li>
+</ul>
+</section>
 </main>
+<script>
+(function(){
+  var tabs=document.querySelectorAll('.tabs a'), panels=document.querySelectorAll('.panel');
+  function show(id){
+    if(!document.getElementById(id)) id='goal';
+    panels.forEach(function(p){p.hidden=p.id!==id});
+    tabs.forEach(function(a){a.classList.toggle('on',a.dataset.tab===id)});
+  }
+  tabs.forEach(function(a){a.addEventListener('click',function(e){
+    e.preventDefault();history.replaceState(null,'','#'+a.dataset.tab);show(a.dataset.tab);window.scrollTo(0,0);
+  })});
+  show(location.hash.slice(1));
+})();
+</script>
 </body>
 </html>
