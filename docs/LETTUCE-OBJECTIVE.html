@@ -77,12 +77,15 @@ td.code span{display:block;padding:3px 8px;border-radius:4px;margin:2px 0}
 .after{background:var(--ok-bg);color:var(--ok)}
 .pill.gpt{background:var(--accent-soft);color:var(--accent)}
 td.warn-c{color:var(--warn);background:var(--warn-bg);white-space:nowrap}
+td.code sub{font-size:10px}
+.panel th[scope],.tbl th{vertical-align:top}
 </style>
 </head>
 <body>
 <header class="tabs"><nav>
 <a href="#goal" data-tab="goal" class="on">목표 · 판정</a>
 <a href="#fan" data-tab="fan">팬 데이터시트</a>
+<a href="#paper" data-tab="paper">논문 정리</a>
 <a href="#fix" data-tab="fix">수정 기록</a>
 </nav></header>
 <main>
@@ -366,6 +369,101 @@ CFD를 다시 돌리거나 모델을 다시 학습시킨 것이 아니다. 아�
 <li>CFD 결과와 점수표(<code>scores.csv</code>, <code>judge.json</code>)는 그대로다.</li>
 <li>목표 탭의 판정표는 점수표에서 나오므로 이번 수정으로 값이 바뀌지 않는다.</li>
 <li>E-004 · E-005 · E-006 오류는 그대로 남아 있다. 이번 수정은 학습 입력 표기만 바로잡았다.</li>
+</ul>
+</section>
+<section class="panel" id="paper" hidden>
+<h1>논문 정리 — RANS-PINN</h1>
+<p class="meta">팬 조건 PINN(<code>src/ml/fan_pinn.py</code>)이 따르는 논문 · 원문 PDF를 직접 읽고 정리 · 2026-10-06</p>
+
+<div class="tbl"><table>
+<tr><th>제목</th><td><b>RANS-PINN based Simulation Surrogates for Predicting Turbulent Flows</b></td></tr>
+<tr><th>저자</th><td>Shinjan Ghosh, Amit Chakraborty, Georgia Olympia Brikis, Biswadip Dey — Siemens Technology (미국 프린스턴)</td></tr>
+<tr><th>발표</th><td>ICML 2023 워크숍 “Synergy of Scientific and Machine Learning Modeling” (동료 심사), <a href="https://arxiv.org/abs/2306.06034">arXiv:2306.06034</a> (v3, 2023-08-11)</td></tr>
+<tr><th>확장판</th><td>“Using Parametric PINNs for Predicting Internal and External Turbulent Flows”, <a href="https://arxiv.org/abs/2410.18917">arXiv:2410.18917</a> (2024) — 같은 틀을 날개·후향 계단 유동으로 넓힘</td></tr>
+</table></div>
+
+<div class="lead">
+k-ε 난류모델(산업 CFD에서 가장 많이 쓰는 2방정식 RANS)을 PINN 손실에 넣고, <b>레이놀즈 수를 입력으로 더해</b> 한 번 학습한 모델이 <b>CFD를 돌리지 않은 조건의 유동장까지</b> 예측하게 한 연구다. 우리 문제의 “팬 풍량 → 기류장”과 구조가 같다.
+</div>
+
+<h2><span class="no">1</span>왜 이 논문인가</h2>
+<ul>
+<li>우리 CFD(OpenFOAM <code>buoyantPimpleFoam</code>)도 <b>표준 k-ε</b>로 풀었다. 같은 난류모델을 PINN에 넣은 연구라 물리 손실이 CFD와 같은 식이 된다.</li>
+<li><b>매개변수형</b>이다. 운전 조건을 입력으로 넣어 학습에 없던 조건을 예측한다 — 우리가 하려는 “팬 조합 탐색”이 바로 이것이다.</li>
+<li>저자들 스스로 “2방정식 RANS를 PINN에 넣은 연구는 아직 드물다”고 적었고, 그 공백을 채운 연구다. 앞선 Eivazi 외(2022)는 k-ε가 아니라 레이놀즈 응력을 직접 출력하는 방식이었다.</li>
+</ul>
+
+<h2><span class="no">2</span>지배방정식</h2>
+<div class="tbl"><table>
+<tr><th>식</th><th>논문 표기</th></tr>
+<tr><td>연속(질량 보존)</td><td class="code">∇·u = 0</td></tr>
+<tr><td>운동량(RANS)</td><td class="code">ρ(u·∇)u + ∇p − μ<sub>eff</sub>∇²u = 0,&nbsp; μ<sub>eff</sub> = μ + μ<sub>t</sub> = μ + 0.09 k²/ε</td></tr>
+<tr><td>k 식</td><td class="code">∇·(ρuk) = ∇·[(μ + μ<sub>t</sub>/σ<sub>k</sub>)∇k] + P<sub>k</sub> − ε</td></tr>
+<tr><td>ε 식</td><td class="code">∇·(ρuε) = ∇·[(μ + μ<sub>t</sub>/σ<sub>ε</sub>)∇ε] + (C<sub>1</sub>P<sub>ε</sub> − C<sub>2</sub>ε) ε/k</td></tr>
+<tr><td>상수</td><td class="code">C<sub>1</sub> = 1.44, C<sub>2</sub> = 1.92, σ<sub>k</sub> = 1, σ<sub>ε</sub> = 1.3 (Launder &amp; Spalding 1974 표준값)</td></tr>
+</table></div>
+<p class="meta">원문 PDF의 ε 식 생성항 부호는 “+C<sub>2</sub>ε”로 찍혀 있으나 표준 k-ε는 “−C<sub>2</sub>ε”이다. 우리 구현은 표준식을 쓴다.</p>
+
+<h2><span class="no">3</span>구조와 학습법</h2>
+<ol class="flow">
+<li><b>변수마다 따로 둔 신경망</b> — u, p, k, ε 각각 별도 네트워크(Modulus 기본값의 Fourier Neural Operator). 입력은 모두 같다: 좌표 (x, y) + 레이놀즈 수.</li>
+<li><b>예열(pre-training)</b> — 처음에는 데이터 손실만으로 각 네트워크를 따로 학습한다. 데이터·물리 손실을 처음부터 같이 넣으면 손실이 출렁이고 수렴이 느리며 검증 오차가 크다고 보고했다.</li>
+<li><b>물리 손실 추가</b> — 예열 뒤 PDE 손실을 넣는다. 각 PDE 항은 <b>자기 잔차 크기의 역수</b>로 가중해 서로 균형을 맞춘다.</li>
+<li><b>ε 에는 로그 손실</b> — 벽 근처와 전단층에서 ε가 급변하므로 ε의 데이터·PDE 손실은 로그로, 나머지는 MSE로 계산한다.</li>
+<li><b>최적화</b> — Adam, 학습률 0.001에서 감쇠율 0.95로 줄이며 수렴할 때까지. 구현은 NVIDIA Modulus 22.03.</li>
+</ol>
+<p>전체 손실은 L = L<sub>data</sub> + L<sub>BC</sub> + L<sub>PDE</sub>, L<sub>PDE</sub> = λ<sub>1</sub>L<sub>NS</sub> + λ<sub>2</sub>L<sub>cont</sub> + λ<sub>3</sub>L<sub>k</sub> + λ<sub>4</sub>L<sub>ε</sub>.</p>
+
+<h2><span class="no">4</span>실험과 결과</h2>
+<p>CFD는 Simcenter STAR-CCM+(k-ε, 벽함수)로 만들고, 좌표·속도·압력을 특성 길이·유입 속도·동압으로 무차원화했다. 케이스마다 데이터 3,000점, PDE 점 3,000점을 뽑았다(원래 격자 61,000점).</p>
+
+<h3>손실 구성 비교 — 원기둥 유동 (검증 오차)</h3>
+<div class="tbl"><table>
+<tr><th>손실</th><th>x 속도</th><th>y 속도</th><th>압력</th></tr>
+<tr><td>데이터만</td><td class="num">0.205</td><td class="num">0.284</td><td class="num">0.029</td></tr>
+<tr><td>데이터 + PDE</td><td class="num">0.187</td><td class="num">0.474</td><td class="num">0.066</td></tr>
+<tr class="hit"><td>데이터 + PDE + ε 로그 손실</td><td class="num ok">0.014</td><td class="num ok">0.030</td><td class="num">0.105</td></tr>
+</table></div>
+<p>속도 오차는 열 배 넘게 줄었지만 압력 오차는 오히려 커졌다. 학습법(예열 + 잔차 가중 + ε 로그 손실)이 핵심이라는 것이 저자들의 결론이다.</p>
+
+<h3>다른 형상 (단일 레이놀즈 수)</h3>
+<div class="tbl"><table>
+<tr><th>형상</th><th>x 속도</th><th>y 속도</th><th>압력</th></tr>
+<tr><td>NACA 2412 날개 (Re = 3×10⁵)</td><td class="num">0.091</td><td class="num">0.131</td><td class="num">0.022</td></tr>
+<tr><td>후향 계단 (Re = 5600)</td><td class="num">0.024</td><td class="num">0.146</td><td class="num">0.137</td></tr>
+</table></div>
+
+<h3>매개변수형 — 학습에 없던 레이놀즈 수 예측</h3>
+<p>Re 2800~5600 사이 6개 CFD로 학습하고, 학습에 없던 두 조건을 61,000점 전부에서 검증했다.</p>
+<div class="tbl"><table>
+<tr><th>검증 조건</th><th>위치</th><th>x 속도</th><th>y 속도</th><th>압력</th></tr>
+<tr><td>Re = 3140</td><td>학습 범위 안 (보간)</td><td class="num">0.139</td><td class="num">0.289</td><td class="num">0.164</td></tr>
+<tr><td>Re = 5700</td><td>학습 범위 밖 (외삽)</td><td class="num">0.153</td><td class="num">0.200</td><td class="num">0.079</td></tr>
+</table></div>
+<p>CFD 한 번에 약 24 코어·분이 걸리는 것을 거의 실시간으로 낸다. 확장판(2410.18917)은 날개에서 보간 시 u 속도 오차 6%, 외삽 시 12%를 보고했다.</p>
+
+<h2><span class="no">5</span>논문과 우리 적용의 차이</h2>
+<div class="tbl"><table>
+<tr><th>항목</th><th>논문</th><th>우리 (<code>fan_pinn.py</code>)</th><th>영향</th></tr>
+<tr><td>매개변수</td><td>레이놀즈 수 1개 (유입 속도)</td><td>팬 네 대 풍량 4개, 켜고 끄기 포함</td><td class="warn-c">조합 공간이 훨씬 넓다</td></tr>
+<tr><td>차원</td><td>2D</td><td>3D (w 추가)</td><td>계산 부담 증가</td></tr>
+<tr><td>학습 CFD 수</td><td>6개, 한 변수만 고르게</td><td>13개, 한 번에 한 변수씩</td><td class="warn-c">조합 외삽에 약함</td></tr>
+<tr><td><b>데이터에 있는 변수</b></td><td><b>u, p, k, ε 모두</b> (ε 데이터 로그 손실을 명시)</td><td><b>u, T 뿐</b> — CFD가 p, k, ε를 저장하지 않음</td><td class="ng">k, ε를 물리식만으로 추론해야 한다. k → 0 같은 자명해에 빠질 위험 (확인 중)</td></tr>
+<tr><td>데이터 위치</td><td>영역 전체에서 3,000점</td><td>판정면 4장 (z 네 높이)</td><td>z 방향 정보가 얇다</td></tr>
+<tr><td>추가 물리</td><td>없음</td><td>캐노피 다공체 저항(Darcy–Forchheimer), 부력(Boussinesq) — 우리 CFD가 쓴 항</td><td>CFD와 같은 식으로 맞춤</td></tr>
+<tr><td>네트워크</td><td>FNO (Modulus)</td><td>변수별 완전연결망 (5층 × 128, SiLU)</td><td>흩어진 점 데이터라 FNO 대신. 후향 계단 실험은 논문도 완전연결망</td></tr>
+<tr><td>ε 손실</td><td>로그 손실</td><td>ε로 나눈 상대 잔차</td><td>같은 목적(크기 차 완화), 형태는 다름</td></tr>
+</table></div>
+
+<div class="note"><b>설명할 때.</b> “Siemens 연구진의 매개변수형 RANS-PINN(ICML 2023 워크숍) 정식화를 따르고, 우리 CFD의 캐노피 다공체·부력 항을 더했다. 논문과 달리 난류량 데이터가 없어 k와 ε는 물리식으로만 추론했다”가 정확한 표현이다.</div>
+
+<h2><span class="no">6</span>함께 쓴 문헌</h2>
+<ul class="refs">
+<li>Raissi, Perdikaris, Karniadakis (2019) Physics-informed neural networks, <i>J. Comput. Phys.</i> 378 — PINN 원전</li>
+<li>Raissi, Yazdani, Karniadakis (2020) Hidden fluid mechanics, <i>Science</i> 367 — 관측 안 된 변수를 지배방정식으로 추론</li>
+<li><a href="https://cris.fau.de/publications/293052365">Eivazi, Tahani, Schlatter, Vinuesa (2022) PINNs for solving RANS equations, <i>Physics of Fluids</i> 34, 075117</a> — 레이놀즈 응력 방식의 RANS-PINN</li>
+<li><a href="https://pubs.aip.org/aip/pof/article/37/9/093626/3364463/Darcy-Brinkman-Forchheimer-physics-informed-neural">Darcy–Brinkman–Forchheimer PINNs (2025) <i>Physics of Fluids</i> 37, 093626</a> — 다공체 항을 넣은 PINN</li>
+<li><a href="https://www.sciencedirect.com/science/article/abs/pii/S0360132323005905">Wei &amp; Ooka (2023) Indoor airflow field reconstruction using PINN, <i>Building and Environment</i> 242</a> — 실내 기류 PINN</li>
 </ul>
 </section>
 </main>
