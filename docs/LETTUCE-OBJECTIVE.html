@@ -71,12 +71,19 @@ a{color:var(--accent)}
 .tabs a.on{color:var(--ink);border-bottom-color:var(--accent)}
 .tabs a:hover{color:var(--ink)}
 td.ok,td.ng{white-space:nowrap}
+td.code{font:12px/1.6 ui-monospace,Consolas,monospace;word-break:break-all}
+td.code span{display:block;padding:3px 8px;border-radius:4px;margin:2px 0}
+.before{background:var(--ng-bg);color:var(--ng);text-decoration:line-through;text-decoration-thickness:1px}
+.after{background:var(--ok-bg);color:var(--ok)}
+.pill.gpt{background:var(--accent-soft);color:var(--accent)}
+td.warn-c{color:var(--warn);background:var(--warn-bg);white-space:nowrap}
 </style>
 </head>
 <body>
 <header class="tabs"><nav>
 <a href="#goal" data-tab="goal" class="on">목표 · 판정</a>
 <a href="#fan" data-tab="fan">팬 데이터시트</a>
+<a href="#fix" data-tab="fix">수정 기록</a>
 </nav></header>
 <main>
 <section class="panel" id="goal">
@@ -291,6 +298,66 @@ E-006은 계산 오류이므로 이 경향의 상당 부분은 실물이 아니�
 <li><a href="https://www.acinfinity.com/hvac-home-ventilation/inline-duct-fan-systems/cloudline-s8-quiet-inline-duct-fan-system-with-speed-controller-8-inch/">AC Infinity CLOUDLINE S8</a></li>
 <li><a href="https://nl.farnell.com/ebm-papst/w1g200-ec87-20/fan-ec-200mm-230vac-500m3-h-41dba/dp/1781535">ebm-papst W1G200-EC87-20</a></li>
 <li><a href="https://www.energy.gov/sites/prod/files/2014/04/f15/motor_tip_sheet11.pdf">미국 에너지부 모터 팁시트 — 부분부하 효율</a></li>
+</ul>
+</section>
+<section class="panel" id="fix" hidden>
+<h1>수정 기록</h1>
+<p class="meta">학습 데이터 입력 열 수정과 GPT(Codex) 교차검증 · 2026-10-06 · 커밋 87bb90b, 210f3e0</p>
+
+<div class="lead">
+<b>CFD 계산은 처음부터 맞았다.</b> 틀린 것은 그 결과를 학습용 표(<code>cases.csv</code>)로 옮기면서 적은 “어느 팬이 어디서 어느 방향으로 켜져 있었나” 열이다.
+CFD를 다시 돌리거나 모델을 다시 학습시킨 것이 아니다. 아직 학습시킨 모델은 없다.
+</div>
+
+<h2><span class="no">1</span>무엇이 틀렸나</h2>
+<p>CFD 생성기는 <code>fan_params.json</code>의 <code>fan_zones</code>(켜진 팬마다 위치·방향·추력)로 계산했다. 그런데 데이터셋 스크립트 <code>make_fan_dataset.py</code>는 이 값을 읽지 않고 배치 규칙으로 팬 위치를 다시 계산했다. 그 규칙은 꺼진 팬도, 흡입기도 몰랐다.</p>
+
+<div class="tbl"><table>
+<tr><th>#</th><th>틀린 것</th><th>해당 케이스</th><th>결과</th></tr>
+<tr><td>1</td><td>꺼진 팬까지 켜진 팬 목록에 넣었다</td><td>09~14 (켜고 끄기 6개)</td><td>2대만 켠 케이스가 4대 모두 켠 것처럼 적혔다</td></tr>
+<tr><td>2</td><td>흡입기를 송풍기 방향으로 적었다</td><td>흡입기가 있는 모든 케이스</td><td>바깥으로 빨아내는 팬이 재배단 쪽으로 부는 팬으로 적혔다</td></tr>
+<tr><td>3</td><td>순환형 팬(같은 방향 두 대)을 마주보기로 적었다</td><td>15 L1</td><td>양쪽 팬 방향이 서로 반대로 적혔다</td></tr>
+</table></div>
+
+<h3>수정 전후 예시</h3>
+<p>각 팬은 <code>x, y, z, 방향 x, 방향 y, 방향 z</code> 여섯 값이고 <code>;</code>로 이어진다. 빨간 줄이 수정 전, 초록 줄이 수정 후다.</p>
+<div class="tbl"><table>
+<tr><th>케이스</th><th>팬 위치·방향</th></tr>
+<tr><td><b>11 S3</b><br>송풍기만 켬</td><td class="code"><span class="before">-1.3,2,0.73, 0.966,0,-0.259 ; 1.3,2,0.73, -0.966,0,-0.259 ; -1.3,2,1.53, 0.966,0,-0.259 ; 1.3,2,1.53, -0.966,0,-0.259</span><span class="after">-1.3,2,0.73, 0.966,0,-0.259 ; -1.3,2,1.53, 0.966,0,-0.259</span></td></tr>
+<tr><td><b>12 S4</b><br>흡입기만 켬</td><td class="code"><span class="before">-1.3,2,0.73, 0.966,0,-0.259 ; 1.3,2,0.73, -0.966,0,-0.259 ; -1.3,2,1.53, 0.966,0,-0.259 ; 1.3,2,1.53, -0.966,0,-0.259</span><span class="after">1.3,2,0.73, 1,0,0 ; 1.3,2,1.53, 1,0,0</span></td></tr>
+<tr><td><b>15 L1</b><br>순환형</td><td class="code"><span class="before">… ; 1.3,2,0.73, -0.966,0,-0.259 ; … ; 1.3,2,1.53, -0.966,0,-0.259</span><span class="after">… ; 1.3,2,0.73, 0.966,0,-0.259 ; … ; 1.3,2,1.53, 0.966,0,-0.259</span></td></tr>
+</table></div>
+<p>수정 전에는 05 F3(네 대 모두 켬), 11 S3(송풍기만), 12 S4(흡입기만)의 입력이 <b>글자 하나까지 같았다</b>. 결과는 전혀 다른데 입력이 같으니, 이 표로 학습시켰다면 켜고 끄기의 효과를 배울 수 없었다.</p>
+
+<h2><span class="no">2</span>무엇을 고쳤나</h2>
+<div class="tbl"><table>
+<tr><th>파일</th><th>고친 것</th><th>커밋</th></tr>
+<tr><td><code>src/make_fan_dataset.py</code></td><td>팬 위치를 규칙으로 다시 계산하지 않고 <code>fan_zones</code>를 그대로 옮긴다</td><td>87bb90b</td></tr>
+<tr><td><code>data/fan-dataset/cases.csv</code></td><td>팬 위치 열만 다시 썼다 (25행). 격자 수·종료 시각 같은 다른 열은 CFD를 돌린 PC에서만 채울 수 있어 건드리지 않았고, 바뀌지 않았음을 대조했다</td><td>87bb90b</td></tr>
+<tr><td><code>src/make_current_subset.py</code> (새 파일)</td><td>현재 상황 13 케이스 학습표 <code>current_subset.csv</code>를 만든다</td><td>87bb90b</td></tr>
+<tr><td><code>src/make_fan_dataset.py</code></td><td>팬 정보가 없거나 켜진 대수와 어긋나면 옛 규칙으로 지어내지 않고 멈춘다 <span class="pill gpt">GPT 지적</span></td><td>210f3e0</td></tr>
+<tr><td><code>current_subset.csv</code></td><td>오류 표시 열 E-004 · E-005 · E-006 추가 (13행 모두 1). 입력 풍량이 실제 풍량이 아니라 추력 환산용 명목값임을 명시 <span class="pill gpt">GPT 지적</span></td><td>210f3e0</td></tr>
+<tr><td><code>docs/DATASET.md</code></td><td>예시의 흡입기 방향 수정. 점수표에서 19 · 24가 빠진 이유(결과는 있으나 채점 안 됨) 추가 <span class="pill gpt">GPT 지적</span></td><td>210f3e0</td></tr>
+</table></div>
+
+<h2><span class="no">3</span>GPT(Codex) 교차검증</h2>
+<p>수정 커밋을 GPT(Codex)에 넘겨 원본 코드와 데이터를 따로 대조하게 했다. 파일은 고치지 않는 읽기 전용 검토였다.</p>
+<div class="tbl"><table>
+<tr><th>검증 항목</th><th>판정</th><th>근거</th></tr>
+<tr><td>CFD가 실제로 <code>fan_zones</code>를 썼나</td><td class="ok">맞음</td><td>생성기가 꺼진 팬을 빼고 <code>fan_zones</code>로 격자 영역과 운동량 소스를 만든다. 저장된 18 케이스 실행 로그의 켜진 팬도 일치</td></tr>
+<tr><td>새 팬 위치 열</td><td class="ok">맞음</td><td>30행 모두 대수 = 켜진 팬 수, 좌표·방향이 원본과 일치. 바뀐 것은 이 열 25개 값뿐</td></tr>
+<tr><td>흡입기 방향 <code>(1,0,0)</code></td><td class="ok">맞음</td><td>양의 추력 × 방향 벡터로 넣으므로 재배단 바깥으로 공기를 미는 흡입팬 표현이 맞다. 예전 표가 부호 관례상 맞았을 가능성은 없음</td></tr>
+<tr><td>13 케이스 학습표</td><td class="ok">맞음</td><td>필터 결과가 정확히 02, 03~14. 팬 네 대 풍량과 출력 130개 값이 원본 점수와 일치. 모두 저장본 6장</td></tr>
+<tr><td>옛 규칙 대체 경로</td><td class="ng">틀림 → 고침</td><td>팬 정보가 비면 CFD에 없는 팬을 지어냈다</td></tr>
+<tr><td>학습표의 해석</td><td class="warn-c">확인 필요 → 표시 추가</td><td>풍량은 추력 환산용 명목값이고, 13행 모두 E-004~006 오류를 안고 있다</td></tr>
+</table></div>
+<p class="meta">남은 확인 사항: 실행 당시 케이스별 <code>fvOptions</code> 파일은 저장소에 없어서, 실행 중 수동 변경이 없었다는 것까지는 확증하지 못했다.</p>
+
+<h2><span class="no">4</span>바뀌지 않은 것</h2>
+<ul>
+<li>CFD 결과와 점수표(<code>scores.csv</code>, <code>judge.json</code>)는 그대로다.</li>
+<li>목표 탭의 판정표는 점수표에서 나오므로 이번 수정으로 값이 바뀌지 않는다.</li>
+<li>E-004 · E-005 · E-006 오류는 그대로 남아 있다. 이번 수정은 학습 입력 표기만 바로잡았다.</li>
 </ul>
 </section>
 </main>
