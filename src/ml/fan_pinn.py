@@ -42,6 +42,8 @@
   py -m src.ml.fan_pinn --holdout 06_F4,13_S5 --physics none   비교용 (데이터만)
   py -m src.ml.fan_pinn                                   13 케이스 전부 학습 → 최소 전력 탐색
 출력  data/fan_pinn/*.json (커밋)   out/fan_pinn/*.pt (가중치, 커밋 안 함)
+      최종 모델 사본은 data/fan_pinn/models/full_rans_keps_[0-2].pt (커밋, 약 1.9 MB × 3).
+      불러 쓰기: py -m src.ml.fan_pinn --load full_rans_keps
 """
 from __future__ import annotations
 
@@ -382,7 +384,8 @@ def main():
     models = []
     if a.load:
         import glob
-        for fp in sorted(glob.glob(os.path.join(OUT_PT, a.load + "_[0-9]*.pt"))):
+        found = sorted(glob.glob(os.path.join(OUT_PT, a.load + "_[0-9]*.pt"))) or             sorted(glob.glob(os.path.join(OUT_DIR, "models", a.load + "_[0-9]*.pt")))   # 커밋된 사본
+        for fp in found:
             m = RansPINN().to(DEV)
             m.load_state_dict(torch.load(fp, map_location=DEV))
             models.append(m.eval())
@@ -480,9 +483,10 @@ def main():
         result["turbulence_diag"] = diag
 
     tag = ("full" if not hold else "hold_" + "_".join(hold)) + "_" + a.physics + ("_keps" if keps else "")
-    os.makedirs(OUT_PT, exist_ok=True)
-    for s, m in enumerate(models):
-        torch.save(m.state_dict(), os.path.join(OUT_PT, "%s_%d.pt" % (tag, s)))
+    if not a.load:                                                # 불러온 모델은 다시 저장하지 않는다
+        os.makedirs(OUT_PT, exist_ok=True)
+        for s, m in enumerate(models):
+            torch.save(m.state_dict(), os.path.join(OUT_PT, "%s_%d.pt" % (tag, s)))
 
     os.makedirs(OUT_DIR, exist_ok=True)
     sfx = a.physics + ("_keps" if keps else "")
