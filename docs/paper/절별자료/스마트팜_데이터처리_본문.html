@@ -1,0 +1,9 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>스마트팜 논문 — 시스템 데이터 처리 프로세스</title><style>
+*{box-sizing:border-box}body{margin:0;background:#edf1f5;color:#172a3b;font-family:"Malgun Gothic",sans-serif}
+main{max-width:940px;margin:32px auto;padding:42px 54px;background:white;box-shadow:0 8px 32px #21394d12}
+h1{font-size:23px;margin:0 0 24px;letter-spacing:-.5px}h2{font-size:18px;margin:28px 0 9px}
+p{font-size:16px;line-height:1.95;word-break:keep-all;margin:0 0 16px}
+@media(max-width:650px){main{margin:0;padding:24px 18px}h1{font-size:20px}p{font-size:15px}}
+@media print{body{background:white}main{margin:0;padding:0;max-width:none;box-shadow:none}p{font-size:10.5pt;line-height:1.65}h1{font-size:15pt}h2{font-size:11pt;margin-top:15pt;break-after:avoid}@page{size:A4;margin:16mm}}
+</style><main><h1>2.3 시스템 데이터 처리 프로세스</h1><p>제안하는 시스템의 데이터 처리는 다음 네 모듈의 연계를 통해 수행된다.</p><section><h2>1. CFD 해석 모듈</h2><p>고정된 공간 형상과 격자, 경계조건을 기반으로 OpenFOAM 수치해석을 수행한다. 실내 기류 및 열전달 해석 예제인 comfortHotRoom을 기반으로 해석 환경을 구축하고, buoyantPimpleFoam 솔버와 표준 k-ε 난류 모델을 적용하여 순환 팬 운전 조건(배치 및 풍량)에 따른 시간·공간별 유속, 온도 및 난류 해석 데이터를 생성한다.</p></section><section><h2>2. 데이터 변환 모듈</h2><p>OpenFOAM 해석 결과는 팬 운전 조건과 공간 좌표, 유속 및 온도 정보를 대응시켜 정리한다. 정리된 데이터는 활용 목적에 따라 AI 모델 학습용 CSV(.csv) 데이터셋과 3차원 시각화용 OpenVDB(.vdb) 볼륨 데이터로 각각 가공한다. 시각화에 사용할 데이터는 언리얼 엔진의 좌표 체계와 단위에 맞추어 변환한다.</p></section><section><h2>3. AI 기류 예측 및 재학습 모듈</h2><p>고정된 공간 환경에서 입력된 팬 운전 조건에 따른 기류 분포를 PINN 및 PINO 기반 모델로 예측하고, 재배단별 풍속 특성과 기류 균일도를 평가하기 위한 지표를 산출한다. 모델이 제안한 조건 중 추가 검증 대상으로 선정된 조건은 동일 조건의 CFD 해석을 다시 수행하여 추가 학습 이전 모델의 예측 결과와 비교·검증한다. 새롭게 생성된 CFD 데이터를 기존 학습 데이터에 누적하고, 이를 바탕으로 재학습하여 갱신된 모델을 이후 운전 조건 탐색에 활용한다.</p></section><section><h2>4. 3차원 시각화 모듈</h2><p>언리얼 엔진 5는 전달받은 볼륨 데이터를 가상 스마트팜 공간에 렌더링한다. 팬 운전 조건에 따른 기류 분포와 별도로 산출한 예상 전력 지표를 인터페이스에 함께 표시하여, 사용자가 조건별 결과를 3차원 화면에서 직관적으로 비교·검토할 수 있도록 한다.</p></section></main></html>

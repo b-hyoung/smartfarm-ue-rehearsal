@@ -1,0 +1,56 @@
+{
+  "observed_at_utc": "2026-11-04T00:25:14.581780+00:00",
+  "current_environment_only": {
+    "os": "Windows 11 Pro",
+    "os_build": "10.0.26200",
+    "cpu": "AMD Ryzen 9 9900X",
+    "physical_memory_GiB": 64,
+    "gpu": "NVIDIA GeForce RTX 5060 Ti",
+    "gpu_reported_memory_MiB": 16311,
+    "gpu_driver": "610.88",
+    "python": "3.11.4",
+    "torch": "2.11.0+cu128",
+    "unreal_installed": "5.8.3",
+    "docker_desktop": "4.52.0.210994",
+    "docker_cli": "29.0.1",
+    "docker_backend": "WSL 2",
+    "docker_daemon": "not running during inspection",
+    "git": "2.52.0.windows.1"
+  },
+  "project_evidence": {
+    "unreal_association": "5.8",
+    "openfoam_execution_log": "2512",
+    "openfoam_image": "opencfd/openfoam-default:2512",
+    "vdb_build_image": "sf-openvdb:1",
+    "vdb_base_image": "debian:bookworm-slim"
+  },
+  "not_verified": [
+    "Exact hardware used for each historical run",
+    "Mac model and macOS version",
+    "Historical PyTorch version for each model experiment",
+    "Exact OpenVDB package version",
+    "Currently available Docker images while daemon is stopped"
+  ],
+  "sources": [
+    [
+      "프로젝트 엔진 설정",
+      "C:/Users/ACE/Desktop/smartfarm-ue-rehearsal/ue/SF_Rehearsal.uproject"
+    ],
+    [
+      "CFD 실행 환경 문서",
+      "C:/Users/ACE/Desktop/smartfarm-ue-rehearsal/docs/START-HERE.md"
+    ],
+    [
+      "OpenFOAM 실행 로그",
+      "C:/Users/ACE/Desktop/smartfarm-ue-rehearsal/data/runs/2026-09-23-fan-study-17-18/17_L3/log.decomposePar"
+    ],
+    [
+      "VDB 컨테이너 구성 코드",
+      "C:/Users/ACE/Desktop/smartfarm-ue-rehearsal/src/make_vdb.sh"
+    ],
+    [
+      "장비별 CFD 작업 기록",
+      "C:/Users/ACE/Desktop/smartfarm-ue-rehearsal/docs/FAN-RESULTS.md"
+    ]
+  ]
+}

@@ -1,0 +1,42 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1340" viewBox="0 0 1200 1340" role="img" aria-labelledby="title desc">
+<title id="title">스마트팜 기류 예측 및 시각화 시스템 구성도</title>
+<desc id="desc">CFD 데이터로 AI 모델을 학습하고 CFD 결과는 VDB로 변환해 시각화한다. AI 추천 조건을 CFD로 다시 계산하고 예측값과 비교한 뒤 데이터를 추가하여 재학습하는 순환을 포함한다.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#405466"/></marker><marker id="loop-arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#82633d"/></marker></defs>
+<rect width="1200" height="1340" fill="white"/>
+<g font-family="Malgun Gothic, sans-serif" text-anchor="middle" fill="#203848">
+<g stroke="#607889" stroke-width="2" fill="#f2f7fb">
+<rect x="50" y="55" width="500" height="125" rx="14"/><rect x="650" y="55" width="500" height="125" rx="14"/>
+<rect x="300" y="265" width="600" height="125" rx="14"/>
+<rect x="40" y="500" width="495" height="150" rx="14" fill="#f4f2fa"/>
+<rect x="665" y="500" width="495" height="150" rx="14" fill="#eef8f2"/>
+<rect x="40" y="760" width="495" height="185" rx="14" fill="#fff8ee" stroke="#82633d"/>
+<rect x="665" y="760" width="495" height="155" rx="14" fill="#eef8f2"/>
+<rect x="285" y="1030" width="630" height="145" rx="14" fill="#fff9ee"/>
+</g>
+<g font-size="25" font-weight="bold">
+<text x="300" y="95">고정 공간 환경</text><text x="900" y="95">가변 운전 조건: 순환 팬</text>
+<text x="600" y="305">1. OpenFOAM 기류 해석</text>
+<text x="287" y="540">2. AI 기류 예측 모델</text><text x="912" y="540">3. 3차원 볼륨 변환</text>
+<text x="287" y="800" fill="#725331">CFD 재검증 · 재학습</text>
+<text x="912" y="800">4. 언리얼 엔진 5</text><text x="600" y="1072">출력: 대화형 탐색 및 검토</text>
+</g>
+<g font-size="21">
+<text x="300" y="130">반타원형 공간 (8.0 × 5.7 × 2.7 m)</text><text x="300" y="160">다단 재배단 · 냉난방기</text>
+<text x="900" y="130">팬 배치: 높이 · 기울기</text><text x="900" y="160">가동 대수 · 풍량</text>
+<text x="600" y="341">비정상 난류 해석 (RANS k-ε)</text><text x="600" y="370">운전 조건별 시간·공간 기류 데이터</text>
+<text x="287" y="580">PINN / PINO 모델 학습</text><text x="287" y="615">팬 운전 조건에 따른 기류 예측</text>
+<text x="912" y="580">OpenFOAM 데이터 → OpenVDB</text><text x="912" y="615">공간 전체 기류·온도 볼륨 데이터</text>
+<text x="287" y="838">동일 팬 조건으로 CFD 재계산</text><text x="287" y="873">AI 예측값과 CFD 결과 비교</text><text x="287" y="908">CFD 데이터 추가 → 모델 재학습</text>
+<text x="912" y="840">스마트팜 3D 가상 공간</text><text x="912" y="877">VDB 기반 시각화 · 팬 조건 인터페이스</text>
+<text x="600" y="1114">상·하단 기류 분포 및 낮은 풍속 구간 확인</text><text x="600" y="1150">팬 운전 조건별 전력 지표 비교 탐색</text>
+</g>
+<g stroke="#405466" stroke-width="3" fill="none" marker-end="url(#arrow)">
+<path d="M300 180 L460 255"/><path d="M900 180 L740 255"/><path d="M460 390 L290 490"/><path d="M740 390 L910 490"/>
+<path d="M912 650 L912 750"/><path d="M912 915 L750 1020"/>
+<path d="M535 575 L605 575 L605 835 L655 835" stroke-dasharray="10 8"/>
+</g>
+<g stroke="#82633d" stroke-width="3" fill="none" marker-end="url(#loop-arrow)"><path d="M287 650 L287 750"/><path d="M40 850 L16 850 L16 575 L30 575"/></g>
+<rect x="225" y="682" width="124" height="32" fill="white"/><text x="287" y="706" font-size="20" fill="#725331">추천 조건</text>
+<rect x="486" y="679" width="228" height="29" fill="white"/><text x="600" y="700" font-size="18" fill="#546b7b">AI 예측 결과 연계 목표</text>
+<text x="600" y="1270" font-size="25" font-weight="bold">그림 1. 스마트팜 기류 예측 및 시각화 시스템 구성도</text>
+</g></svg>
