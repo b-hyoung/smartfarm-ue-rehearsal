@@ -1,0 +1,120 @@
+{
+  "case": "04_ac_upper",
+  "per_fan_CMM": 0.84,
+  "flow_m3s": 0.014,
+  "diameter_m": 0.092,
+  "equivalent_disk_velocity_ms": 2.106020040913549,
+  "rho_kg_m3": 1.17,
+  "per_fan_thrust_N": 0.03449660827016393,
+  "active_fans": 7,
+  "active_tiers": [
+    1
+  ],
+  "fan_zones": [
+    {
+      "id": "fan_t1_front1",
+      "tier": 1,
+      "dir_unit": [
+        0,
+        1,
+        0
+      ],
+      "thrust_N": 0.03449660827016393,
+      "outlet_center_m": [
+        -0.588,
+        1.6,
+        1.5
+      ]
+    },
+    {
+      "id": "fan_t1_front2",
+      "tier": 1,
+      "dir_unit": [
+        0,
+        1,
+        0
+      ],
+      "thrust_N": 0.03449660827016393,
+      "outlet_center_m": [
+        -0.196,
+        1.6,
+        1.5
+      ]
+    },
+    {
+      "id": "fan_t1_front3",
+      "tier": 1,
+      "dir_unit": [
+        0,
+        1,
+        0
+      ],
+      "thrust_N": 0.03449660827016393,
+      "outlet_center_m": [
+        0.196,
+        1.6,
+        1.5
+      ]
+    },
+    {
+      "id": "fan_t1_front4",
+      "tier": 1,
+      "dir_unit": [
+        0,
+        1,
+        0
+      ],
+      "thrust_N": 0.03449660827016393,
+      "outlet_center_m": [
+        0.588,
+        1.6,
+        1.5
+      ]
+    },
+    {
+      "id": "fan_t1_back1",
+      "tier": 1,
+      "dir_unit": [
+        0,
+        -1,
+        0
+      ],
+      "thrust_N": 0.03449660827016393,
+      "outlet_center_m": [
+        -0.392,
+        2.4,
+        1.5
+      ]
+    },
+    {
+      "id": "fan_t1_back2",
+      "tier": 1,
+      "dir_unit": [
+        0,
+        -1,
+        0
+      ],
+      "thrust_N": 0.03449660827016393,
+      "outlet_center_m": [
+        0.0,
+        2.4,
+        1.5
+      ]
+    },
+    {
+      "id": "fan_t1_back3",
+      "tier": 1,
+      "dir_unit": [
+        0,
+        -1,
+        0
+      ],
+      "thrust_N": 0.03449660827016393,
+      "outlet_center_m": [
+        0.392,
+        2.4,
+        1.5
+      ]
+    }
+  ]
+}

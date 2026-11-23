@@ -1,0 +1,12 @@
+{
+  "case": "01_ac_only",
+  "per_fan_CMM": 0.84,
+  "flow_m3s": 0.014,
+  "diameter_m": 0.092,
+  "equivalent_disk_velocity_ms": 2.106020040913549,
+  "rho_kg_m3": 1.17,
+  "per_fan_thrust_N": 0.03449660827016393,
+  "active_fans": 0,
+  "active_tiers": [],
+  "fan_zones": []
+}

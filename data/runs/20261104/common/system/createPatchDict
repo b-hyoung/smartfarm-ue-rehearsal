@@ -1,0 +1,65 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      createPatchDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+//
+//  topoSet 이 만든 faceSet 5개를 실제 경계 패치로 승격한다.
+//  나머지 면은 blockMeshDict 의 defaultPatch 인 walls 로 남는다.
+//
+//    inletXp / inletXm / inletYp / inletYm : 4Way 토출 슬롯
+//    return                                : 중앙 흡입 그릴
+//
+//  ※ 원본(inlet/outlet 2개)은 createPatchDict.tutorial-backup 에 보존
+//
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+pointSync         false;
+
+writeCyclicMatch  false;
+
+patches
+(
+    {
+        name inletXp;
+        patchInfo { type patch; }
+        constructFrom set;
+        set inletXp;
+    }
+    {
+        name inletXm;
+        patchInfo { type patch; }
+        constructFrom set;
+        set inletXm;
+    }
+    {
+        name inletYp;
+        patchInfo { type patch; }
+        constructFrom set;
+        set inletYp;
+    }
+    {
+        name inletYm;
+        patchInfo { type patch; }
+        constructFrom set;
+        set inletYm;
+    }
+    {
+        name return;
+        patchInfo { type patch; }
+        constructFrom set;
+        set return;
+    }
+);
+
+// ************************************************************************* //

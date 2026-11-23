@@ -1,0 +1,139 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+actions
+(
+    { name fan_t0_front1; type cellSet; action new; source cylinderToCell; p1 (-0.588 1.57500 0.70000); p2 (-0.588 1.60000 0.70000); radius 0.046; }
+    {
+        name    fan_t0_front1;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t0_front1;
+    }
+    { name fan_t0_front2; type cellSet; action new; source cylinderToCell; p1 (-0.196 1.57500 0.70000); p2 (-0.196 1.60000 0.70000); radius 0.046; }
+    {
+        name    fan_t0_front2;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t0_front2;
+    }
+    { name fan_t0_front3; type cellSet; action new; source cylinderToCell; p1 (0.196 1.57500 0.70000); p2 (0.196 1.60000 0.70000); radius 0.046; }
+    {
+        name    fan_t0_front3;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t0_front3;
+    }
+    { name fan_t0_front4; type cellSet; action new; source cylinderToCell; p1 (0.588 1.57500 0.70000); p2 (0.588 1.60000 0.70000); radius 0.046; }
+    {
+        name    fan_t0_front4;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t0_front4;
+    }
+    { name fan_t0_back1; type cellSet; action new; source cylinderToCell; p1 (-0.392 2.42500 0.70000); p2 (-0.392 2.40000 0.70000); radius 0.046; }
+    {
+        name    fan_t0_back1;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t0_back1;
+    }
+    { name fan_t0_back2; type cellSet; action new; source cylinderToCell; p1 (0.0 2.42500 0.70000); p2 (0.0 2.40000 0.70000); radius 0.046; }
+    {
+        name    fan_t0_back2;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t0_back2;
+    }
+    { name fan_t0_back3; type cellSet; action new; source cylinderToCell; p1 (0.392 2.42500 0.70000); p2 (0.392 2.40000 0.70000); radius 0.046; }
+    {
+        name    fan_t0_back3;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t0_back3;
+    }
+    { name fan_t1_front1; type cellSet; action new; source cylinderToCell; p1 (-0.588 1.57500 1.50000); p2 (-0.588 1.60000 1.50000); radius 0.046; }
+    {
+        name    fan_t1_front1;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t1_front1;
+    }
+    { name fan_t1_front2; type cellSet; action new; source cylinderToCell; p1 (-0.196 1.57500 1.50000); p2 (-0.196 1.60000 1.50000); radius 0.046; }
+    {
+        name    fan_t1_front2;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t1_front2;
+    }
+    { name fan_t1_front3; type cellSet; action new; source cylinderToCell; p1 (0.196 1.57500 1.50000); p2 (0.196 1.60000 1.50000); radius 0.046; }
+    {
+        name    fan_t1_front3;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t1_front3;
+    }
+    { name fan_t1_front4; type cellSet; action new; source cylinderToCell; p1 (0.588 1.57500 1.50000); p2 (0.588 1.60000 1.50000); radius 0.046; }
+    {
+        name    fan_t1_front4;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t1_front4;
+    }
+    { name fan_t1_back1; type cellSet; action new; source cylinderToCell; p1 (-0.392 2.42500 1.50000); p2 (-0.392 2.40000 1.50000); radius 0.046; }
+    {
+        name    fan_t1_back1;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t1_back1;
+    }
+    { name fan_t1_back2; type cellSet; action new; source cylinderToCell; p1 (0.0 2.42500 1.50000); p2 (0.0 2.40000 1.50000); radius 0.046; }
+    {
+        name    fan_t1_back2;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t1_back2;
+    }
+    { name fan_t1_back3; type cellSet; action new; source cylinderToCell; p1 (0.392 2.42500 1.50000); p2 (0.392 2.40000 1.50000); radius 0.046; }
+    {
+        name    fan_t1_back3;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fan_t1_back3;
+    }
+    { name canopy_t0; type cellSet; action new; source boxToCell; box (-1.2 1.6 0.55) (1.2 2.4 0.73); }
+    {
+        name    canopy_t0;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     canopy_t0;
+    }
+    { name canopy_t1; type cellSet; action new; source boxToCell; box (-1.2 1.6 1.35) (1.2 2.4 1.53); }
+    {
+        name    canopy_t1;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     canopy_t1;
+    }
+);

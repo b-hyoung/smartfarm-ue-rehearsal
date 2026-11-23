@@ -1,0 +1,113 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class dictionary;
+    object controlDict;
+}
+
+// Common run controls for the four cooling + circulation-fan cases.
+application       buoyantPimpleFoam;
+startFrom         startTime;
+startTime         0;
+stopAt            endTime;
+endTime           900;
+deltaT            0.002;
+adjustTimeStep    yes;
+maxCo             1;
+maxDeltaT         0.5;
+writeControl      adjustableRunTime;
+writeInterval     300;
+writeFormat       ascii;
+writePrecision    9;
+writeCompression  off;
+purgeWrite        0;
+timeFormat        general;
+timePrecision     6;
+runTimeModifiable true;
+
+functions
+{
+    lowerMeanT15cm
+    {
+        type             surfaceFieldValue;
+        libs             (fieldFunctionObjects);
+        writeControl     adjustableRunTime;
+        writeInterval    1;
+        writeFields      false;
+        regionType       sampledSurface;
+        name             lower15cm;
+        sampledSurfaceDict
+        {
+type            meshedSurface;
+            surface         lower15cm.obj;
+            source          insideCells;
+            interpolate     true;
+        }
+        operation        areaAverage;
+        fields           (T);
+    }
+
+    upperMeanT15cm
+    {
+        type             surfaceFieldValue;
+        libs             (fieldFunctionObjects);
+        writeControl     adjustableRunTime;
+        writeInterval    1;
+        writeFields      false;
+        regionType       sampledSurface;
+        name             upper15cm;
+        sampledSurfaceDict
+        {
+type            meshedSurface;
+            surface         upper15cm.obj;
+            source          insideCells;
+            interpolate     true;
+        }
+        operation        areaAverage;
+        fields           (T);
+    }
+
+    // U and T maps at 5, 10 and 15 minutes. The 18 cm canopy top is secondary.
+    canopyMaps
+    {
+        type             surfaces;
+        libs             (sampling);
+        writeControl     adjustableRunTime;
+        writeInterval    300;
+        surfaceFormat    raw;
+        interpolationScheme cellPoint;
+        fields           (U T);
+        surfaces
+        {
+            lower15cm
+            {
+type            meshedSurface;
+                surface         lower15cm.obj;
+                source          insideCells;
+                interpolate     true;
+            }
+            lower18cm
+            {
+type            meshedSurface;
+                surface         lower18cm.obj;
+                source          insideCells;
+                interpolate     true;
+            }
+            upper15cm
+            {
+type            meshedSurface;
+                surface         upper15cm.obj;
+                source          insideCells;
+                interpolate     true;
+            }
+            upper18cm
+            {
+type            meshedSurface;
+                surface         upper18cm.obj;
+                source          insideCells;
+                interpolate     true;
+            }
+        }
+    }
+}

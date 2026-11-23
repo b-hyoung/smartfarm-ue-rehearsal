@@ -1,0 +1,147 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvOptions;
+}
+
+limitTAir
+{
+    type       limitTemperature;
+    min        280;
+    max        310;
+    selectionMode all;
+}
+
+fan_t0_front1
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   cellZone;
+    cellZone        fan_t0_front1;
+    volumeMode      absolute;   // Su 가 N 단위
+    sources
+    {
+        U  ((0.00000 0.03450 0.00000) 0);   // 추력 0.0345 N
+    }
+}
+
+fan_t0_front2
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   cellZone;
+    cellZone        fan_t0_front2;
+    volumeMode      absolute;   // Su 가 N 단위
+    sources
+    {
+        U  ((0.00000 0.03450 0.00000) 0);   // 추력 0.0345 N
+    }
+}
+
+fan_t0_front3
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   cellZone;
+    cellZone        fan_t0_front3;
+    volumeMode      absolute;   // Su 가 N 단위
+    sources
+    {
+        U  ((0.00000 0.03450 0.00000) 0);   // 추력 0.0345 N
+    }
+}
+
+fan_t0_front4
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   cellZone;
+    cellZone        fan_t0_front4;
+    volumeMode      absolute;   // Su 가 N 단위
+    sources
+    {
+        U  ((0.00000 0.03450 0.00000) 0);   // 추력 0.0345 N
+    }
+}
+
+fan_t0_back1
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   cellZone;
+    cellZone        fan_t0_back1;
+    volumeMode      absolute;   // Su 가 N 단위
+    sources
+    {
+        U  ((0.00000 -0.03450 0.00000) 0);   // 추력 0.0345 N
+    }
+}
+
+fan_t0_back2
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   cellZone;
+    cellZone        fan_t0_back2;
+    volumeMode      absolute;   // Su 가 N 단위
+    sources
+    {
+        U  ((0.00000 -0.03450 0.00000) 0);   // 추력 0.0345 N
+    }
+}
+
+fan_t0_back3
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   cellZone;
+    cellZone        fan_t0_back3;
+    volumeMode      absolute;   // Su 가 N 단위
+    sources
+    {
+        U  ((0.00000 -0.03450 0.00000) 0);   // 추력 0.0345 N
+    }
+}
+
+canopy_t0
+{
+    type            explicitPorositySource;
+    active          yes;
+
+    explicitPorositySourceCoeffs
+    {
+        selectionMode   cellZone;
+        cellZone        canopy_t0;
+
+        type            DarcyForchheimer;
+
+        d               (25 25 25);   // 점성저항 1/alpha (1/m2)
+        f               (1.3 1.3 1.3);   // 관성저항 C2 (1/m)
+
+        coordinateSystem
+        {
+            origin  (0 0 0);
+            e1      (1 0 0);
+            e2      (0 1 0);
+        }
+    }
+}
+
+canopy_t1
+{
+    type            explicitPorositySource;
+    active          yes;
+
+    explicitPorositySourceCoeffs
+    {
+        selectionMode   cellZone;
+        cellZone        canopy_t1;
+
+        type            DarcyForchheimer;
+
+        d               (25 25 25);   // 점성저항 1/alpha (1/m2)
+        f               (1.3 1.3 1.3);   // 관성저항 C2 (1/m)
+
+        coordinateSystem
+        {
+            origin  (0 0 0);
+            e1      (1 0 0);
+            e2      (0 1 0);
+        }
+    }
+}

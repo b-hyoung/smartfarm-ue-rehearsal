@@ -1,0 +1,67 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+actions
+(
+    {
+        name    keep;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        box     (-4.05 -0.05 -0.05) (4.05 5.75 2.75);
+    }
+    {
+        name    keep;
+        type    cellSet;
+        action  subtract;
+        source  boxToCell;
+        box     (-1.2 1.6 0.5) (1.2 2.4 0.55);   // bed0
+    }
+    {
+        name    keep;
+        type    cellSet;
+        action  subtract;
+        source  boxToCell;
+        box     (-1.2 1.6 1.3) (1.2 2.4 1.35);   // bed1
+    }
+    {
+        name    keep;
+        type    cellSet;
+        action  subtract;
+        source  boxToCell;
+        box     (-1.2 1.6 0) (-1.14 1.66 1.5);   // post_mm
+    }
+    {
+        name    keep;
+        type    cellSet;
+        action  subtract;
+        source  boxToCell;
+        box     (-1.2 2.34 0) (-1.14 2.4 1.5);   // post_mp
+    }
+    {
+        name    keep;
+        type    cellSet;
+        action  subtract;
+        source  boxToCell;
+        box     (1.14 1.6 0) (1.2 1.66 1.5);   // post_pm
+    }
+    {
+        name    keep;
+        type    cellSet;
+        action  subtract;
+        source  boxToCell;
+        box     (1.14 2.34 0) (1.2 2.4 1.5);   // post_pp
+    }
+    {
+        name    keep;
+        type    cellSet;
+        action  subtract;
+        source  boxToCell;
+        box     (-1.2 1.6 1.75) (1.2 2.4 1.785);   // closed_top
+    }
+);

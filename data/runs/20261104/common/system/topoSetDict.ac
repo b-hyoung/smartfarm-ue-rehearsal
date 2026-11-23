@@ -1,0 +1,46 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+actions
+(
+    {
+        name    inletXp;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.3812124542 1.675 2.6999) (0.4727875458 2.325 2.7001);
+    }
+    {
+        name    inletXm;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (-0.4727875458 1.675 2.6999) (-0.3812124542 2.325 2.7001);
+    }
+    {
+        name    inletYp;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (-0.325 2.3812124542 2.6999) (0.325 2.4727875458 2.7001);
+    }
+    {
+        name    inletYm;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (-0.325 1.5272124542 2.6999) (0.325 1.6187875458 2.7001);
+    }
+    {
+        name    return;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (-0.285 1.715 2.6999) (0.285 2.285 2.7001);
+    }
+);

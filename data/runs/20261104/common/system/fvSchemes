@@ -1,0 +1,63 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;   // 정상상태 → 비정상 (원본: steadyState)
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+// 주의: 비정상 해석이므로 bounded (정상상태 전용) 를 제거함
+divSchemes
+{
+    default         none;
+
+    div(phi,U)      Gauss upwind;
+    div(phi,h)      Gauss upwind;
+
+    div(phi,k)      Gauss upwind;
+    div(phi,epsilon) Gauss upwind;
+    div(phi,K)      Gauss upwind;
+
+    div(phi,Ekp)    Gauss linear;
+
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+
+    div(phi,age)    Gauss upwind;
+}
+
+laplacianSchemes
+{
+    // 격자 비직교성 max 80.9deg (반타원 블록 접합부) -> orthogonal 사용 불가
+    default         Gauss linear limited corrected 0.33;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         limited corrected 0.33;
+}
+
+
+// ************************************************************************* //
