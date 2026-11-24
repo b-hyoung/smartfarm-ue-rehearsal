@@ -8,6 +8,23 @@ FoamFile
 
 actions
 (
-    { name refine; type cellSet; action new; source boxToCell; box (-1.3 1.5 0.45) (1.3 2.5 0.8); }
+    { name refine; type cellSet; action new; source boxToCell; box (-0.95700000 1.51900000 2.31019200) (-0.34700000 2.48100000 2.83000000); }
+    { name refine; type cellSet; action add; source boxToCell; box (-1.40700000 1.48975000 2.05038500) (-0.79700000 2.51025000 2.57019200); }
+    { name refine; type cellSet; action add; source boxToCell; box (-1.85700000 1.46050000 1.79057700) (-1.24700000 2.53950000 2.31038500); }
+    { name refine; type cellSet; action add; source boxToCell; box (-2.30700000 1.43125000 1.53077000) (-1.69700000 2.56875000 2.05057700); }
+    { name refine; type cellSet; action add; source boxToCell; box (0.34700000 1.51900000 2.31019200) (0.95700000 2.48100000 2.83000000); }
+    { name refine; type cellSet; action add; source boxToCell; box (0.79700000 1.48975000 2.05038500) (1.40700000 2.51025000 2.57019200); }
+    { name refine; type cellSet; action add; source boxToCell; box (1.24700000 1.46050000 1.79057700) (1.85700000 2.53950000 2.31038500); }
+    { name refine; type cellSet; action add; source boxToCell; box (1.69700000 1.43125000 1.53077000) (2.30700000 2.56875000 2.05057700); }
+    { name refine; type cellSet; action add; source boxToCell; box (-0.48100000 1.04300000 2.31019200) (0.48100000 1.65300000 2.83000000); }
+    { name refine; type cellSet; action add; source boxToCell; box (-0.51025000 0.59300000 2.05038500) (0.51025000 1.20300000 2.57019200); }
+    { name refine; type cellSet; action add; source boxToCell; box (-0.53950000 0.14300000 1.79057700) (0.53950000 0.75300000 2.31038500); }
+    { name refine; type cellSet; action add; source boxToCell; box (-0.56875000 -0.30700000 1.53077000) (0.56875000 0.30300000 2.05057700); }
+    { name refine; type cellSet; action add; source boxToCell; box (-0.48100000 2.34700000 2.31019200) (0.48100000 2.95700000 2.83000000); }
+    { name refine; type cellSet; action add; source boxToCell; box (-0.51025000 2.79700000 2.05038500) (0.51025000 3.40700000 2.57019200); }
+    { name refine; type cellSet; action add; source boxToCell; box (-0.53950000 3.24700000 1.79057700) (0.53950000 3.85700000 2.31038500); }
+    { name refine; type cellSet; action add; source boxToCell; box (-0.56875000 3.69700000 1.53077000) (0.56875000 4.30700000 2.05057700); }
+    { name refine; type cellSet; action subtract; source boxToCell; box (-1.32 1.48 2.36) (1.32 2.52 2.71); }
+    { name refine; type cellSet; action add; source boxToCell; box (-1.3 1.5 0.45) (1.3 2.5 0.8); }
     { name refine; type cellSet; action add; source boxToCell; box (-1.3 1.5 1.25) (1.3 2.5 1.6); }
 );

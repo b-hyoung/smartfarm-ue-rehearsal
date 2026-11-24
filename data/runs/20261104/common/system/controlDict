@@ -28,6 +28,18 @@ runTimeModifiable true;
 
 functions
 {
+    roomMeanT
+    {
+        type             volFieldValue;
+        libs             (fieldFunctionObjects);
+        writeControl     adjustableRunTime;
+        writeInterval    1;
+        writeFields      false;
+        regionType       all;
+        operation        volAverage;
+        fields           (T);
+    }
+
     lowerMeanT15cm
     {
         type             surfaceFieldValue;

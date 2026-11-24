@@ -46,7 +46,8 @@ if [[ ! -s mesh-check.txt || -e processor0 || -e log.run ]]; then
     exit 1
 fi
 export OMP_NUM_THREADS=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+ranks=$(foamDictionary system/decomposeParDict -entry numberOfSubdomains -value)
 stage log.decomposePar decomposePar
-stage log.run mpirun --bind-to none -np 4 buoyantPimpleFoam -parallel
+stage log.run mpirun --bind-to none --use-hwthread-cpus -np "$ranks" buoyantPimpleFoam -parallel
 stage log.reconstructPar reconstructPar -newTimes
 stage log.probes postProcess -dict system/postProbesDict -fields '(U T)' -time '300,600,900'

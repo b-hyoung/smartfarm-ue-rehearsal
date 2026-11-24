@@ -31,7 +31,11 @@ FILENAME ~ /\/boundary$/ {
     next
 }
 FILENAME ~ /^0\/[UT]$/ {
-    if (NF==1 && (inlet($1) || $1=="rackWalls")) patch=$1
+    if (NF==1 && (inlet($1) || $1=="rackWalls" || $1=="walls")) patch=$1
+    if (FILENAME=="0/T" && patch=="walls" && $1=="type") {
+        if ($2!="zeroGradient;") fail("0/T walls type: " $2)
+        wallTemperatureChecked=1
+    }
     if (patch=="rackWalls" && $1=="type") {
         expected=FILENAME=="0/U" ? "noSlip;" : "zeroGradient;"
         if ($2!=expected) fail(FILENAME " rackWalls type: " $2)
@@ -72,7 +76,8 @@ FILENAME ~ /\/points$/ && /^\([-+.0-9]/ {
     pointNumber++
 }
 END {
-    if (!ok || cells<1 || fanCount!=14 || length(canopy)!=2 || length(rackField)!=2)
+    if (cells!=403210) fail("Expected 403210 cells; found " cells)
+    if (!ok || !wallTemperatureChecked || fanCount!=14 || length(canopy)!=2 || length(rackField)!=2)
         fail("checkMesh, fan zones or canopy zones incomplete")
     for (f in polygon) {
         split(clean(polygon[f]),row,/[[:space:]]+/)

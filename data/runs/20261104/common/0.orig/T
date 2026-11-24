@@ -22,8 +22,7 @@ boundaryField
 {
     walls
     {
-        type            fixedValue;
-        value           $internalField;
+        type            zeroGradient;
     }
 
     rackWalls

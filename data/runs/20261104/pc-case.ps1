@@ -16,7 +16,7 @@ $cases = @{
     '4' = '04_ac_upper'
 }
 $caseName = $cases[$Number]
-$containerName = "sf-20261104-$caseName"
+$containerName = "sf-20261104-403210-$caseName"
 $mounts = @(
     '--mount', "type=bind,source=$PSScriptRoot,target=/study,readonly"
     '--mount', "type=volume,source=$containerName,target=/work"
