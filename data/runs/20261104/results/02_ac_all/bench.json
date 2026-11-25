@@ -1,0 +1,20 @@
+{
+  "case": "02_ac_all",
+  "hardware": {
+    "machine": "LAPTOP-7P8I3IGD",
+    "host_arch": "x86_64",
+    "physical_cores": 12,
+    "logical_host": 24,
+    "docker_usable_threads": 24,
+    "docker_memory_bytes": 33652633600,
+    "trial_ranks": [
+      12,
+      16
+    ]
+  },
+  "wall_s": {
+    "12": 131,
+    "16": 159
+  },
+  "best": 12
+}
