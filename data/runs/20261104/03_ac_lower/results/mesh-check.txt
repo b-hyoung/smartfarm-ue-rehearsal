@@ -1,0 +1,8 @@
+cells: 149426 fan zones: 14
+canopy_t0: 0.550..0.730 m canopy_t1: 1.350..1.530 m
+inletXm: 0.05952381 m2, 6.25000 m3/min
+inletYm: 0.05952382 m2, 6.25000 m3/min
+inletYp: 0.05952382 m2, 6.25000 m3/min
+inletXp: 0.05952381 m2, 6.25000 m3/min
+total supply: 25.00000 m3/min
+plate area at 1.750 / 1.785 m: 1.92000 / 1.92000 m2

@@ -1,0 +1,19 @@
+{
+  "case": "03_ac_lower",
+  "hardware": {
+    "host_arch": "arm64",
+    "physical_cores": 12,
+    "logical_host": 12,
+    "docker_usable_threads": 12,
+    "docker_memory_bytes": 8217165824,
+    "trial_ranks": [
+      9,
+      12
+    ]
+  },
+  "wall_s": {
+    "9": 175,
+    "12": 212
+  },
+  "best": 9
+}

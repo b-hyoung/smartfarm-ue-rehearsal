@@ -1,0 +1,45 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d2-20251219 OPENFOAM=2512 version=2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : postProcess -dict system/postProbesDict -fields (U T) -time 300,600
+Date   : Nov 25 2026
+Time   : 04:09:04
+Host   : 548c8a5a3f3b
+PID    : 11171
+I/O    : uncollated
+Case   : /work/03_ac_lower
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 300
+
+Time = 300
+
+Reading fields:
+    volScalarField: T
+    volVectorField: U
+
+Executing functionObjects
+
+Time = 600
+
+Reading fields:
+    volScalarField: T
+    volVectorField: U
+
+Executing functionObjects
+
+End
+
