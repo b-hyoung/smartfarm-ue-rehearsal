@@ -1,0 +1,20 @@
+{
+  "case": "01_ac_only",
+  "hardware": {
+    "machine": "LAPTOP-5L73P0V2",
+    "host_arch": "AMD64",
+    "physical_cores": 24,
+    "logical_host": 32,
+    "docker_usable_threads": 32,
+    "docker_memory_bytes": 33505857536,
+    "trial_ranks": [
+      24,
+      32
+    ]
+  },
+  "wall_s": {
+    "24": 56,
+    "32": 379
+  },
+  "best": 24
+}
