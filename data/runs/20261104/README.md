@@ -1,5 +1,7 @@
 # 20261104 스마트팜 CFD 공용 작업 지침
 
+**4번 완료 결과** · 149,426셀 경량 격자로 계산한 냉방 600초의 캐노피 온도표, 풍속 분포, 복원된 전체 3D 장. [4번 결과 폴더](04_ac_upper/results/)
+
 | 항목 | 값 |
 |---|---|
 | GitHub 저장소 | https://github.com/b-hyoung/smartfarm-ue-rehearsal |

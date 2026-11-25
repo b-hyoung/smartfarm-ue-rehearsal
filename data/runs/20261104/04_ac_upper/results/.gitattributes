@@ -1,0 +1,2 @@
+fields/*.tar.gz binary
+postProcessing/** -text -whitespace
